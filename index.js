@@ -11,7 +11,7 @@ $(function() {
 	function addCategoryToView(event) {
 		let alreadySelected = toggleDataSelected(event);
 		if (alreadySelected) return;
-		let categoryName = getCategoryName(event);
+		let categoryName = event.target.innerText;
 		let categoryElement = createCategoryElement(categoryName);
 		$selectedCategoriesList.append(categoryElement);
 		let $selectedCategoryItems = document.getElementsByClassName('selected-category-item');
@@ -26,11 +26,6 @@ $(function() {
 		} else {
 			return true;
 		}
-	}
-
-	function getCategoryName(event) {
-		let categoryName = event.target.innerText;
-		return categoryName;
 	}
 
 	function createCategoryElement(categoryName) {
