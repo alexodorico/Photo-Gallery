@@ -1,13 +1,16 @@
 $(function() {
+	////////////////////////////////////////////////
+	// Fetch Photos from DAM API for initial view //
+	////////////////////////////////////////////////
 	const API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	const API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=18';
+	const API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=20';
 	let ApiCall = API_BASE + API_QUERY;
 	
 	fetch(ApiCall)
 		.then(getStatus)
 		.then(toJson)
 		.then(getLinks)
-		.then(getImagesFromDAM)
+		.then(getImageData)
 		.catch(err => {
 			console.log(`Error: ${err}`);
 		});
@@ -45,18 +48,25 @@ $(function() {
 		return path.slice(indices[start] + 1, indices[end]);
 	}
 
-	function getImagesFromDAM(response) {
+	function getImageData(response) {
 		response.forEach(link => {
 			fetch(API_BASE + link)
 				.then(getStatus)
 				.then(toJson)
-				.then(response => {
-					console.log(response);
-				})
+				.then(appendImage)
 				.catch(err => {
 					console.log(`Error: ${err}`);
 				});
 		});
+	}
+
+	function appendImage(response) {
+		console.log(response);
+		let element = document.createElement('div');
+		let photoGrid = document.getElementById('photo-grid');
+		element.innerHTML = `<img src="${response.thumbnails['300px'].url}"></img>`;
+		element.className = 'item';
+		photoGrid.append(element);
 	}
 
 	////////////////////////////////////////////////
