@@ -1,4 +1,51 @@
 $(function() {
+	const API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
+	const API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=18';
+	let ApiCall = API_BASE + API_QUERY;
+	
+	fetch(ApiCall)
+		.then(status)
+		.then(toJson)
+		.then(getLinks)
+		.catch(err => {
+			console.log(`Error: ${err}`);
+		});
+	
+	function status(response) {
+		if (response.status >= 200 && response.status < 300) {
+			return Promise.resolve(response);
+		} else {
+			return Promise.reject(new Error(response.statusText));
+		}
+	}
+
+	function toJson(response) {
+		return response.json();
+	}
+
+	function getLinks(response) {
+		let rawLinks = [];
+		let parsedLinks = [];
+		let itemsArray = response.items;
+		itemsArray.forEach(item => {
+			rawLinks.push(item._links.self_all);
+		});
+		rawLinks.forEach(link => {
+			parsedLinks.push(parsePath(link, 3));
+		})
+	}
+
+	function parsePath(path, start, end) {
+		let indices = [];
+		for (let i = 0; i <path.length; i++) {
+			if (path[i] === '/') indices.push(i);
+		}
+		return path.slice(indices[start] + 1, indices[end]);
+	}
+
+	////////////////////////////////////////////////
+	// HANDLES ADDING/REMOVING CATEGORIES TO VIEW //
+	////////////////////////////////////////////////
 	let $categoryItems = document.getElementsByClassName('category-item');
 	let $selectedCategoriesList = document.getElementById('selected-categories');
 
