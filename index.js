@@ -1,11 +1,21 @@
 $(function() {
 	let $categoryItems = document.getElementsByClassName('category-item');
 	let $selectedCategoriesList = document.getElementById('selected-categories');
-
+	
 	for (let element of $categoryItems) {
 		element.addEventListener("click", function(event) {
 			addCategoryToView(event);
 		});
+	}
+
+	function toggleDataSelected(event) {
+		let dataset = event.target.parentElement.dataset;
+		if (dataset.selected === "false") {
+			dataset.selected = "true";
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	function addCategoryToView(event) {
@@ -44,15 +54,5 @@ $(function() {
 			if (element.innerText == categoryName) element.dataset.selected = false;
 		}
 		event.target.remove();
-	}
-
-	function toggleDataSelected(event) {
-		let dataset = event.target.parentElement.dataset;
-		if (dataset.selected === "false") {
-			dataset.selected = "true";
-			return false;
-		} else {
-			return true;
-		}
 	}
 });
