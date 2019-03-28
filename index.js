@@ -7,6 +7,7 @@ $(function() {
 		.then(getStatus)
 		.then(toJson)
 		.then(getLinks)
+		.then(getImagesFromDAM)
 		.catch(err => {
 			console.log(`Error: ${err}`);
 		});
@@ -33,6 +34,7 @@ $(function() {
 		rawLinks.forEach(link => {
 			parsedLinks.push(parseLink(link, 3));
 		})
+		return parsedLinks;
 	}
 
 	function parseLink(path, start, end) {
@@ -41,6 +43,20 @@ $(function() {
 			if (path[i] === '/') indices.push(i);
 		}
 		return path.slice(indices[start] + 1, indices[end]);
+	}
+
+	function getImagesFromDAM(response) {
+		response.forEach(link => {
+			fetch(API_BASE + link)
+				.then(getStatus)
+				.then(toJson)
+				.then(response => {
+					console.log(response);
+				})
+				.catch(err => {
+					console.log(`Error: ${err}`);
+				});
+		});
 	}
 
 	////////////////////////////////////////////////
