@@ -4,14 +4,14 @@ $(function() {
 	let ApiCall = API_BASE + API_QUERY;
 	
 	fetch(ApiCall)
-		.then(status)
+		.then(getStatus)
 		.then(toJson)
 		.then(getLinks)
 		.catch(err => {
 			console.log(`Error: ${err}`);
 		});
 	
-	function status(response) {
+	function getStatus(response) {
 		if (response.status >= 200 && response.status < 300) {
 			return Promise.resolve(response);
 		} else {
@@ -31,11 +31,11 @@ $(function() {
 			rawLinks.push(item._links.self_all);
 		});
 		rawLinks.forEach(link => {
-			parsedLinks.push(parsePath(link, 3));
+			parsedLinks.push(parseLink(link, 3));
 		})
 	}
 
-	function parsePath(path, start, end) {
+	function parseLink(path, start, end) {
 		let indices = [];
 		for (let i = 0; i <path.length; i++) {
 			if (path[i] === '/') indices.push(i);
@@ -65,6 +65,14 @@ $(function() {
 		addEventListener($selectedCategoryItems);
 	}
 
+	function removeCategoryFromView(event) {
+		let categoryName = event.target.innerText;
+		for (let element of $categoryItems) {
+			if (element.innerText == categoryName) element.dataset.selected = false;
+		}
+		event.target.remove();
+	}
+
 	function checkIfSelected(event) {
 		let dataset = event.target.parentElement.dataset;
 		if (dataset.selected === "false") {
@@ -88,13 +96,5 @@ $(function() {
 				removeCategoryFromView(event);
 			});
 		}
-	}
-
-	function removeCategoryFromView(event) {
-		let categoryName = event.target.innerText;
-		for (let element of $categoryItems) {
-			if (element.innerText == categoryName) element.dataset.selected = false;
-		}
-		event.target.remove();
 	}
 });
