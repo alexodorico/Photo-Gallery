@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Image Gallery Test</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="./styles.css">
+	</head>
+	<body>
+		<div class="photo-gallery">
+			<div class="controls">
+				<div class="top clearfix">
+					<div class="gallery-info">
+						<h1 class="gallery-title">Image Gallery Test</h1>
+						<p>Placeholder for optional description of the photo gallery optional placeholder text.</p>
+					</div>
+			
+					<div class="btn-group top-buttons">
+						<button type="button" class="btn btn-default">View Selected</button>
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download <span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="#">Selected as ZIP</a></li>
+								<li><a href="#">Selected</a></li>
+								<li role="seperator" class="divider"></li>
+								<li><a href="#">All Photos</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="categories-section clearfix">
+					<div class="categories dropdown">
+						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">View Category <span class="caret"></span></button>
+						<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+							<li class="category-item" data-selected="false"><a href="#">Category 1</a></li>	
+							<ul class="sub-category">
+								<li class="sub-category-item category-item" data-selected="false"><a href="#">Sub-Category 1</a></li>
+								<li class="sub-category-item category-item" data-selected="false"><a href="#">Sub-Category 2</a></li>
+							</ul>						
+							<li class="category-item" data-selected="false"><a href="#">Category 3</a></li>
+							<li class="category-item" data-selected="false"><a href="#">Category 4</a></li>
+							<li class="category-item" data-selected="false"><a href="#">Category 5</a></li>
+						</ul>
+					</div>
+					<ul id="selected-categories">
+					</ul>
+				</div>
+			</div>
+			<div class="photo-grid">
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+				<div class="item"></div>
+			</div>
+		</div>
+	
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="./index.js"></script>
+	</body>
+</html>
