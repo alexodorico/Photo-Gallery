@@ -9,7 +9,7 @@ $(function() {
 	}
 
 	function addCategoryToView(event) {
-		let alreadySelected = toggleDataSelected(event);
+		let alreadySelected = checkIfSelected(event);
 		if (alreadySelected) return;
 		let categoryName = event.target.innerText;
 		let categoryElement = createCategoryElement(categoryName);
@@ -18,7 +18,7 @@ $(function() {
 		addEventListener($selectedCategoryItems);
 	}
 
-	function toggleDataSelected(event) {
+	function checkIfSelected(event) {
 		let dataset = event.target.parentElement.dataset;
 		if (dataset.selected === "false") {
 			dataset.selected = "true";
