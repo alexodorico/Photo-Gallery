@@ -13,7 +13,7 @@ $(function() {
 		if (alreadySelected) return;
 		let categoryName = getCategoryName(event);
 		let categoryElement = createCategoryElement(categoryName);
-		appendCategoryElement(categoryElement);
+		$selectedCategoriesList.append(categoryElement);
 		let $selectedCategoryItems = document.getElementsByClassName('selected-category-item');
 		addEventListener($selectedCategoryItems);
 	}
@@ -28,10 +28,6 @@ $(function() {
 		categoryElement.innerHTML = categoryName;
 		categoryElement.className = "selected-category-item";
 		return categoryElement;
-	}
-
-	function appendCategoryElement(categoryElement) {
-		$selectedCategoriesList.append(categoryElement);
 	}
 
 	function addEventListener($elements) {
