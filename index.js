@@ -40,12 +40,12 @@ $(function() {
 		return parsedLinks;
 	}
 
-	function parseLink(path, start, end) {
+	function parseLink(path, start) {
 		let indices = [];
 		for (let i = 0; i <path.length; i++) {
 			if (path[i] === '/') indices.push(i);
 		}
-		return path.slice(indices[start] + 1, indices[end]);
+		return path.slice(indices[start] + 1);
 	}
 
 	function getImageData(response) {
