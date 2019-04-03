@@ -47,7 +47,7 @@ $(function() {
 	function appendImage(response) {
 		let element = document.createElement('div');
 		let photoGrid = document.getElementById('photo-grid');
-		element.innerHTML = `<img src="${response.thumbnails['300px'].url}"></img>`;
+		element.innerHTML = `<img src="${response.thumbnails['300px'].url}"></img><div class="overlay"><h1>Photo Title</h1></div>`;
 		element.className = 'item';
 		photoGrid.append(element);
 	}
