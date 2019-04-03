@@ -1,6 +1,14 @@
+/////////////////////
+//////  GRID  ///////
+/////////////////////
+$overlay-bg-color: #000;
+$overlay-text-color: #fff;
+$overlay-height: 50px;
+$grid-spacing: 10px;
+
 #photo-grid {
 	.item {
-		margin-bottom: 10px;
+		margin-bottom: $grid-spacing;
 		overflow: hidden;
 		position: relative;
 		width: 100%;
@@ -10,9 +18,9 @@
 		}
 
 		.overlay {
-			background-color: black;
+			background-color: $overlay-bg-color;
 			bottom: 0;
-			color: white;
+			color: $overlay-text-color;
 			height: 0;
 			position: absolute;
 			transition: height 0.5s;
@@ -29,10 +37,10 @@
 
 		&:hover {
 			.overlay {
-				height: 50px;
+				height: $overlay-height;
 
 				h1 {
-					height: 50px;
+					height: $overlay-height;
 				}
 			}
 		}
@@ -42,7 +50,7 @@
 @media (min-width: 500px) {
 	.csscolumns #photo-grid {
 		column-count: 2;
-		column-gap: 10px;
+		column-gap: $grid-spacing;
 
 		.item {
 			width: initial;
@@ -52,7 +60,7 @@
 	.no-csscolumns #photo-grid {
 		.item {
 			width: 49%;
-			margin: 0 .5% 10px;
+			margin: 0 .5% $grid-spacing;
 			float: left;
 
 			img {
@@ -71,10 +79,14 @@
 	.no-csscolumns #photo-grid {
 		.item {
 			width: 32%;
-			margin: 0 .66% 10px;
+			margin: 0 .66% $grid-spacing;
 		}
 	}
 }
+
+/////////////////////
+////  CONTROLS  /////
+/////////////////////
 
 h1 {
 	font-family: sans-serif;
