@@ -24,6 +24,55 @@ $grid-spacing: 10px;
 				float: left;
 				padding: 10px;
 			}
+
+			.photo-controls {
+				padding: 8px;
+				float: right;
+			}
+		}
+	}
+}
+
+.no-touch {
+	.item {
+		overflow: hidden;
+		position: relative;
+
+		.overlay {
+			bottom: 0;
+			height: 0;
+			position: absolute;
+			transition: height 0.5s;
+			width: 100%;
+	
+			h1 {
+				height: 0;
+				transition: height 0.5s;
+			}
+		}
+	
+		&:hover {
+			.overlay {
+				height: $overlay-height;
+	
+				h1 {
+					height: $overlay-height;
+				}
+			}
+		}
+	}
+}
+
+.touch {
+	.item {
+		box-shadow: 0 0 2px #555;
+	}
+	.overlay {
+		height: $overlay-height;
+
+		h1 {
+			height: $overlay-height;
+			float: left;
 		}
 	}
 }
@@ -61,52 +110,6 @@ $grid-spacing: 10px;
 		.item {
 			width: 32%;
 			margin: 0 .66% $grid-spacing;
-		}
-	}
-}
-
-.photo-controls {
-	padding: 8px;
-	float: right;
-}
-
-.touch {
-	.overlay {
-		height: $overlay-height;
-
-		h1 {
-			height: $overlay-height;
-			float: left;
-		}
-	}
-}
-
-.no-touch {
-	.item {
-		overflow: hidden;
-		position: relative;
-
-		.overlay {
-			bottom: 0;
-			height: 0;
-			position: absolute;
-			transition: height 0.5s;
-			width: 100%;
-	
-			h1 {
-				height: 0;
-				transition: height 0.5s;
-			}
-		}
-	
-		&:hover {
-			.overlay {
-				height: $overlay-height;
-	
-				h1 {
-					height: $overlay-height;
-				}
-			}
 		}
 	}
 }
