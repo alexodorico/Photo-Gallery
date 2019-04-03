@@ -2,8 +2,9 @@ $(function() {
 	////////////////////////////////////////////////
 	// Fetch Photos from DAM API for initial view //
 	////////////////////////////////////////////////
+	let offset = Math.floor(Math.random() * 3000).toString();
 	const API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	const API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=20';
+	const API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=30&offset=' + offset;
 	let ApiCall = API_BASE + API_QUERY;
 
 	generateImages(ApiCall);
