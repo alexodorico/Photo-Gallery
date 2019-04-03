@@ -9,8 +9,6 @@ $grid-spacing: 10px;
 #photo-grid {
 	.item {
 		margin-bottom: $grid-spacing;
-		overflow: hidden;
-		position: relative;
 		width: 100%;
 	
 		img {
@@ -19,29 +17,12 @@ $grid-spacing: 10px;
 
 		.overlay {
 			background-color: $overlay-bg-color;
-			bottom: 0;
 			color: $overlay-text-color;
-			height: 0;
-			position: absolute;
-			transition: height 0.5s;
-			width: 100%;
 
 			h1 {
-				float: left;
-				height: 0;
 				margin: 0;
+				float: left;
 				padding: 10px;
-				transition: height 0.5s;
-			}
-		}
-
-		&:hover {
-			.overlay {
-				height: $overlay-height;
-
-				h1 {
-					height: $overlay-height;
-				}
 			}
 		}
 	}
@@ -88,19 +69,47 @@ $grid-spacing: 10px;
 	padding: 8px;
 	float: right;
 }
-// TODO
-// .touch {
-// 	.overlay {
-		
-// 	}
-// }
 
-// .no-touch {
-// 	.overlay {
+.touch {
+	.overlay {
+		height: $overlay-height;
 
-// 	}
-// }
+		h1 {
+			height: $overlay-height;
+			float: left;
+		}
+	}
+}
 
+.no-touch {
+	.item {
+		overflow: hidden;
+		position: relative;
+
+		.overlay {
+			bottom: 0;
+			height: 0;
+			position: absolute;
+			transition: height 0.5s;
+			width: 100%;
+	
+			h1 {
+				height: 0;
+				transition: height 0.5s;
+			}
+		}
+	
+		&:hover {
+			.overlay {
+				height: $overlay-height;
+	
+				h1 {
+					height: $overlay-height;
+				}
+			}
+		}
+	}
+}
 
 /////////////////////
 ////  CONTROLS  /////
