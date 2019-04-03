@@ -43,14 +43,68 @@ $(function() {
 			let data = await response.json();
 			appendImage(data);
 		});
+		
 	}
 
 	function appendImage(response) {
 		let element = document.createElement('div');
 		let photoGrid = document.getElementById('photo-grid');
-		element.innerHTML = `<img src="${response.thumbnails['300px'].url}"></img><div class="overlay"><h1>Photo Title</h1></div>`;
+
+		element.innerHTML = `
+		<img src="${response.thumbnails['300px'].url}"></img>
+		<div class="overlay">
+			<h1>Title</h1>
+			<div class="photo-controls">
+				<button type="button" class="btn btn-default select-button">
+					Select <span class="glyphicon glyphicon-plus-sign"></span>
+				</button>
+				<button type="button" class="btn btn-default download-button">
+					<span class="glyphicon glyphicon-download-alt"></span>
+				</button>
+			</div>
+		</div>`;
+
 		element.className = 'item';
+		element.id = response.id;
+
 		photoGrid.append(element);
+
+		$('#' + response.id + ' .select-button').on('click', handleSelectButtonClick);
+	}
+
+	function handleSelectButtonClick(e) {
+		if ($(this).hasClass('btn-default')) {
+			$(this)
+				.removeClass('btn-default')
+				.addClass('btn-success')
+				.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+		}
+
+		if ($(this).hasClass('btn-success')) {
+			$(this).mouseover(function () { 
+				$(this)
+					.removeClass('btn-success')
+					.addClass('btn-danger')
+					.html('Remove <span class="glyphicon glyphicon-minus-sign"></span>');
+			});
+
+			$(this).mouseleave(function() {
+				if (!$(this).hasClass('btn-default')) {
+					$(this)
+						.removeClass('btn-danger')
+						.addClass('btn-success')
+						.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+				}
+			});
+		}
+			
+		if ($(this).hasClass('btn-danger')) {
+			$(this)
+				.off('mouseover')
+				.removeClass('btn-danger')
+				.addClass('btn-default')
+				.html('Select <span class="glyphicon glyphicon-plus-sign"></span>');
+		}
 	}
 
 	////////////////////////////////////////////////
