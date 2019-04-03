@@ -1,3 +1,81 @@
+#photo-grid {
+	.item {
+		margin-bottom: 10px;
+		overflow: hidden;
+		position: relative;
+		width: 100%;
+	
+		img {
+			width: 100%;
+		}
+
+		.overlay {
+			background-color: black;
+			bottom: 0;
+			color: white;
+			height: 0;
+			position: absolute;
+			transition: height 0.5s;
+			width: 100%;
+
+			h1 {
+				float: left;
+				height: 0;
+				margin: 0;
+				padding: 10px;
+				transition: height 0.5s;
+			}
+		}
+
+		&:hover {
+			.overlay {
+				height: 50px;
+
+				h1 {
+					height: 50px;
+				}
+			}
+		}
+	}
+}
+
+@media (min-width: 500px) {
+	.csscolumns #photo-grid {
+		column-count: 2;
+		column-gap: 10px;
+
+		.item {
+			width: initial;
+		}
+	}
+
+	.no-csscolumns #photo-grid {
+		.item {
+			width: 49%;
+			margin: 0 .5% 10px;
+			float: left;
+
+			img {
+				object-fit: cover;
+				height: 200px;
+			}
+		}
+	}
+}
+
+@media (min-width: 1170px) {
+	.csscolumns #photo-grid {
+		column-count: 3;
+	}
+
+	.no-csscolumns #photo-grid {
+		.item {
+			width: 32%;
+			margin: 0 .66% 10px;
+		}
+	}
+}
+
 h1 {
 	font-family: sans-serif;
 	font-size: 28px;
@@ -84,63 +162,3 @@ ul {
 	width: 100%;
 }
 
-// Photo Grid styles
-#photo-grid {
-	.item {
-		margin-bottom: 10px;
-		overflow: hidden;
-		position: relative;
-	
-		img {
-			width: 100%;
-		}
-
-		.overlay {
-			background-color: black;
-			bottom: 0;
-			color: white;
-			height: 0;
-			position: absolute;
-			transition: height 0.5s;
-			width: 100%;
-
-			h1 {
-				float: left;
-				height: 0;
-				margin: 0;
-				padding: 10px;
-				transition: height 0.5s;
-			}
-		}
-
-		&:hover {
-			.overlay {
-				height: 50px;
-
-				h1 {
-					height: 50px;
-				}
-			}
-		}
-	}
-}
-
-// Support for CSS Columns
-.csscolumns #photo-grid {
-	column-count: 3;
-	column-gap: 10px;
-}
-
-// IE9 Fallback
-.no-csscolumns #photo-grid {
-	.item {
-		width: 32%;
-		margin: 0 .66% 10px;
-		float: left;
-
-		img {
-			object-fit: cover;
-			height: 200px;
-		}
-	}
-}
