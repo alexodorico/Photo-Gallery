@@ -72,38 +72,53 @@ $(function() {
 		$('#' + response.id + ' .select-button').on('click', handleSelectButtonClick);
 	}
 
+	// Messy but it works for now
 	function handleSelectButtonClick(e) {
-		if ($(this).hasClass('btn-default')) {
-			$(this)
-				.removeClass('btn-default')
-				.addClass('btn-success')
-				.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
-		}
-
-		if ($(this).hasClass('btn-success')) {
-			$(this).mouseover(function () { 
+		if (Modernizr.touch) {
+			if ($(this).hasClass('btn-default')) {
+				$(this)
+					.removeClass('btn-default')
+					.addClass('btn-success')
+					.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+			} else {
 				$(this)
 					.removeClass('btn-success')
-					.addClass('btn-danger')
-					.html('Remove <span class="glyphicon glyphicon-minus-sign"></span>');
-			});
+					.addClass('btn-default')
+					.html('Select <span class="glyphicon glyphicon-plus-sign"></span>')
+			}
+		} else {
+			if ($(this).hasClass('btn-default')) {
+				$(this)
+					.removeClass('btn-default')
+					.addClass('btn-success')
+					.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+			} 
 
-			$(this).mouseleave(function() {
-				if (!$(this).hasClass('btn-default')) {
+			if ($(this).hasClass('btn-success')) {
+				$(this).mouseover(function () { 
 					$(this)
-						.removeClass('btn-danger')
-						.addClass('btn-success')
-						.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
-				}
-			});
-		}
-			
-		if ($(this).hasClass('btn-danger')) {
-			$(this)
-				.off('mouseover')
-				.removeClass('btn-danger')
-				.addClass('btn-default')
-				.html('Select <span class="glyphicon glyphicon-plus-sign"></span>');
+						.removeClass('btn-success')
+						.addClass('btn-danger')
+						.html('Remove <span class="glyphicon glyphicon-minus-sign"></span>');
+				});
+	
+				$(this).mouseleave(function() {
+					if (!$(this).hasClass('btn-default')) {
+						$(this)
+							.removeClass('btn-danger')
+							.addClass('btn-success')
+							.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+					}
+				});
+			}
+				
+			if ($(this).hasClass('btn-danger')) {
+				$(this)
+					.off('mouseover')
+					.removeClass('btn-danger')
+					.addClass('btn-default')
+					.html('Select <span class="glyphicon glyphicon-plus-sign"></span>');
+			}
 		}
 	}
 
