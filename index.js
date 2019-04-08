@@ -6,13 +6,15 @@ $(function() {
 	var offset = Math.floor(Math.random() * 4000).toString();
 	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=30&offset=' + offset;
 	var ApiCall = API_BASE + API_QUERY;
+	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
+	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
+	var removeButtonText = 'Remove <span class="glyphicon glyphicon-minus-sign"></span>';
 	var selectedPhotoLinks = [];
 	var selectedPhotoElement = [];
 	var previousView = '';
 
 	generateImages(ApiCall);
 
-	// todo: get event listeners to persist
 	$('#view-selected-button').click(function() {
 		if (this.innerText === "View Selected") {
 			this.innerText = "View All";
@@ -22,6 +24,10 @@ $(function() {
 			this.innerText = "View Selected";
 			$('#photo-grid')[0].innerHTML = previousView;
 		}
+
+		$('.select-button').on('click', handleSelectButtonClick);
+		reapplyHoverListeners();
+		$('.download-button').on('click', handleSingleDownloadClick);
 	});
 
 	function getPreviousView() {
@@ -66,10 +72,6 @@ $(function() {
 	}
 
 	function handleSelectButtonClick() {
-		var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
-		var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
-		var removeButtonText = 'Remove <span class="glyphicon glyphicon-minus-sign"></span>';
-
 		if (Modernizr.touch) {
 			if ($(this).hasClass('btn-default')) {
 				$this = $(this);
@@ -127,6 +129,18 @@ $(function() {
 			.removeClass(initialClass)
 			.addClass(newClass)
 			.html(html);
+	}
+
+	function reapplyHoverListeners() {
+		$('.btn-success').mouseover(function () {
+			console.log('mouseover')
+			toggleClasses($(this), 'btn-success', 'btn-danger', removeButtonText);
+		});
+		$('.btn-success').mouseleave(function() {
+			if (!$(this).hasClass('btn-default')) {
+				toggleClasses($(this), 'btn-danger', 'btn-success', selectedButtonText);
+			}
+		});
 	}
 
 	function selectPhoto($this) {
