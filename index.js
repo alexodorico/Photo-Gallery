@@ -52,88 +52,82 @@ $(function() {
 		});
 	}
 
-	// Fix me :'(
 	function handleSelectButtonClick() {
+		var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
+		var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
+		var removeButtonText = 'Remove <span class="glyphicon glyphicon-minus-sign"></span>';
+
 		if (Modernizr.touch) {
 			if ($(this).hasClass('btn-default')) {
-				$(this)
-					.removeClass('btn-default')
-					.addClass('btn-success')
-					.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
-
-					$this = $(this);
-					selectPhoto($this);
+				$this = $(this);
+				toggleClasses($this, 'btn-default', 'btn-success', selectedButtonText);
+				selectPhoto($this);
 			} else {
-				$(this)
-					.removeClass('btn-success')
-					.addClass('btn-default')
-					.html('Select <span class="glyphicon glyphicon-plus-sign"></span>');
-
-					$this = $(this);
-					selectPhoto($this);
+				$this = $(this);
+				toggleClasses($this, 'btn-success', 'btn-default', unselectedButtonText);
+				deselectPhoto($this);
 			}
 		} else {
 			// Initial view, and after a photo has been deselected
 			if ($(this).hasClass('btn-default')) {
-				$(this)
-					.removeClass('btn-default')
-					.addClass('btn-success')
-					.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+				var $this = $(this);
+				toggleClasses($this, 'btn-default', 'btn-success', selectedButtonText);
+				selectPhoto($this);
+			}
 
-					var $this = $(this);
-					selectPhoto($this);
-			} 
-
-			// If been has been selected...
+			// If photo been has been selected...
 			if ($(this).hasClass('btn-success')) {
-				// ...on mouseover tell user that they can deselect it
-				$(this).mouseover(function () { 
-					$(this)
-						.removeClass('btn-success')
-						.addClass('btn-danger')
-						.html('Remove <span class="glyphicon glyphicon-minus-sign"></span>');
+				// ...on mouseover notify user that they can deselect it
+				$(this).mouseover(function () {
+					var $this = $(this);
+					toggleClasses($this, 'btn-success', 'btn-danger', removeButtonText);
 				});
-				 // ...go back to regular selected view
+				 // ...and on mouseleave go back to initial selected view
 				$(this).mouseleave(function() {
 					if (!$(this).hasClass('btn-default')) {
-						$(this)
-							.removeClass('btn-danger')
-							.addClass('btn-success')
-							.html('Selected <span class="glyphicon glyphicon-ok-circle"></span>');
+						var $this = $(this);
+						toggleClasses($this, 'btn-danger', 'btn-success', selectedButtonText);
 					}
 				});
 			}
 			
 			// Has this class when selected AND hovered over
 			if ($(this).hasClass('btn-danger')) {
+				var $this = $(this);
 				$(this)
 					.off('mouseover')
 					.removeClass('btn-danger')
 					.addClass('btn-default')
-					.html('Select <span class="glyphicon glyphicon-plus-sign"></span>');
-
-					var $this = $(this);
-					deselectPhoto($this);
+					.html(unselectedButtonText);
+	
+				deselectPhoto($this);
 			}
 		}
 	}
 
-	// Figure this out, stackoverflow said iframes
+	// Figure this out, stackoverflow said iframes?
 	function handleSingleDownloadClick(e) {
 		e.preventDefault();
+	}
+
+	function toggleClasses($this, initialClass, newClass, html) {
+		$this
+			.removeClass(initialClass)
+			.addClass(newClass)
+			.html(html);
 	}
 
 	function selectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
 		selectedPhotoLinks.push(downloadLink);
+		console.log(selectedPhotoLinks);
 	}
 
 	function deselectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
-		console.log(downloadLink);
 		var index = selectedPhotoLinks.indexOf(downloadLink);
-		console.log(index);
 		selectedPhotoLinks.splice(index, 1);
+		console.log(selectedPhotoLinks);
 	}
 
 	//	TO TEST WITH REAL IMAGES FOR STYLING
