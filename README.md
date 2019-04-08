@@ -8,5 +8,6 @@
 ### JS
 * Implement JSZip
 * Modal
-* View Changing
-* Browser Support
+* When photos are deselected in "View Selected" they are unselected when user goes back to view all
+* When photo is deselected from "View Selected", fade out?
+* Hide view all when no photos are selected
