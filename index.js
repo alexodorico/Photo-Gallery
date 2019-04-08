@@ -25,6 +25,7 @@ $(function() {
 
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
+			console.log(data);
 			var content = '';
 
 			for (var i = 0; i < data.items.length; i++) {
@@ -38,9 +39,9 @@ $(function() {
 							<button type="button" class="btn btn-default select-button">
 								Select <span class="glyphicon glyphicon-plus-sign"></span>
 							</button>
-							<a href="${data.items[i]._links.download}" class="btn btn-default download-button">
+							<button data-link="${data.items[i]._links.download}" class="btn btn-default download-button">
 								<span class="glyphicon glyphicon-download-alt"></span>
-							</a>
+							</button>
 						</div>
 					</div>
 				</div>`
@@ -48,7 +49,7 @@ $(function() {
 
 			$('#photo-grid').append(content);
 			$('.select-button').on('click', handleSelectButtonClick);
-		//$('.download-button').on('click', handleSingleDownloadClick);
+			$('.download-button').on('click', handleSingleDownloadClick);
 		});
 	}
 
@@ -105,9 +106,9 @@ $(function() {
 		}
 	}
 
-	// Figure this out, stackoverflow said iframes?
 	function handleSingleDownloadClick(e) {
-		e.preventDefault();
+		var downloadLink = this.dataset.link;
+		$('iframe').attr("src", downloadLink);
 	}
 
 	function toggleClasses($this, initialClass, newClass, html) {
@@ -120,14 +121,12 @@ $(function() {
 	function selectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
 		selectedPhotoLinks.push(downloadLink);
-		console.log(selectedPhotoLinks);
 	}
 
 	function deselectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
 		var index = selectedPhotoLinks.indexOf(downloadLink);
 		selectedPhotoLinks.splice(index, 1);
-		console.log(selectedPhotoLinks);
 	}
 
 	//	TO TEST WITH REAL IMAGES FOR STYLING
