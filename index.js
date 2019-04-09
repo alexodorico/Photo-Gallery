@@ -1,8 +1,9 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	var offset = Math.floor(Math.random() * 4000).toString();
-	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=30&offset=' + offset;
+	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=15&offset=' + offset;
 	var ApiCall = API_BASE + API_QUERY;
+	var photoData;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 	var removeButtonText = 'Remove <span class="glyphicon glyphicon-minus-sign"></span>';
@@ -32,6 +33,7 @@ $(function() {
 
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
+			photoData = data;
 			var initialContent = '';
 
 			for (var i = 0; i < data.items.length; i++) {
@@ -151,7 +153,7 @@ $(function() {
 		selectedPhotoElement.splice(photoElementIndex, 1);
 	}
 
-	// This isn't IE9 compatible, change later...
+	// Isn't IE9 compatible, change later...
 	function updatePreviousView(photoElement) {
 		for (var i = 0; i < previousView.length; i++) {
 			if (photoElement.id === previousView[i].id) {
