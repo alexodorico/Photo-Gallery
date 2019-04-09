@@ -6,8 +6,8 @@
 * Add SCSS variables to make easily customizable to client brand guidelines
 
 ### JS
-* Implement JSZip
-* Modal
-* When photos are deselected in "View Selected" they are unselected when user goes back to view all
-* When photo is deselected from "View Selected", fade out?
+* JSZip
+* Modal/Lightbox
+* Change category views
 * Hide view all when no photos are selected
+* Lazy loading
