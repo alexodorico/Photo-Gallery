@@ -31,6 +31,10 @@ $(function() {
 		$('.download-button').on('click', handleSingleDownloadClick);
 	});
 
+	function hoverListeners() {
+		console.log('fire')
+	}
+
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
 			photoData = data;
@@ -56,6 +60,8 @@ $(function() {
 
 			$('#photo-grid').append(initialContent);
 			$('.select-button').on('click', handleSelectButtonClick);
+			$('.photo-controls').on('mouseover', '.btn-success', hoverListeners);
+			$('.glyphicon-plus-sign::before').on('mouseover', function(e) {e.stopPropagation();});
 			$('.download-button').on('click', handleSingleDownloadClick);
 		});
 	}
@@ -72,39 +78,40 @@ $(function() {
 				deselectPhoto($this);
 			}
 		} else {
+			$(this).toggleClass('btn-default btn-success');
 			// Initial view, and after a photo has been deselected
-			if ($(this).hasClass('btn-default')) {
-				var $this = $(this);
-				toggleClasses($this, 'btn-default', 'btn-success', selectedButtonText);
-				selectPhoto($this);
-			}
+			// if ($(this).hasClass('btn-default')) {
+			// 	var $this = $(this);
+			// 	toggleClasses($this, 'btn-default', 'btn-success', selectedButtonText);
+			// 	selectPhoto($this);
+			// }
 
-			// If photo been has been selected...
-			if ($(this).hasClass('btn-success')) {
-				// ...on mouseover notify user that they can deselect it
-				$(this).mouseover(function () {
-					var $this = $(this);
-					toggleClasses($this, 'btn-success', 'btn-danger', removeButtonText);
-				});
-				 // ...and on mouseleave go back to initial selected view
-				$(this).mouseleave(function() {
-					if (!$(this).hasClass('btn-default')) {
-						var $this = $(this);
-						toggleClasses($this, 'btn-danger', 'btn-success', selectedButtonText);
-					}
-				});
-			}
-			test
-			// Has this class when selected AND hovered over
-			if ($(this).hasClass('btn-danger')) {
-				var $this = $(this);
-				deselectPhoto($this);
-				$(this)
-					.off('mouseover')
-					.removeClass('btn-danger')
-					.addClass('btn-default')
-					.html(unselectedButtonText);
-			}
+			// // If photo been has been selected...
+			// if ($(this).hasClass('btn-success')) {
+			// 	// ...on mouseover notify user that they can deselect it
+			// 	$(this).mouseover(function () {
+			// 		var $this = $(this);
+			// 		toggleClasses($this, 'btn-success', 'btn-danger', removeButtonText);
+			// 	});
+			// 	 // ...and on mouseleave go back to initial selected view
+			// 	$(this).mouseleave(function() {
+			// 		if (!$(this).hasClass('btn-default')) {
+			// 			var $this = $(this);
+			// 			toggleClasses($this, 'btn-danger', 'btn-success', selectedButtonText);
+			// 		}
+			// 	});
+			// }
+			
+			// // Has this class when selected AND hovered over
+			// if ($(this).hasClass('btn-danger')) {
+			// 	var $this = $(this);
+			// 	deselectPhoto($this);
+			// 	$(this)
+			// 		.off('mouseover')
+			// 		.removeClass('btn-danger')
+			// 		.addClass('btn-default')
+			// 		.html(unselectedButtonText);
+			// }
 		}
 	}
 
