@@ -94,7 +94,7 @@ $(function() {
 					}
 				});
 			}
-			
+			test
 			// Has this class when selected AND hovered over
 			if ($(this).hasClass('btn-danger')) {
 				var $this = $(this);
