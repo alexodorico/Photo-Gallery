@@ -30,7 +30,6 @@ $(function() {
 
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
-			photoData = data;
 			var initialContent = '';
 
 			for (var i = 0; i < data.items.length; i++) {
@@ -63,13 +62,14 @@ $(function() {
 	}
 
 	function handleSelectButtonClick() {
-		$(this).toggleClass('btn-default btn-success');
-		if ($(this).hasClass('btn-success')) {
-			$(this).html(selectedButtonText);
-			selectPhoto($(this));
+		var $this = $(this);
+		$this.toggleClass('btn-default btn-success');
+		if ($this.hasClass('btn-success')) {
+			$this.html(selectedButtonText);
+			selectPhoto($this);
 		} else {
-			$(this).html(unselectedButtonText);
-			deselectPhoto($(this));
+			$this.html(unselectedButtonText);
+			deselectPhoto($this);
 		}
 	}
 
@@ -81,10 +81,10 @@ $(function() {
 	}
 
 	function deselectPhoto($this) {
-		var downloadLink = $this.parents('.item').attr('downloadLink');
-		var downloadLinkIndex = selectedPhotoLinks.indexOf(downloadLink);
 		var photoElement = $this.parents('.item');
 		var photoElementIndex;
+		var downloadLink = photoElement.attr('downloadLink');
+		var downloadLinkIndex = selectedPhotoLinks.indexOf(downloadLink);
 
 		for (var i = 0; i < selectedPhotoElement.length; i++) {
 			if (selectedPhotoElement[i][0].id === photoElement[0].id) {
@@ -94,7 +94,7 @@ $(function() {
 
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
-			$this.parents('.item').fadeOut();
+			photoElement.fadeOut();
 		}
 
 		selectedPhotoLinks.splice(downloadLinkIndex, 1);
