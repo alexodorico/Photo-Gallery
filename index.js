@@ -1,7 +1,7 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	var offset = Math.floor(Math.random() * 4000).toString();
-	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=6&offset=' + offset;
+	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=30&offset=' + offset;
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
@@ -13,16 +13,16 @@ $(function() {
 	generateImages(ApiCall);
 
 	$('#view-selected-button').click(function() {
+		viewingSelected = !viewingSelected;
+
 		if (this.innerText === "View Selected") {
-			viewingSelected = true;
-			this.innerText = "View All";
+			this.innerText = "View All"
 			previousView = $('.item').detach();
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
 		} else {
-			viewingSelected = false;
-			this.innerText = "View Selected";
+			this.innerText = "View Selected"
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
 		}
@@ -31,11 +31,12 @@ $(function() {
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
+			var hardLoad = 5 //change to set how many images are initially loaded (i.e. not lazy loaded)
 
 			for (var i = 0; i < data.items.length; i++) {
 				initialContent += `
 				<div class="item" id="${data.items[i].id}" downloadLink="${data.items[i]._links.download}">
-					<img src="https://via.placeholder.com/300x200"></img>
+					<img class="${i > hardLoad ? "lazy" : ""}" src="https://via.placeholder.com/300x200" data-src="https://via.placeholder.com/300x200x90.png?text=Lazy+Load+Successful"></img>
 					<div class="overlay">
 						<h1>Title</h1>
 						<div class="photo-controls">
@@ -51,9 +52,33 @@ $(function() {
 			}
 
 			$('#photo-grid').append(initialContent);
+			lazyLoadSetUp();
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
 		});
+	}
+
+	function lazyLoadSetUp() {
+		var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+		if ('IntersectionObserver' in window) {
+			var lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+				entries.forEach(function(entry) {
+					if (entry.isIntersecting) {
+						var lazyImage = entry.target;
+						lazyImage.src = lazyImage.dataset.src;
+						lazyImage.classList.remove('lazy');
+						lazyImageObserver.unobserve(lazyImage);
+					}
+				});
+			});
+
+			lazyImages.forEach(function(lazyImage) {
+				lazyImageObserver.observe(lazyImage);
+			});
+		} else {
+			// fallback for browsers that don't support Interaction Observer
+		}
 	}
 
 	function handleSingleDownloadClick() {
