@@ -16,7 +16,7 @@ $(function() {
 		var btnText = this.innerText;
 		viewingSelected = !viewingSelected;
 		btnText === "View Selected" ? btnText = "View All" : btnText = "View Selected";
-		
+
 		if (viewingSelected) {
 			previousView = $('.item').detach();
 			selectedPhotoElement.forEach(function(element) {
@@ -26,8 +26,6 @@ $(function() {
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
 		}
-
-		
 	});
 
 	function generateImages(ApiCall) {
