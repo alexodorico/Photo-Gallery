@@ -74,16 +74,16 @@ $(function() {
 	}
 
 	function selectPhoto($this) {
-		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
-		var photoMarkup = $this.parent().parent().parent().clone(true);
+		var downloadLink = $this.parents('.item').attr('downloadLink');
+		var photoMarkup = $this.parents('.item').clone(true);
 		selectedPhotoLinks.push(downloadLink);
 		selectedPhotoElement.push(photoMarkup);
 	}
 
 	function deselectPhoto($this) {
-		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
+		var downloadLink = $this.parents('.item').attr('downloadLink');
 		var downloadLinkIndex = selectedPhotoLinks.indexOf(downloadLink);
-		var photoElement = $this.parent().parent().parent();
+		var photoElement = $this.parents('.item');
 		var photoElementIndex;
 
 		for (var i = 0; i < selectedPhotoElement.length; i++) {
@@ -94,7 +94,7 @@ $(function() {
 
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
-			$this.parent().parent().parent().fadeOut();
+			$this.parents('.item').fadeOut();
 		}
 
 		selectedPhotoLinks.splice(downloadLinkIndex, 1);
