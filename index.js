@@ -13,19 +13,21 @@ $(function() {
 	generateImages(ApiCall);
 
 	$('#view-selected-button').click(function() {
+		var btnText = this.innerText;
 		viewingSelected = !viewingSelected;
-
-		if (this.innerText === "View Selected") {
-			this.innerText = "View All"
+		btnText === "View Selected" ? btnText = "View All" : btnText = "View Selected";
+		
+		if (viewingSelected) {
 			previousView = $('.item').detach();
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
 		} else {
-			this.innerText = "View Selected"
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
 		}
+
+		
 	});
 
 	function generateImages(ApiCall) {
