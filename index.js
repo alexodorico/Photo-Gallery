@@ -1,15 +1,13 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	var offset = Math.floor(Math.random() * 4000).toString();
-	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=15&offset=' + offset;
+	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=6&offset=' + offset;
 	var ApiCall = API_BASE + API_QUERY;
-	var photoData;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
-	var removeButtonText = 'Remove <span class="glyphicon glyphicon-minus-sign"></span>';
 	var selectedPhotoLinks = [];
 	var selectedPhotoElement = [];
-	var previousView = [];
+	var previousView
 	var viewingSelected = false;
 
 	generateImages(ApiCall);
@@ -18,17 +16,16 @@ $(function() {
 		if (this.innerText === "View Selected") {
 			viewingSelected = true;
 			this.innerText = "View All";
-			getPreviousView();
-			$('#photo-grid')[0].innerHTML = generateMarkup(selectedPhotoElement);
+			previousView = $('.item').detach();
+			selectedPhotoElement.forEach(function(element) {
+				element.appendTo('#photo-grid');
+			});
 		} else {
 			viewingSelected = false;
 			this.innerText = "View Selected";
-			$('#photo-grid')[0].innerHTML = generateMarkup(previousView);
+			$('.item').detach();
+			previousView.appendTo('#photo-grid');
 		}
-
-		$('.select-button').on('click', handleSelectButtonClick);
-		reapplyHoverListeners();
-		$('.download-button').on('click', handleSingleDownloadClick);
 	});
 
 	function generateImages(ApiCall) {
@@ -44,7 +41,7 @@ $(function() {
 						<h1>Title</h1>
 						<div class="photo-controls">
 							<button type="button" class="btn btn-default select-button">
-								Select <span class="glyphicon glyphicon-plus-sign"></span>
+								${unselectedButtonText}
 							</button>
 							<button data-link="${data.items[i]._links.download}" class="btn btn-default download-button">
 								<span class="glyphicon glyphicon-download-alt"></span>
@@ -60,57 +57,25 @@ $(function() {
 		});
 	}
 
-	function handleSelectButtonClick() {
-		if (Modernizr.touch) {
-			$(this).toggleClass('btn-default btn-success');
-			if ($(this).hasClass('btn-success')) {
-				$(this).html(selectedButtonText);
-				selectPhoto($this);
-			} else {
-				$(this).html(unselectedButtonText);
-				deselectPhoto($this);
-			}
-		} else {
-			$(this).toggleClass('btn-default btn-success');
-			if ($(this).hasClass('btn-success')) {
-				$(this).html(selectedButtonText);
-				$(this).one('mouseleave', function() {
-					if (!$(this).hasClass('btn-default')) {
-						if (!viewingSelected) {
-							$(this).on('mouseenter mouseleave', function(e) {
-								$(this).toggleClass('btn-danger');
-								e.type === 'mouseenter' ? $(this).html(removeButtonText) : $(this).html(selectedButtonText);
-							});
-							selectPhoto($(this));
-						}
-					}
-				});
-			} else if ($(this).hasClass('btn-danger')){
-				$(this).off('mouseenter mouseleave');
-				$(this).removeClass('btn-danger');
-				$(this).html(unselectedButtonText);
-				deselectPhoto($(this));
-			} else if ($(this).hasClass('btn-default')) {
-				$(this).html(unselectedButtonText);
-			}
-		}
-	}
-
 	function handleSingleDownloadClick() {
 		var downloadLink = this.dataset.link;
 		$('iframe').attr("src", downloadLink);
 	}
 
-	function reapplyHoverListeners() {
-		$('.btn-success').on('mouseenter mouseleave', function(e) {
-			$(this).toggleClass('btn-danger');
-			e.type === 'mouseenter' ? $(this).html(removeButtonText) : $(this).html(selectedButtonText);
-		});
+	function handleSelectButtonClick() {
+		$(this).toggleClass('btn-default btn-success');
+		if ($(this).hasClass('btn-success')) {
+			$(this).html(selectedButtonText);
+			selectPhoto($(this));
+		} else {
+			$(this).html(unselectedButtonText);
+			deselectPhoto($(this));
+		}
 	}
 
 	function selectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
-		var photoMarkup = $this.parent().parent().parent()[0];
+		var photoMarkup = $this.parent().parent().parent().clone(true);
 		selectedPhotoLinks.push(downloadLink);
 		selectedPhotoElement.push(photoMarkup);
 	}
@@ -118,8 +83,14 @@ $(function() {
 	function deselectPhoto($this) {
 		var downloadLink = $this.parent().parent().parent().attr('downloadLink');
 		var downloadLinkIndex = selectedPhotoLinks.indexOf(downloadLink);
-		var photoElement = $this.parent().parent().parent()[0];
-		var photoElementIndex = selectedPhotoElement.indexOf(photoElement);
+		var photoElement = $this.parent().parent().parent();
+		var photoElementIndex;
+
+		for (var i = 0; i < selectedPhotoElement.length; i++) {
+			if (selectedPhotoElement[i][0].id === photoElement[0].id) {
+				photoElementIndex = selectedPhotoElement.indexOf(selectedPhotoElement[i]);
+			}
+		}
 
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
@@ -130,28 +101,16 @@ $(function() {
 		selectedPhotoElement.splice(photoElementIndex, 1);
 	}
 
-	// Isn't IE9 compatible, change later...
+	// classList isn't IE9 compatible, change later...
 	function updatePreviousView(photoElement) {
-		for (var i = 0; i < previousView.length; i++) {
-			if (photoElement.id === previousView[i].id) {
-				var previousViewItem = previousView[i].lastElementChild.lastElementChild.firstElementChild;
+		for (var element in previousView) {
+			if (previousView[element].id === photoElement[0].id) {
+				var previousViewItem = previousView[element].lastElementChild.lastElementChild.firstElementChild;
 				previousViewItem.classList.remove('btn-success');
 				previousViewItem.classList.add('btn-default');
 				previousViewItem.innerHTML = unselectedButtonText;
 			}
 		}
-	}
-
-	function getPreviousView() {
-		previousView = $('.item').get();
-	}
-
-	function generateMarkup(array) {
-		var markup = '';
-		array.forEach(function(element) {
-			markup += element.outerHTML;
-		});
-		return markup;
 	}
 
 	////////////////////////////////////////////////
