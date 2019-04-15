@@ -6,7 +6,6 @@
   "devDependencies": {
     "browser-sync": "^2.18.8",
     "gulp": "^3.9.1",
-    "express": "^4.16.4",
     "gulp-sass": "^4.0.2",
     "jasmine": "^3.4.0",
     "jasmine-jquery": "^2.1.1"
