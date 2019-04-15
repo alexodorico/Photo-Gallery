@@ -78,16 +78,17 @@ $grid-spacing: 10px;
 }
 
 @media (min-width: 500px) {
+	// I don't think columns are the way to go
+	// .csscolumns #photo-grid {
+	// 	column-count: 2;
+	// 	column-gap: $grid-spacing;
+
+	// 	.item {
+	// 		width: initial;
+	// 	}
+	// }
+
 	.csscolumns #photo-grid {
-		column-count: 2;
-		column-gap: $grid-spacing;
-
-		.item {
-			width: initial;
-		}
-	}
-
-	.no-csscolumns #photo-grid {
 		.item {
 			width: 49%;
 			margin: 0 .5% $grid-spacing;
@@ -102,11 +103,12 @@ $grid-spacing: 10px;
 }
 
 @media (min-width: 1170px) {
-	.csscolumns #photo-grid {
-		column-count: 3;
-	}
+	// I don't think columns are the way to go
+	// .csscolumns #photo-grid {
+	// 	column-count: 3;
+	// }
 
-	.no-csscolumns #photo-grid {
+	.csscolumns #photo-grid {
 		.item {
 			width: 32%;
 			margin: 0 .66% $grid-spacing;
