@@ -5,7 +5,6 @@ $(function() {
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
-	var selectedPhotoLinks = [];
 	var selectedPhotoElement = [];
 	var previousView
 	var viewingSelected = false;
@@ -99,17 +98,13 @@ $(function() {
 	}
 
 	function selectPhoto($this) {
-		var downloadLink = $this.parents('.item').attr('downloadLink');
 		var photoMarkup = $this.parents('.item').clone(true);
-		selectedPhotoLinks.push(downloadLink);
 		selectedPhotoElement.push(photoMarkup);
 	}
 
 	function deselectPhoto($this) {
 		var photoElement = $this.parents('.item');
 		var photoElementIndex;
-		var downloadLink = photoElement.attr('downloadLink');
-		var downloadLinkIndex = selectedPhotoLinks.indexOf(downloadLink);
 
 		for (var i = 0; i < selectedPhotoElement.length; i++) {
 			if (selectedPhotoElement[i][0].id === photoElement[0].id) {
@@ -117,13 +112,12 @@ $(function() {
 			}
 		}
 
+		selectedPhotoElement.splice(photoElementIndex, 1);
+
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
 			photoElement.fadeOut();
 		}
-
-		selectedPhotoLinks.splice(downloadLinkIndex, 1);
-		selectedPhotoElement.splice(photoElementIndex, 1);
 	}
 
 	// classList isn't IE9 compatible, change later...
