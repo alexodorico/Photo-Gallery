@@ -1,13 +1,12 @@
 # TODO
 
 ### SCSS
-* Add checkbox/download on hover effect (touch device?)
 * Wait for mockup feedback to finalize button/control placement
 * Add SCSS variables to make easily customizable to client brand guidelines
 
 ### JS
-* JSZip
+* JSZip (wait for DAM stuff to be finished)
 * Modal/Lightbox
-* Change category views
+* Change category views (wait for DAM stuff to be finished)
 * Hide view all when no photos are selected
-* Lazy loading
+* Lazy loading (implemented)
