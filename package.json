@@ -1,0 +1,26 @@
+{
+  "name": "photo-gallery",
+  "version": "0.1.0",
+  "description": "Photo gallery for clients using DAM API",
+  "main": "public/index.html",
+  "devDependencies": {
+    "browser-sync": "^2.18.8",
+    "gulp": "^3.9.1",
+    "express": "^4.16.4",
+    "gulp-sass": "^4.0.2",
+    "jasmine": "^3.4.0",
+    "jasmine-jquery": "^2.1.1"
+  },
+  "scripts": {
+    "test": "jasmine",
+    "start": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexodorico/Photo-Gallery-Test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alexodorico/Photo-Gallery-Test/issues"
+  },
+  "homepage": "https://github.com/alexodorico/Photo-Gallery-Test#readme"
+}
