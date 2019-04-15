@@ -80,7 +80,8 @@ $(function() {
 	}
 
 	function handleSingleDownloadClick() {
-		var downloadLink = this.dataset.link;
+		var $this = $(this);
+		var downloadLink = $this.parents('.item').attr('downloadLink');
 		$('iframe').attr("src", downloadLink);
 	}
 
