@@ -41,7 +41,7 @@ $(function() {
 							<button type="button" class="btn btn-default select-button">
 								${unselectedButtonText}
 							</button>
-							<button data-link="${data.items[i]._links.download}" class="btn btn-default download-button">
+							<button class="btn btn-default download-button">
 								<span class="glyphicon glyphicon-download-alt"></span>
 							</button>
 						</div>
