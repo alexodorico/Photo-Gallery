@@ -31,6 +31,9 @@ $(function() {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
 
+			// TO-DO: only apply to lazy class to images below the fold
+			// because if intersection observer API isn't available photos 
+			// won't load until AFTER the user scrolls for the first time
 			for (var i = 0; i < data.items.length; i++) {
 				initialContent += `
 				<div class="item" id="${data.items[i].id}" downloadLink="${data.items[i]._links.download}">
@@ -58,6 +61,7 @@ $(function() {
 
 	function lazyLoadSetUp() {
 		var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+		var active = false;
 
 		if ('IntersectionObserver' in window) {
 			var lazyImageObserver = new IntersectionObserver(function(entries, observer) {
@@ -75,7 +79,35 @@ $(function() {
 				lazyImageObserver.observe(lazyImage);
 			});
 		} else {
-			// fallback for browsers that don't support Interaction Observer
+			var lazyLoad = function() {
+				if (active === false) {
+					active = true;
+
+					setTimeout(function() {
+						lazyImages.forEach(function(lazyImage) {
+							if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
+								lazyImage.src = lazyImage.dataset.src;
+								lazyImage.classList.remove('lazy');
+
+								lazyImages = lazyImages.filter(function(image) {
+									return image !== lazyImage;
+								});
+
+								if (lazyImage.length === 0) {
+									document.removeEventListener('scroll', lazyLoad);
+									window.removeEventListener('resize', lazyLoad);
+									window.removeEventListener('orientationchange', lazyLoad);
+								}
+							}
+						});
+
+						active = false;
+					}, 200);
+				}
+			}
+			document.addEventListener('scroll', lazyLoad);
+			window.addEventListener('resize', lazyLoad);
+			window.addEventListener('orientationchange', lazyLoad);
 		}
 	}
 
