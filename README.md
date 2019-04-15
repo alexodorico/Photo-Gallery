@@ -1,7 +1,7 @@
 # Set Up
 Download repo and in repo directory:
 
-`npm install` to install dev dependencies
+`npm install` to install dev dependencies &
 `npm start` to start hot reloading
 
 ## TODO
