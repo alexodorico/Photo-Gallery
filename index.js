@@ -30,12 +30,11 @@ $(function() {
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
-			var hardLoad = 5 //change to set how many images are initially loaded (i.e. not lazy loaded)
 
 			for (var i = 0; i < data.items.length; i++) {
 				initialContent += `
 				<div class="item" id="${data.items[i].id}" downloadLink="${data.items[i]._links.download}">
-					<img class="${i > hardLoad ? "lazy" : ""}" src="https://via.placeholder.com/300x200" data-src="https://via.placeholder.com/300x200x90.png?text=Lazy+Load+Successful"></img>
+					<img class="lazy" src="https://via.placeholder.com/300x200" data-src="https://via.placeholder.com/300x200x90.png?text=Lazy+Load+Successful"></img>
 					<div class="overlay">
 						<h1>Title</h1>
 						<div class="photo-controls">
