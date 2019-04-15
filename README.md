@@ -1,6 +1,7 @@
 # TODO
 
-### SCSS
+### HTML/SCSS
+* Figure out how photos will be displayed (left-to-right, top-to-bottom, grid, flexbox, etc.)
 * Wait for mockup feedback to finalize button/control placement
 * Add SCSS variables to make easily customizable to client brand guidelines
 
