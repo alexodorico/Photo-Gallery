@@ -6,7 +6,7 @@ $(function() {
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 	var selectedPhotoElement = [];
-	var previousView
+	var previousView;
 	var viewingSelected = false;
 
 	generateImages(ApiCall);
@@ -14,14 +14,15 @@ $(function() {
 	$('#view-selected-button').click(function() {
 		var btnText = this.innerText;
 		viewingSelected = !viewingSelected;
-		btnText === "View Selected" ? btnText = "View All" : btnText = "View Selected";
 
 		if (viewingSelected) {
+			btnText = "View All";
 			previousView = $('.item').detach();
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
 		} else {
+			btnText = "View Selected";
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
 		}
@@ -49,7 +50,7 @@ $(function() {
 							</button>
 						</div>
 					</div>
-				</div>`
+				</div>`;
 			}
 
 			$('#photo-grid').append(initialContent);
@@ -104,7 +105,8 @@ $(function() {
 						active = false;
 					}, 200);
 				}
-			}
+			};
+
 			document.addEventListener('scroll', lazyLoad);
 			window.addEventListener('resize', lazyLoad);
 			window.addEventListener('orientationchange', lazyLoad);
@@ -167,35 +169,35 @@ $(function() {
 	////////////////////////////////////////////////
 	// HANDLES ADDING/REMOVING CATEGORIES TO VIEW //
 	////////////////////////////////////////////////
-	let $categoryItems = document.getElementsByClassName('category-item');
-	let $selectedCategoriesList = document.getElementById('selected-categories');
+	var $categoryItems = document.getElementsByClassName('category-item');
+	var $selectedCategoriesList = document.getElementById('selected-categories');
 
-	for (let element of $categoryItems) {
+	for (var element of $categoryItems) {
 		element.addEventListener("click", function(event) {
 			addCategoryToView(event);
 		});
 	}
 
 	function addCategoryToView(event) {
-		let alreadySelected = checkIfSelected(event);
+		var alreadySelected = checkIfSelected(event);
 		if (alreadySelected) return;
-		let categoryName = event.target.innerText;
-		let categoryElement = createCategoryElement(categoryName);
+		var categoryName = event.target.innerText;
+		var categoryElement = createCategoryElement(categoryName);
 		$selectedCategoriesList.append(categoryElement);
-		let $selectedCategoryItems = document.getElementsByClassName('selected-category-item');
+		var $selectedCategoryItems = document.getElementsByClassName('selected-category-item');
 		addEventListener($selectedCategoryItems);
 	}
 
 	function removeCategoryFromView(event) {
-		let categoryName = event.target.innerText;
-		for (let element of $categoryItems) {
+		var categoryName = event.target.innerText;
+		for (var element of $categoryItems) {
 			if (element.innerText == categoryName) element.dataset.selected = false;
 		}
 		event.target.remove();
 	}
 
 	function checkIfSelected(event) {
-		let dataset = event.target.parentElement.dataset;
+		var dataset = event.target.parentElement.dataset;
 		if (dataset.selected === "false") {
 			dataset.selected = "true";
 			return false;
@@ -205,17 +207,15 @@ $(function() {
 	}
 
 	function createCategoryElement(categoryName) {
-		let categoryElement = document.createElement('li');
+		var categoryElement = document.createElement('li');
 		categoryElement.innerHTML = categoryName;
 		categoryElement.className = "selected-category-item";
 		return categoryElement;
 	}
 
 	function addEventListener($elements) {
-		for (let element of $elements) {
-			element.addEventListener("click", function(event) {
-				removeCategoryFromView(event);
-			});
+		for (var element of $elements) {
+			element.addEventListener("click", removeCategoryFromView);
 		}
 	}
 });
