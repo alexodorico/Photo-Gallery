@@ -1,4 +1,10 @@
-# TODO
+# Set Up
+Download repo and in repo directory:
+
+`npm install` to install dev dependencies
+`npm start` to start hot reloading
+
+## TODO
 
 ### HTML/SCSS
 * Figure out how photos will be displayed (left-to-right, top-to-bottom, grid, flexbox, etc.)
