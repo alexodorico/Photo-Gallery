@@ -7,8 +7,8 @@ gulp.task('browser-sync', ['sass'], function() {
         server: {
             baseDir: './public/'
         }
-	})
-})
+	});
+});
 
 gulp.task('sass', function() {
 	gulp.src('public/*.scss')
@@ -20,5 +20,6 @@ gulp.task('sass', function() {
 gulp.task('default', ['browser-sync'], function() {
 	gulp.watch('public/*.scss', ['sass']);
 	gulp.watch('public/*.js').on('change', bs.reload);
+	gulp.watch('public/*.html').on('change', bs.reload);
 });
 
