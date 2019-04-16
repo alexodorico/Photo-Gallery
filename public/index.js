@@ -12,17 +12,15 @@ $(function() {
 	generateImages(ApiCall);
 
 	$('#view-selected-button').click(function() {
-		var btnText = this.innerText;
 		viewingSelected = !viewingSelected;
+		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
 
 		if (viewingSelected) {
-			btnText = "View All";
 			previousView = $('.item').detach();
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
 		} else {
-			btnText = "View Selected";
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
 		}
