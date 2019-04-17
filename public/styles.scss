@@ -88,7 +88,20 @@ $grid-spacing: 10px;
 	// 	}
 	// }
 
-	.csscolumns #photo-grid {
+	// .no-csscolumns #photo-grid {
+	// 	.item {
+	// 		width: 49%;
+	// 		margin: 0 .5% $grid-spacing;
+	// 		float: left;
+
+	// 		img {
+	// 			object-fit: cover;
+	// 			height: 200px;
+	// 		}
+	// 	}
+	// }
+
+	#photo-grid {
 		.item {
 			width: 49%;
 			margin: 0 .5% $grid-spacing;
@@ -108,7 +121,14 @@ $grid-spacing: 10px;
 	// 	column-count: 3;
 	// }
 
-	.csscolumns #photo-grid {
+	// .no-csscolumns #photo-grid {
+	// 	.item {
+	// 		width: 32%;
+	// 		margin: 0 .66% $grid-spacing;
+	// 	}
+	// }
+
+	#photo-grid {
 		.item {
 			width: 32%;
 			margin: 0 .66% $grid-spacing;
