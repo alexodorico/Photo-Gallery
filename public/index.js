@@ -26,6 +26,27 @@ $(function() {
 		}
 	});
 
+	function lightboxInit() {
+		var pswpElement = document.querySelectorAll('.pswp')[0];
+		var lightboxPhotos = [];
+		var $items = $('.item');
+		var options = {
+			index: 0
+		};
+
+		for (var i = 0; i < $items.length; i++) {
+			var item = {};
+			item.src = $items[i].children[0].attributes.src.value;
+			item.w = $items[i].clientWidth;
+			item.h = $items[i].clientHeight;
+			lightboxPhotos.push(item);
+			console.log(item);
+		}
+	
+		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		gallery.init();
+	}
+
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
@@ -56,6 +77,7 @@ $(function() {
 
 			$('#photo-grid').append(initialContent);
 			lazyLoadSetUp();
+			$('img').on('click', lightboxInit);
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
 		});
