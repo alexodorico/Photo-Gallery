@@ -1,19 +1,19 @@
 # Set Up
-Download repo and in repo directory:
-
-`npm install` to install dev dependencies &
-`npm start` to start hot reloading
+1. Download repo
+2. Navigate into repo directory
+3. `npm install` to install dev dependencies
+4. `npm start` to start dev server
 
 ## TODO
 
 ### HTML/SCSS
-* Figure out how photos will be displayed (left-to-right, top-to-bottom, grid, flexbox, etc.)
-* Wait for mockup feedback to finalize button/control placement
+* Figure out cross-browser solution for how photos will be displayed (css columns are wonky)
+* Finalize button/control placement and styling
 * Add SCSS variables to make easily customizable to client brand guidelines
 
 ### JS
 * JSZip (wait for DAM stuff to be finished)
-* Modal/Lightbox
+* Modal/Lightbox (need input and help with this)
 * Change category views (wait for DAM stuff to be finished)
 * Hide view all when no photos are selected
-* Lazy loading (implemented)
+* Lazy loading (85% implemented)
