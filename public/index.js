@@ -25,7 +25,11 @@ $(function() {
 			previousView.appendTo('#photo-grid');
 		}
 	});
-
+	// TODO: Get index of clicked photo and pass to options object
+	// 		 Lazy-Loading
+	//		 Remove photo when unselected in view selected
+	//		 Add thumbnails
+	//		 Get h/w for full-size image		
 	function lightboxInit() {
 		var pswpElement = document.querySelectorAll('.pswp')[0];
 		var lightboxPhotos = [];
