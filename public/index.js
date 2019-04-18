@@ -25,6 +25,31 @@ $(function() {
 			previousView.appendTo('#photo-grid');
 		}
 	});
+	// TODO: Get index of clicked photo and pass to options object
+	// 		 Lazy-Loading
+	//		 Remove photo when unselected in view selected
+	//		 Add thumbnails
+	//		 Get h/w for full-size image		
+	function lightboxInit() {
+		var pswpElement = document.querySelectorAll('.pswp')[0];
+		var lightboxPhotos = [];
+		var $items = $('.item');
+		var options = {
+			index: 0
+		};
+
+		for (var i = 0; i < $items.length; i++) {
+			var item = {};
+			item.src = $items[i].children[0].attributes.src.value;
+			item.w = $items[i].clientWidth;
+			item.h = $items[i].clientHeight;
+			lightboxPhotos.push(item);
+			console.log(item);
+		}
+	
+		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		gallery.init();
+	}
 
 	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
@@ -34,9 +59,12 @@ $(function() {
 			// because if intersection observer API isn't available photos 
 			// won't load until AFTER the user scrolls for the first time
 			for (var i = 0; i < data.items.length; i++) {
+				var width = Math.floor(Math.random() * 400 + 100).toString();
+				var height = Math.floor(Math.random() * 500 + 100).toString();
+
 				initialContent += `
 				<div class="item" id="${data.items[i].id}" downloadLink="${data.items[i]._links.download}">
-					<img class="lazy" src="https://via.placeholder.com/300x200" data-src="https://via.placeholder.com/300x200x90.png?text=Lazy+Load+Successful"></img>
+					<img class="lazy" src="https://via.placeholder.com/${width}x${height}" data-src="https://via.placeholder.com/${width}x${height}x90.png?text=Lazy+Load+Successful"></img>
 					<div class="overlay">
 						<h1>Title</h1>
 						<div class="photo-controls">
@@ -53,6 +81,7 @@ $(function() {
 
 			$('#photo-grid').append(initialContent);
 			lazyLoadSetUp();
+			$('img').on('click', lightboxInit);
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
 		});

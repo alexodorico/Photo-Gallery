@@ -78,7 +78,25 @@ $grid-spacing: 10px;
 }
 
 @media (min-width: 500px) {
-	// I don't think columns are the way to go
+	/////////////////////
+	//// FLOAT + OF /////
+	/////////////////////
+	// #photo-grid {
+	// 	.item {
+	// 		width: 49%;
+	// 		margin: 0 .5% $grid-spacing;
+	// 		float: left;
+
+	// 		img {
+	// 			object-fit: cover;
+	// 			height: 200px;
+	// 		}
+	// 	}
+	// }
+
+	///////////////
+	// COLUMNS ////
+	///////////////
 	// .csscolumns #photo-grid {
 	// 	column-count: 2;
 	// 	column-gap: $grid-spacing;
@@ -101,32 +119,59 @@ $grid-spacing: 10px;
 	// 	}
 	// }
 
+<<<<<<< HEAD
 	#photo-grid {
+=======
+	////////////////
+	//// FLEXBOX ///
+	////////////////
+	.flexbox #photo-grid {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+
+>>>>>>> lightbox
 		.item {
-			width: 49%;
-			margin: 0 .5% $grid-spacing;
-			float: left;
+			width: initial;
+			margin: 0 .66% $grid-spacing;
 
 			img {
-				object-fit: cover;
 				height: 200px;
+				min-width: 200px;
+				object-fit: cover;
 			}
 		}
 	}
 }
 
 @media (min-width: 1170px) {
-	// I don't think columns are the way to go
+	//////////////////
+	// FLOAT + OF ////
+	//////////////////
+	// #photo-grid {
+	// 	.item {
+	// 		width: 32%;
+	// 		margin: 0 .66% $grid-spacing;
+	// 	}
+	// }
+
+	/////////////
+	// COLUMNS //
+	/////////////
 	// .csscolumns #photo-grid {
 	// 	column-count: 3;
 	// }
+<<<<<<< HEAD
 
+=======
+>>>>>>> lightbox
 	// .no-csscolumns #photo-grid {
 	// 	.item {
 	// 		width: 32%;
 	// 		margin: 0 .66% $grid-spacing;
 	// 	}
 	// }
+<<<<<<< HEAD
 
 	#photo-grid {
 		.item {
@@ -134,6 +179,8 @@ $grid-spacing: 10px;
 			margin: 0 .66% $grid-spacing;
 		}
 	}
+=======
+>>>>>>> lightbox
 }
 
 /////////////////////
