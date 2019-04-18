@@ -119,7 +119,14 @@ $grid-spacing: 10px;
 	// 	}
 	// }
 
-	#photo-grid {
+	////////////////
+	//// FLEXBOX ///
+	////////////////
+	.flexbox #photo-grid {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+
 		.item {
 			width: initial;
 			margin: 0 .66% $grid-spacing;
@@ -156,13 +163,6 @@ $grid-spacing: 10px;
 	// 		margin: 0 .66% $grid-spacing;
 	// 	}
 	// }
-
-	#photo-grid {
-		.item {
-			width: 32%;
-			margin: 0 .66% $grid-spacing;
-		}
-	}
 }
 
 /////////////////////
