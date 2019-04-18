@@ -1,9 +1,4 @@
 *.css
 *.css.map
-<<<<<<< HEAD
 package-lock.json
 node_modules
-=======
-node_modules
-package-lock.json
->>>>>>> flexbox
