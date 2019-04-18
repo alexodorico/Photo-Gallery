@@ -119,18 +119,7 @@ $grid-spacing: 10px;
 	// 	}
 	// }
 
-<<<<<<< HEAD
 	#photo-grid {
-=======
-	////////////////
-	//// FLEXBOX ///
-	////////////////
-	.flexbox #photo-grid {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-
->>>>>>> lightbox
 		.item {
 			width: initial;
 			margin: 0 .66% $grid-spacing;
@@ -161,17 +150,12 @@ $grid-spacing: 10px;
 	// .csscolumns #photo-grid {
 	// 	column-count: 3;
 	// }
-<<<<<<< HEAD
-
-=======
->>>>>>> lightbox
 	// .no-csscolumns #photo-grid {
 	// 	.item {
 	// 		width: 32%;
 	// 		margin: 0 .66% $grid-spacing;
 	// 	}
 	// }
-<<<<<<< HEAD
 
 	#photo-grid {
 		.item {
@@ -179,8 +163,6 @@ $grid-spacing: 10px;
 			margin: 0 .66% $grid-spacing;
 		}
 	}
-=======
->>>>>>> lightbox
 }
 
 /////////////////////
