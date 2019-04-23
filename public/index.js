@@ -1,7 +1,7 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	//var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=31&offset=' + offset;
-	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=60';
+	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=62';
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
@@ -32,6 +32,7 @@ $(function() {
 	//		 Add thumbnails
 	//		 Get h/w for full-size image		
 	function lightboxInit() {
+		console.log(this);
 		var pswpElement = document.querySelectorAll('.pswp')[0];
 		var lightboxPhotos = [];
 		var $items = $('.item');
@@ -41,7 +42,7 @@ $(function() {
 
 		for (var i = 0; i < $items.length; i++) {
 			var item = {};
-			item.src = $items[i].children[0].attributes.src.value;
+			item.src = $items[i].children[1].attributes.src.value;
 			item.w = $items[i].clientWidth;
 			item.h = $items[i].clientHeight;
 			lightboxPhotos.push(item);
@@ -55,9 +56,11 @@ $(function() {
 
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
+			var photosInRow = 3;
+			var photoMargin = 10;
 
-			for (var i = 0; i < data.items.length / 3; i++) {
-				var photoRow = data.items.slice(3 * i, 3 * i + 3);
+			for (var i = 0; i < data.items.length / photosInRow; i++) {
+				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow);
 				var ar = 0;
 				var photoHeight = 0;
 				var availableSpace = 842; // width of container - container padding - horizontal photo margin
@@ -66,15 +69,9 @@ $(function() {
 					ar += photo.file_properties.image_properties.aspect_ratio;
 				});
 
-				switch (photoRow.length) {
-					case 3:
-						break;
-					case 2:
-						availableSpace += 10;
-						break;
-					case 1:
-						availableSpace += 20;
-						break;
+				// Add space if there's not three photos in a row
+				if (photoRow.length !== photosInRow) {
+					availableSpace += (photosInRow - photoRow.length) * photoMargin;
 				}
 				
 				photoHeight += availableSpace / ar;
