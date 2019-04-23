@@ -82,7 +82,6 @@ $(function() {
 						<div class="loader"></div>
 						<img class="lazy" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
 						<div class="overlay">
-							<h1>Title</h1>
 							<div class="photo-controls">
 								<button type="button" class="btn btn-default select-button">
 									${unselectedButtonText}
