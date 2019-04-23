@@ -57,7 +57,7 @@ $(function() {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
 			var photosInRow = 3;
-			var photoMargin = 10; // 
+			var photoMargin = 10; // 5 pixels on the left AND right of each photo
 
 			for (var i = 0; i < data.items.length / photosInRow; i++) {
 				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow); // create new array of photos in row
