@@ -57,11 +57,11 @@ $(function() {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
 			var photosInRow = 3;
-			var photoMargin = 10;
+			var photoMargin = 10; // 
 
 			for (var i = 0; i < data.items.length / photosInRow; i++) {
-				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow);
-				var ar = 0;
+				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow); // create new array of photos in row
+				var ar = 0; // aspect ratio
 				var photoHeight = 0;
 				var availableSpace = 842; // width of container - container padding - horizontal photo margin
 
