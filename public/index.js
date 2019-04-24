@@ -35,6 +35,7 @@ $(function() {
 		});
 	}
 
+	// Creates two dimensional array
 	function groupPhotos(images) {
 		var photoGrid = [];
 
