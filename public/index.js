@@ -1,13 +1,15 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	//var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=31&offset=' + offset;
-	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=62';
+	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=21';
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 	var selectedPhotoElement = [];
 	var previousView;
 	var viewingSelected = false;
+	var photosInRow = 3;
+	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 
 	generateImages(ApiCall);
 
@@ -17,6 +19,7 @@ $(function() {
 
 		if (viewingSelected) {
 			previousView = $('.item').detach();
+			
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
@@ -52,12 +55,56 @@ $(function() {
 		gallery.init();
 	}
 
-	function generateImages(ApiCall) {
+	function calculateHeight(images) {
 
+	}
+
+	function groupPhotos(images) {
+		var photoGrid = [];
+
+		for (var i = 0; i < images.length / photosInRow; i++) {
+			var photoRow = images.slice(photosInRow * i, photosInRow * i + photosInRow);
+			photoGrid.push(photoRow);
+		}
+
+		return photoGrid;
+	}
+
+	function addAspectRatios(photoRow) {
+		var ar = 0;
+
+		photoRow.forEach(function(photo) {
+			ar += photo.file_properties.image_properties.aspect_ratio;
+		});
+
+		return ar;
+	}
+
+	function computeSpaceInRow(photoRow) {
+		var availableSpace = 842;
+
+		if (photoRow.length !== photosInRow) {
+			availableSpace += (photosInRow - photoRow.length) * photoMargin;
+		}
+
+		return availableSpace;
+	}
+
+	function computeRowHeight(ar, availableSpace) {
+		return availableSpace / ar;
+	}
+
+	function generateImages(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
-			var photosInRow = 3;
-			var photoMargin = 10; // 5 pixels on the left AND right of each photo
+
+			var photoGrid = groupPhotos(data.items);
+
+			for (var row of photoGrid) {
+				var ar = addAspectRatios(row);
+				var availableSpace = computeSpaceInRow(row);
+				var photoHeight = computeRowHeight(ar, availableSpace);
+			}
 
 			for (var i = 0; i < data.items.length / photosInRow; i++) {
 				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow); // create new array of photos in row
@@ -80,7 +127,7 @@ $(function() {
 					initialContent += `
 					<div class="item" id="${photo.id}" downloadLink="${photo._links.download}">
 						<div class="loader"></div>
-						<img class="lazy" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
+						<img class="lazy" data-ar="${photo.file_properties.image_properties.aspect_ratio}" data-category="${photo.metadata.fields.gallery[0]}" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
 						<div class="overlay">
 							<div class="photo-controls">
 								<button type="button" class="btn btn-default select-button">
