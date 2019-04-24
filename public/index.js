@@ -1,6 +1,5 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	//var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=31&offset=' + offset;
 	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=21';
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
@@ -11,7 +10,7 @@ $(function() {
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 
-	generateImages(ApiCall);
+	init(ApiCall);
 
 	$('#view-selected-button').click(function() {
 		viewingSelected = !viewingSelected;
@@ -29,34 +28,24 @@ $(function() {
 		}
 	});
 
-	// TODO: Get index of clicked photo and pass to options object
-	// 		 Lazy-Loading
-	//		 Remove photo when unselected in view selected
-	//		 Add thumbnails
-	//		 Get h/w for full-size image		
-	function lightboxInit() {
-		console.log(this);
-		var pswpElement = document.querySelectorAll('.pswp')[0];
-		var lightboxPhotos = [];
-		var $items = $('.item');
-		var options = {
-			index: 0
-		};
+	function init(ApiCall) {
+		$.get(ApiCall, function(data) {
+			var initialContent = '';
+			var photoGrid = groupPhotos(data.items);
 
-		for (var i = 0; i < $items.length; i++) {
-			var item = {};
-			item.src = $items[i].children[1].attributes.src.value;
-			item.w = $items[i].clientWidth;
-			item.h = $items[i].clientHeight;
-			lightboxPhotos.push(item);
-		}
-	
-		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
-		gallery.init();
-	}
+			for (var row of photoGrid) {
+				var ar = addAspectRatios(row);
+				var availableSpace = computeSpaceInRow(row);
+				var photoHeight = computeRowHeight(ar, availableSpace);
+				initialContent += buildInitialMarkup(row, photoHeight);
+			}
 
-	function calculateHeight(images) {
-
+			$('#photo-grid').append(initialContent);
+			lazyLoadSetUp();
+			$('img').on('click', lightboxInit);
+			$('.select-button').on('click', handleSelectButtonClick);
+			$('.download-button').on('click', handleSingleDownloadClick);
+		});
 	}
 
 	function groupPhotos(images) {
@@ -94,60 +83,28 @@ $(function() {
 		return availableSpace / ar;
 	}
 
-	function generateImages(ApiCall) {
-		$.get(ApiCall, function(data) {
-			var initialContent = '';
+	function buildInitialMarkup(photoRow, photoHeight) {
+		var initialContent = '';
 
-			var photoGrid = groupPhotos(data.items);
-
-			for (var row of photoGrid) {
-				var ar = addAspectRatios(row);
-				var availableSpace = computeSpaceInRow(row);
-				var photoHeight = computeRowHeight(ar, availableSpace);
-			}
-
-			for (var i = 0; i < data.items.length / photosInRow; i++) {
-				var photoRow = data.items.slice(photosInRow * i, photosInRow * i + photosInRow); // create new array of photos in row
-				var ar = 0; // aspect ratio
-				var photoHeight = 0;
-				var availableSpace = 842; // width of container - container padding - horizontal photo margin
-
-				photoRow.forEach(function(photo) {
-					ar += photo.file_properties.image_properties.aspect_ratio;
-				});
-
-				// Add space if there's not three photos in a row
-				if (photoRow.length !== photosInRow) {
-					availableSpace += (photosInRow - photoRow.length) * photoMargin;
-				}
-				
-				photoHeight += availableSpace / ar;
-
-				photoRow.forEach(function(photo) {
-					initialContent += `
-					<div class="item" id="${photo.id}" downloadLink="${photo._links.download}">
-						<div class="loader"></div>
-						<img class="lazy" data-ar="${photo.file_properties.image_properties.aspect_ratio}" data-category="${photo.metadata.fields.gallery[0]}" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
-						<div class="overlay">
-							<div class="photo-controls">
-								<button type="button" class="btn btn-default select-button">
-									${unselectedButtonText}
-								</button>
-								<button class="btn btn-default download-button">
-									<span class="glyphicon glyphicon-download-alt"></span>
-								</button>
-							</div>
-						</div>
-					</div>`
-				});
-			}
-
-			$('#photo-grid').append(initialContent);
-			lazyLoadSetUp();
-			$('img').on('click', lightboxInit);
-			$('.select-button').on('click', handleSelectButtonClick);
-			$('.download-button').on('click', handleSingleDownloadClick);
+		photoRow.forEach(function(photo) {
+			initialContent += `
+			<div class="item" id="${photo.id}" downloadLink="${photo._links.download}">
+				<div class="loader"></div>
+				<img class="lazy" data-ar="${photo.file_properties.image_properties.aspect_ratio}" data-category="${photo.metadata.fields.gallery[0]}" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
+				<div class="overlay">
+					<div class="photo-controls">
+						<button type="button" class="btn btn-default select-button">
+							${unselectedButtonText}
+						</button>
+						<button class="btn btn-default download-button">
+							<span class="glyphicon glyphicon-download-alt"></span>
+						</button>
+					</div>
+				</div>
+			</div>`
 		});
+
+		return initialContent;
 	}
 
 	function lazyLoadSetUp() {
@@ -203,10 +160,30 @@ $(function() {
 		}
 	}
 
-	function handleSingleDownloadClick() {
-		var $this = $(this);
-		var downloadLink = $this.parents('.item').attr('downloadLink');
-		$('iframe').attr("src", downloadLink);
+	// TODO: Get index of clicked photo and pass to options object
+	// 		 Lazy-Loading
+	//		 Remove photo when unselected in view selected
+	//		 Add thumbnails
+	//		 Get h/w for full-size image		
+	function lightboxInit() {
+		console.log(this);
+		var pswpElement = document.querySelectorAll('.pswp')[0];
+		var lightboxPhotos = [];
+		var $items = $('.item');
+		var options = {
+			index: 0
+		};
+
+		for (var i = 0; i < $items.length; i++) {
+			var item = {};
+			item.src = $items[i].children[1].attributes.src.value;
+			item.w = $items[i].clientWidth;
+			item.h = $items[i].clientHeight;
+			lightboxPhotos.push(item);
+		}
+	
+		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		gallery.init();
 	}
 
 	function handleSelectButtonClick() {
@@ -219,6 +196,12 @@ $(function() {
 			$this.html(unselectedButtonText);
 			deselectPhoto($this);
 		}
+	}
+
+	function handleSingleDownloadClick() {
+		var $this = $(this);
+		var downloadLink = $this.parents('.item').attr('downloadLink');
+		$('iframe').attr("src", downloadLink);
 	}
 
 	function selectPhoto($this) {
