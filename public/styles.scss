@@ -10,9 +10,15 @@ $grid-spacing: 10px;
 	.item {
 		margin-bottom: $grid-spacing;
 		width: 100%;
+		background-color: grey;
+		z-index: 1;
 	
 		img {
-			width: 100%;
+			@media (max-width: 500px) {
+				width: 100%;
+				height: 100%;
+			}
+			z-index: 3;
 		}
 
 		.overlay {
@@ -78,7 +84,25 @@ $grid-spacing: 10px;
 }
 
 @media (min-width: 500px) {
-	// I don't think columns are the way to go
+	/////////////////////
+	//// FLOAT + OF /////
+	/////////////////////
+	// #photo-grid {
+	// 	.item {
+	// 		width: 49%;
+	// 		margin: 0 .5% $grid-spacing;
+	// 		float: left;
+
+	// 		img {
+	// 			object-fit: cover;
+	// 			height: 200px;
+	// 		}
+	// 	}
+	// }
+
+	///////////////
+	// COLUMNS ////
+	///////////////
 	// .csscolumns #photo-grid {
 	// 	column-count: 2;
 	// 	column-gap: $grid-spacing;
@@ -88,32 +112,110 @@ $grid-spacing: 10px;
 	// 	}
 	// }
 
-	.csscolumns #photo-grid {
+	// .no-csscolumns #photo-grid {
+	// 	.item {
+	// 		width: 49%;
+	// 		margin: 0 .5% $grid-spacing;
+	// 		float: left;
+
+	// 		img {
+	// 			object-fit: cover;
+	// 			height: 200px;
+	// 		}
+	// 	}
+	// }
+
+	////////////////
+	//// FLEXBOX ///
+	////////////////
+	.flexbox #photo-grid {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+
 		.item {
-			width: 49%;
-			margin: 0 .5% $grid-spacing;
-			float: left;
+			width: initial;
+			margin: 0 5px $grid-spacing;
 
 			img {
 				object-fit: cover;
-				height: 200px;
+			}
+
+			.btn {
+				font-size: 12px;
 			}
 		}
 	}
 }
 
-@media (min-width: 1170px) {
-	// I don't think columns are the way to go
+@media (min-width: 1170px) { 
+	//////////////////
+	// FLOAT + OF ////
+	//////////////////
+	// #photo-grid {
+	// 	.item {
+	// 		width: 32%;
+	// 		margin: 0 .66% $grid-spacing;
+	// 	}
+	// }
+
+	/////////////
+	// COLUMNS //
+	/////////////
 	// .csscolumns #photo-grid {
 	// 	column-count: 3;
 	// }
+	// .no-csscolumns #photo-grid {
+	// 	.item {
+	// 		width: 32%;
+	// 		margin: 0 .66% $grid-spacing;
+	// 	}
+	// }
+}
 
-	.csscolumns #photo-grid {
-		.item {
-			width: 32%;
-			margin: 0 .66% $grid-spacing;
-		}
-	}
+.loader,
+.loader:after {
+  border-radius: 50%;
+  width: 5em;
+  height: 5em;
+  z-index: 2;
+}
+.loader {
+  font-size: 10px;
+  position: absolute;
+  left: 40%;
+  top: 40%;
+  z-index: -1;
+  text-indent: -9999em;
+  border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-left: 1.1em solid #eee;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
 /////////////////////
@@ -204,4 +306,3 @@ ul {
 .top {
 	width: 100%;
 }
-

@@ -1,61 +1,112 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	var offset = Math.floor(Math.random() * 4000).toString();
-	var API_QUERY = 'assets/search?query_category=Morley+Asset%2FPhotography&limit=30&offset=' + offset;
+	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=21';
 	var ApiCall = API_BASE + API_QUERY;
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 	var selectedPhotoElement = [];
 	var previousView;
 	var viewingSelected = false;
+	var containerWidth = 900;
+	var photosInRow = 3;
+	var photoMargin = 10; // 5 pixels on the left AND right of each photo
+	var containerPadding = 28 // 14 pixels on the left AND right of each photo
 
-	generateImages(ApiCall);
+	init(ApiCall);
 
-	$('#view-selected-button').click(function() {
-		viewingSelected = !viewingSelected;
-		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
-
-		if (viewingSelected) {
-			previousView = $('.item').detach();
-			selectedPhotoElement.forEach(function(element) {
-				element.appendTo('#photo-grid');
-			});
-		} else {
-			$('.item').detach();
-			previousView.appendTo('#photo-grid');
-		}
-	});
-
-	function generateImages(ApiCall) {
+	function init(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
+			var photoGrid = groupPhotos(data.items);
 
-			// TO-DO: only apply to lazy class to images below the fold
-			// because if intersection observer API isn't available photos 
-			// won't load until AFTER the user scrolls for the first time
-			for (var i = 0; i < data.items.length; i++) {
-				initialContent += `
-				<div class="item" id="${data.items[i].id}" downloadLink="${data.items[i]._links.download}">
-					<img class="lazy" src="https://via.placeholder.com/300x200" data-src="https://via.placeholder.com/300x200x90.png?text=Lazy+Load+Successful"></img>
-					<div class="overlay">
-						<h1>Title</h1>
-						<div class="photo-controls">
-							<button type="button" class="btn btn-default select-button">
-								${unselectedButtonText}
-							</button>
-							<button class="btn btn-default download-button">
-								<span class="glyphicon glyphicon-download-alt"></span>
-							</button>
-						</div>
-					</div>
-				</div>`;
+			for (var row of photoGrid) {
+				var ar = addAspectRatios(row);
+				var availableSpace = computeSpaceInRow(row);
+				var photoHeight = computeRowHeight(ar, availableSpace);
+				initialContent += buildInitialMarkup(row, photoHeight);
 			}
 
 			$('#photo-grid').append(initialContent);
 			lazyLoadSetUp();
+			$('img').on('click', lightboxInit);
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
+			$('#view-selected-button').on('click', handleViewSelectedClick);
 		});
+	}
+
+	// Creates two dimensional array
+	function groupPhotos(images) {
+		var photoGrid = [];
+
+		for (var i = 0; i < images.length / photosInRow; i++) {
+			var photoRow = images.slice(photosInRow * i, photosInRow * i + photosInRow);
+			photoGrid.push(photoRow);
+		}
+
+		return photoGrid;
+	}
+
+	// On initial load, aspect ratio is calculated from API response
+	// When this gets called after initial load (uwitching views/removing photos) 
+	// aspect ratio must be calculated by accessing element object
+	function addAspectRatios(photoRow, update) {
+		var ar = 0;
+
+		for (var i = 0; i < photoRow.length; i++) {
+			ar += update ? parseFloat(photoRow[i][0].children[1].dataset.ar) : photoRow[i].file_properties.image_properties.aspect_ratio;
+		}
+
+		return ar;
+	}
+
+	function computeSpaceInRow(photoRow) {
+		var availableSpace = containerWidth - containerPadding - photoMargin * photosInRow;
+
+		if (photoRow.length !== photosInRow) {
+			availableSpace += (photosInRow - photoRow.length) * photoMargin;
+		}
+
+		return availableSpace;
+	}
+
+	function computeRowHeight(ar, availableSpace) {
+		return availableSpace / ar;
+	}
+
+	function buildInitialMarkup(photoRow, photoHeight) {
+		var initialContent = '';
+
+		photoRow.forEach(function(photo) {
+			initialContent += `
+			<div class="item" id="${photo.id}" downloadLink="${photo._links.download}">
+				<div class="loader"></div>
+				<img
+					class="lazy"
+					data-ar="${photo.file_properties.image_properties.aspect_ratio}"
+					data-original-src="${photo.embeds['AssetOriginalWidth/Height'].url}"
+					data-original-height="${photo.file_properties.image_properties.height}"
+					data-original-width="${photo.file_properties.image_properties.width}"
+					data-category="${photo.metadata.fields.gallery[0]}"
+					height="${photoHeight}"
+					width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}"
+					src=""
+					data-src="${photo.thumbnails['600px'].url}">
+				</img>
+				<div class="overlay">
+					<div class="photo-controls">
+						<button type="button" class="btn btn-default select-button">
+							${unselectedButtonText}
+						</button>
+						<button class="btn btn-default download-button">
+							<span class="glyphicon glyphicon-download-alt"></span>
+						</button>
+					</div>
+				</div>
+			</div>`
+		});
+
+		return initialContent;
 	}
 
 	function lazyLoadSetUp() {
@@ -111,10 +162,30 @@ $(function() {
 		}
 	}
 
-	function handleSingleDownloadClick() {
-		var $this = $(this);
-		var downloadLink = $this.parents('.item').attr('downloadLink');
-		$('iframe').attr("src", downloadLink);
+	// TODO: Get index of clicked photo and pass to options object
+	// 		 Lazy-Loading
+	//		 Remove photo when unselected in view selected
+	//		 Add thumbnails
+	//		 Get h/w for full-size image		
+	function lightboxInit() {
+		console.log(this);
+		var pswpElement = document.querySelectorAll('.pswp')[0];
+		var lightboxPhotos = [];
+		var $items = $('.item');
+		var options = {
+			index: 0
+		};
+
+		for (var i = 0; i < $items.length; i++) {
+			var item = {};
+			item.src = $items[i].children[1].attributes.src.value;
+			item.w = $items[i].clientWidth;
+			item.h = $items[i].clientHeight;
+			lightboxPhotos.push(item);
+		}
+	
+		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		gallery.init();
 	}
 
 	function handleSelectButtonClick() {
@@ -127,6 +198,12 @@ $(function() {
 			$this.html(unselectedButtonText);
 			deselectPhoto($this);
 		}
+	}
+
+	function handleSingleDownloadClick() {
+		var $this = $(this);
+		var downloadLink = $this.parents('.item').attr('downloadLink');
+		$('iframe').attr("src", downloadLink);
 	}
 
 	function selectPhoto($this) {
@@ -148,7 +225,9 @@ $(function() {
 
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
-			photoElement.fadeOut();
+			photoElement.fadeOut(function() {
+				recalculatePhotoDimensions();
+			});
 		}
 	}
 
@@ -161,6 +240,42 @@ $(function() {
 				previousViewItem.classList.add('btn-default');
 				previousViewItem.innerHTML = unselectedButtonText;
 			}
+		}
+	}
+
+	function handleViewSelectedClick() {
+		viewingSelected = !viewingSelected;
+		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
+
+		if (viewingSelected) {
+			previousView = $('.item').detach();
+			recalculatePhotoDimensions();
+			selectedPhotoElement.forEach(function(element) {
+				element.appendTo('#photo-grid');
+			});
+		} else {
+			$('.item').detach();
+			previousView.appendTo('#photo-grid');
+		}
+	}
+
+	function recalculatePhotoDimensions() {
+		var photoGrid = groupPhotos(selectedPhotoElement);
+
+		photoGrid.forEach(function(photoRow) {
+			var ar = addAspectRatios(photoRow, true);
+			var availableSpace = computeSpaceInRow(photoRow);
+			var photoHeight = computeRowHeight(ar, availableSpace);
+
+			alterImageDimensions(photoRow, photoHeight);
+		});
+	}
+
+	function alterImageDimensions(photoRow, photoHeight) {
+		for (var i = 0; i < photoRow.length; i++) {
+			var ar = photoRow[i][0].children[1].attributes["data-ar"].value;
+			photoRow[i][0].children[1].setAttribute("height", photoHeight);
+			photoRow[i][0].children[1].setAttribute("width", photoHeight * ar);
 		}
 	}
 
