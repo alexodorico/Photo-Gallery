@@ -46,16 +46,9 @@ $(function() {
 		return photoGrid;
 	}
 
-	// function addAspectRatiosInitial(photoRow) {
-	// 	var ar = 0;
-
-	// 	photoRow.forEach(function(photo) {
-	// 		ar += photo.file_properties.image_properties.aspect_ratio;
-	// 	});
-
-	// 	return ar;
-	// }
-
+	// On initial load, aspect ratio is calculated from API response
+	// When this gets called after initial load (uwitching views/removing photos) 
+	// aspect ratio must be calculated by accessing element object
 	function addAspectRatios(photoRow, update) {
 		var ar = 0;
 
