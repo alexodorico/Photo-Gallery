@@ -7,8 +7,10 @@ $(function() {
 	var selectedPhotoElement = [];
 	var previousView;
 	var viewingSelected = false;
+	var containerWidth = 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
+	var containerPadding = 28 // 14 pixels on the left AND right of each photo
 
 	init(ApiCall);
 
@@ -44,18 +46,28 @@ $(function() {
 		return photoGrid;
 	}
 
-	function addAspectRatios(photoRow) {
+	// function addAspectRatiosInitial(photoRow) {
+	// 	var ar = 0;
+
+	// 	photoRow.forEach(function(photo) {
+	// 		ar += photo.file_properties.image_properties.aspect_ratio;
+	// 	});
+
+	// 	return ar;
+	// }
+
+	function addAspectRatios(photoRow, update) {
 		var ar = 0;
 
-		photoRow.forEach(function(photo) {
-			ar += photo.file_properties.image_properties.aspect_ratio;
-		});
+		for (var i = 0; i < photoRow.length; i++) {
+			ar += update ? parseFloat(photoRow[i][0].children[1].dataset.ar) : photoRow[i].file_properties.image_properties.aspect_ratio;
+		}
 
 		return ar;
 	}
 
 	function computeSpaceInRow(photoRow) {
-		var availableSpace = 842;
+		var availableSpace = containerWidth - containerPadding - photoMargin * photosInRow;
 
 		if (photoRow.length !== photosInRow) {
 			availableSpace += (photosInRow - photoRow.length) * photoMargin;
@@ -75,7 +87,18 @@ $(function() {
 			initialContent += `
 			<div class="item" id="${photo.id}" downloadLink="${photo._links.download}">
 				<div class="loader"></div>
-				<img class="lazy" data-ar="${photo.file_properties.image_properties.aspect_ratio}" data-category="${photo.metadata.fields.gallery[0]}" height="${photoHeight}" width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}" src="" data-src="${photo.thumbnails['600px'].url}"></img>
+				<img
+					class="lazy"
+					data-ar="${photo.file_properties.image_properties.aspect_ratio}"
+					data-original-src="${photo.embeds['AssetOriginalWidth/Height'].url}"
+					data-original-height="${photo.file_properties.image_properties.height}"
+					data-original-width="${photo.file_properties.image_properties.width}"
+					data-category="${photo.metadata.fields.gallery[0]}"
+					height="${photoHeight}"
+					width="${photo.file_properties.image_properties.aspect_ratio * photoHeight}"
+					src=""
+					data-src="${photo.thumbnails['600px'].url}">
+				</img>
 				<div class="overlay">
 					<div class="photo-controls">
 						<button type="button" class="btn btn-default select-button">
@@ -208,7 +231,9 @@ $(function() {
 
 		if (viewingSelected) {
 			updatePreviousView(photoElement);
-			photoElement.fadeOut();
+			photoElement.fadeOut(function() {
+				recalculatePhotoDimensions();
+			});
 		}
 	}
 
@@ -230,13 +255,33 @@ $(function() {
 
 		if (viewingSelected) {
 			previousView = $('.item').detach();
-			
+			recalculatePhotoDimensions();
 			selectedPhotoElement.forEach(function(element) {
 				element.appendTo('#photo-grid');
 			});
 		} else {
 			$('.item').detach();
 			previousView.appendTo('#photo-grid');
+		}
+	}
+
+	function recalculatePhotoDimensions() {
+		var photoGrid = groupPhotos(selectedPhotoElement);
+
+		photoGrid.forEach(function(photoRow) {
+			var ar = addAspectRatios(photoRow, true);
+			var availableSpace = computeSpaceInRow(photoRow);
+			var photoHeight = computeRowHeight(ar, availableSpace);
+
+			alterImageDimensions(photoRow, photoHeight);
+		});
+	}
+
+	function alterImageDimensions(photoRow, photoHeight) {
+		for (var i = 0; i < photoRow.length; i++) {
+			var ar = photoRow[i][0].children[1].attributes["data-ar"].value;
+			photoRow[i][0].children[1].setAttribute("height", photoHeight);
+			photoRow[i][0].children[1].setAttribute("width", photoHeight * ar);
 		}
 	}
 
