@@ -12,22 +12,6 @@ $(function() {
 
 	init(ApiCall);
 
-	$('#view-selected-button').click(function() {
-		viewingSelected = !viewingSelected;
-		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
-
-		if (viewingSelected) {
-			previousView = $('.item').detach();
-			
-			selectedPhotoElement.forEach(function(element) {
-				element.appendTo('#photo-grid');
-			});
-		} else {
-			$('.item').detach();
-			previousView.appendTo('#photo-grid');
-		}
-	});
-
 	function init(ApiCall) {
 		$.get(ApiCall, function(data) {
 			var initialContent = '';
@@ -45,6 +29,7 @@ $(function() {
 			$('img').on('click', lightboxInit);
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
+			$('#view-selected-button').on('click', handleViewSelectedClick);
 		});
 	}
 
@@ -236,6 +221,22 @@ $(function() {
 				previousViewItem.classList.add('btn-default');
 				previousViewItem.innerHTML = unselectedButtonText;
 			}
+		}
+	}
+
+	function handleViewSelectedClick() {
+		viewingSelected = !viewingSelected;
+		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
+
+		if (viewingSelected) {
+			previousView = $('.item').detach();
+			
+			selectedPhotoElement.forEach(function(element) {
+				element.appendTo('#photo-grid');
+			});
+		} else {
+			$('.item').detach();
+			previousView.appendTo('#photo-grid');
 		}
 	}
 
