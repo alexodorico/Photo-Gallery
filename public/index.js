@@ -52,6 +52,14 @@ $(function() {
 		});
 	}
 
+	function viewAllPhotos() {
+		for (var category in categoryData) {
+			$('#photo-grid').append(categoryData[category].markup);
+		}
+
+		viewingAll = true;
+	}
+
 	function getCategories(photos) {
 		var categories = [];
 
@@ -356,22 +364,38 @@ $(function() {
 		}
 
 		if (viewingAll && !viewingSelected) {
-			var categoriesToStore = categories.filter(function(category) {
-				return category !== categoryName;
-			});
+			// var categoriesToStore = categories.filter(function(category) {
+			// 	return category !== categoryName;
+			// });
 
-			for (var category of categoriesToStore) {
-				categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
-			}
+			// for (var category of categoriesToStore) {
+			// 	categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+			// }
+
+			storeAllCategories(categoryName);
 
 			selectedCategory = categoryName;
 			viewingAll = false;
-
 		} else {
 			categoryData[selectedCategory].markup = $(`.item[data-category="${selectedCategory}"]`).detach();
-			$('#photo-grid').append(categoryData[categoryName].markup);
 
+			if (categoryName === 'View All') {
+				viewAllPhotos('all');
+			} else {
+				$('#photo-grid').append(categoryData[categoryName].markup);
+			}
+			
 			selectedCategory = categoryName;
+		}
+	}
+
+	function storeAllCategories(categoryName) {
+		var categoriesToStore = categories.filter(function(category) {
+			return category !== categoryName;
+		});
+
+		for (var category of categoriesToStore) {
+			categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
 		}
 	}
 
