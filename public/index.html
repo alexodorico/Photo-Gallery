@@ -12,15 +12,19 @@
 	<body>
 		<iframe style="display:none"></iframe>
 		<div class="photo-gallery">
-			<div class="controls">
-				<div class="top clearfix">
-					<div class="gallery-info">
-						<h1 class="gallery-title">Image Gallery Test</h1>
-						<p>Placeholder for optional description of the photo gallery optional placeholder text.</p>
-					</div>
-			
-					<div class="btn-group top-buttons">
-						<button type="button" id="view-selected-button" class="btn btn-default">View Selected</button>
+
+			<div class="controls clearfix">
+				<div class="gallery-info">
+					<h1>Image Gallery Test</h1>
+					<p>Placeholder for optional description of the photo gallery.</p>
+				</div>
+		
+				<div class="top-buttons clearfix">
+					<ul id="selected-categories">
+						<li id="viewing">Viewing: </li>
+						<li class="selected-category-item">All</li>
+					</ul>
+					<div class="right-buttons">
 						<div class="btn-group">
 							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download <span class="caret"></span></button>
 							<ul class="dropdown-menu">
@@ -30,21 +34,20 @@
 								<li><a href="#">All Photos</a></li>
 							</ul>
 						</div>
+						<div class="categories-section">
+							<div class="categories dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Select Category <span class="caret"></span></button>
+								<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
+									<li class="category-item" data-selected="false" data-category="all"><a href="#">All</a></li>
+								</ul>
+							</div>
+						</div>
 					</div>
-				</div>
-				<div class="categories-section clearfix">
-					<div class="categories dropdown">
-						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Select Category <span class="caret"></span></button>
-						<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
-							<li class="category-item" data-selected="false" data-category="all"><a href="#">All</a></li>
-						</ul>
-					</div>
-					<ul id="selected-categories">
-						<li id="viewing">Viewing: </li>
-						<li class="selected-category-item">All</li>
-					</ul>
 				</div>
 			</div>
+
+			<button type="button" id="view-selected-button" class="btn btn-primary">View Selected</button>
+
 			<div id="photo-grid" class="clearfix">
 			</div>
 
