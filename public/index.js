@@ -2,8 +2,10 @@ $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
 	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=50';
 	var ApiCall = API_BASE + API_QUERY;
+
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
+
 	var selectedPhotoElement = [];
 	var previousView;
 
@@ -15,6 +17,7 @@ $(function() {
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28 // 14 pixels on the left AND right of each photo
+
 	var categoryData = {};
 	var categories = [];
 
@@ -43,21 +46,13 @@ $(function() {
 			
 			$('#photo-grid').append(initialContent);
 			lazyLoadSetUp();
-			populateCategories(categories);
+			populateCategoriesDropDown(categories);
 			$('.category-item').on('click', addCategoryToView);
 			$('img').on('click', lightboxInit);
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
 			$('#view-selected-button').on('click', handleViewSelectedClick);
 		});
-	}
-
-	function viewAllPhotos() {
-		for (var category in categoryData) {
-			$('#photo-grid').append(categoryData[category].markup);
-		}
-
-		viewingAll = true;
 	}
 
 	function getCategories(photos) {
@@ -83,8 +78,8 @@ $(function() {
 		this.markup = '';
 	}
 
-	function populateCategories(categories) {
-		var categoryMenu = $('.dropdown-menu');
+	function populateCategoriesDropDown(categories) {
+		var categoryMenu = $('.category-dd-menu');
 
 		categories.forEach(function(category) {
 			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${category}</a></li>`)
@@ -265,8 +260,7 @@ $(function() {
 	}
 
 	function handleSingleDownloadClick() {
-		var $this = $(this);
-		var downloadLink = $this.parents('.item').attr('downloadLink');
+		var downloadLink = $(this).parents('.item').attr('downloadLink');
 		$('iframe').attr("src", downloadLink);
 	}
 
@@ -310,7 +304,7 @@ $(function() {
 
 	function handleViewSelectedClick() {
 		viewingSelected = !viewingSelected;
-		this.innerText == "View Selected" ? this.innerText = "View All" : this.innerText = "View Selected";
+		this.innerText == "View Selected" ? this.innerText = "Previous View" : this.innerText = "View Selected";
 
 		if (viewingSelected) {
 			previousView = $('.item').detach();
@@ -347,31 +341,13 @@ $(function() {
 	////////////////////////////////////////////////
 	// HANDLES ADDING/REMOVING CATEGORIES TO VIEW //
 	////////////////////////////////////////////////
-	var $categoryItems = document.getElementsByClassName('category-item');
-	var $selectedCategoriesList = document.getElementById('selected-categories');
-
 	function addCategoryToView(event) {
 		var categoryName = event.target.innerText;
-		var categoryElement = createCategoryElement(categoryName);
-		var $selectedCategoryItems = document.getElementsByClassName('selected-category-item');
 
-		if (checkIfSelected(event)) return;
-
-		$selectedCategoriesList.append(categoryElement);
-
-		for (var element of $selectedCategoryItems) {
-			element.addEventListener("click", removeCategoryFromView);
-		}
+		$('.selected-category-item').detach();
+		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
 
 		if (viewingAll && !viewingSelected) {
-			// var categoriesToStore = categories.filter(function(category) {
-			// 	return category !== categoryName;
-			// });
-
-			// for (var category of categoriesToStore) {
-			// 	categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
-			// }
-
 			storeAllCategories(categoryName);
 
 			selectedCategory = categoryName;
@@ -379,8 +355,12 @@ $(function() {
 		} else {
 			categoryData[selectedCategory].markup = $(`.item[data-category="${selectedCategory}"]`).detach();
 
-			if (categoryName === 'View All') {
-				viewAllPhotos('all');
+			if (categoryName === 'All') {
+				for (var category in categoryData) {
+					$('#photo-grid').append(categoryData[category].markup);
+				}
+		
+				viewingAll = true;
 			} else {
 				$('#photo-grid').append(categoryData[categoryName].markup);
 			}
@@ -399,28 +379,11 @@ $(function() {
 		}
 	}
 
-	function checkIfSelected(event) {
-		var dataset = event.target.parentElement.dataset;
-		if (dataset.selected === "false") {
-			dataset.selected = "true";
-			return false;
-		} else {
-			return true;
+	function viewAllPhotos() {
+		for (var category in categoryData) {
+			$('#photo-grid').append(categoryData[category].markup);
 		}
-	}
 
-	function createCategoryElement(categoryName) {
-		var categoryElement = document.createElement('li');
-		categoryElement.innerHTML = categoryName;
-		categoryElement.className = "selected-category-item";
-		return categoryElement;
-	}
-
-	function removeCategoryFromView(event) {
-		var categoryName = event.target.innerText;
-		for (var element of $categoryItems) {
-			if (element.innerText == categoryName) element.dataset.selected = false;
-		}
-		event.target.remove();
+		viewingAll = true;
 	}
 });
