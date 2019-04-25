@@ -286,20 +286,18 @@ ul {
 #selected-categories {
 	list-style: none;
 
-	li {
-		display: inline-block;
-		border: 1px solid #ddd;
-		border-radius: 15px;
-		padding: 5px 15px;
-		margin: 0 0 0 3px;
+	#viewing {
+		margin-left: 15px;
 	}
 
 	.selected-category-item {
-		&:hover {
-			cursor: pointer;
-			background-color: #555;
-			color: #fff;
-		}
+		text-decoration: underline;
+	}
+
+	li {
+		display: inline-block;
+		padding: 7px 2px;
+		margin: 0 0 0 3px;
 	}
 }
 
