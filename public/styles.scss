@@ -1,6 +1,7 @@
 /////////////////////
 //////  GRID  ///////
 /////////////////////
+$fallback-overlay-bg-color: #ddd;
 $overlay-bg-color: rgba(125,125,125,0.75);
 $overlay-text-color: #000;
 $overlay-height: 50px;
@@ -22,6 +23,7 @@ $grid-spacing: 10px;
 		}
 
 		.overlay {
+			background-color: $fallback-overlay-bg-color;
 			background-color: $overlay-bg-color;
 			color: $overlay-text-color;
 
@@ -221,10 +223,6 @@ $grid-spacing: 10px;
 /////////////////////
 ////  CONTROLS  /////
 /////////////////////
-ul {
-	margin-bottom: 0;
-}
-
 .gallery-info {
 	padding: 0 5px;
 }
@@ -245,7 +243,7 @@ ul {
 
 .top-buttons {
 	width: 100%;
-	padding: 0 5px 10px;
+	padding: 15px 5px;
 }
 
 .categories-section {
@@ -264,6 +262,7 @@ ul {
 	float: left;
 	list-style: none;
 	padding-left: 0;
+	margin-bottom: 0;
 
 	.selected-category-item {
 		text-decoration: underline;
@@ -272,7 +271,6 @@ ul {
 	li {
 		display: inline-block;
 		padding: 7px 2px;
-		margin: 0 0 0 3px;
 	}
 }
 
