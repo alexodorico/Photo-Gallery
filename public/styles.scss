@@ -1,4 +1,65 @@
 /////////////////////
+////  CONTROLS  /////
+/////////////////////
+.gallery-info {
+	padding: 0 5px;
+}
+
+.photo-gallery {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 0 1em;
+}
+
+.right-buttons {
+	float: right;
+
+	.btn-group {
+		float: right;
+	}
+}
+
+.top-buttons {
+	width: 100%;
+	padding: 15px 5px;
+}
+
+.categories-section {
+	float: right;
+
+	.categories.dropdown {
+		margin-right: 5px;
+	}
+
+	.sub-category {
+		padding-left: 0;
+	}
+}
+
+#selected-categories {
+	float: left;
+	list-style: none;
+	padding-left: 0;
+	margin-bottom: 0;
+
+	.selected-category-item {
+		text-decoration: underline;
+	}
+
+	li {
+		display: inline-block;
+		padding: 7px 2px;
+	}
+}
+
+#view-selected-button {
+	position: fixed;
+	bottom: 1em;
+	right: 1em;
+	z-index: 999;
+}
+
+/////////////////////
 //////  GRID  ///////
 /////////////////////
 $fallback-overlay-bg-color: #ddd;
@@ -15,7 +76,7 @@ $grid-spacing: 10px;
 		z-index: 1;
 	
 		img {
-			@media (max-width: 500px) {
+			@media (max-width: 600px) {
 				width: 100%;
 				height: 100%;
 			}
@@ -85,7 +146,7 @@ $grid-spacing: 10px;
 	}
 }
 
-@media (min-width: 500px) {
+@media (min-width: 600px) {
 	/////////////////////
 	//// FLOAT + OF /////
 	/////////////////////
@@ -175,108 +236,52 @@ $grid-spacing: 10px;
 	// }
 }
 
-.loader,
-.loader:after {
-  border-radius: 50%;
-  width: 5em;
-  height: 5em;
-  z-index: 2;
-}
-.loader {
-  font-size: 10px;
-  position: absolute;
-  left: 40%;
-  top: 40%;
-  z-index: -1;
-  text-indent: -9999em;
-  border-top: 1.1em solid rgba(255, 255, 255, 0.2);
-  border-right: 1.1em solid rgba(255, 255, 255, 0.2);
-  border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
-  border-left: 1.1em solid #eee;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation: load8 1.1s infinite linear;
-  animation: load8 1.1s infinite linear;
-}
-@-webkit-keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-/////////////////////
-////  CONTROLS  /////
-/////////////////////
-.gallery-info {
-	padding: 0 5px;
-}
-
-.photo-gallery {
-	max-width: 900px;
-	margin: 0 auto;
-	padding: 0 1em;
-}
-
-.right-buttons {
-	float: right;
-
-	.btn-group {
-		float: right;
-	}
-}
-
-.top-buttons {
-	width: 100%;
-	padding: 15px 5px;
-}
-
-.categories-section {
-	float: right;
-
-	.categories.dropdown {
-		margin-right: 5px;
+.cssanimations {
+	.loader,
+	.loader:after {
+		border-radius: 50%;
+		width: 5em;
+		height: 5em;
+		z-index: 2;
 	}
 
-	.sub-category {
-		padding-left: 0;
+	.loader {
+		font-size: 10px;
+		position: absolute;
+		left: 40%;
+		top: 40%;
+		z-index: -1;
+		text-indent: -9999em;
+		border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-left: 1.1em solid #eee;
+		-webkit-transform: translateZ(0);
+		-ms-transform: translateZ(0);
+		transform: translateZ(0);
+		-webkit-animation: load 1.1s infinite linear;
+		animation: load 1.1s infinite linear;
 	}
-}
 
-#selected-categories {
-	float: left;
-	list-style: none;
-	padding-left: 0;
-	margin-bottom: 0;
-
-	.selected-category-item {
-		text-decoration: underline;
+	@-webkit-keyframes load {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
 	}
 
-	li {
-		display: inline-block;
-		padding: 7px 2px;
+	@keyframes load {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
 	}
-}
-
-#view-selected-button {
-	position: fixed;
-	bottom: 1em;
-	right: 1em;
-	z-index: 999;
 }
