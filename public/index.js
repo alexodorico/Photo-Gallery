@@ -50,8 +50,8 @@ $(function() {
 			$('#photo-grid').append(initialContent);
 			lazyLoadSetUp();
 			$('img').on('click', lightboxInit);
-			$('.download-button').on('click', handleSingleDownloadClick);
 			$('.select-button').on('click', handleSelectButtonClick);
+			$('.download-button').on('click', handleSingleDownloadClick);
 		});
 	}
 
