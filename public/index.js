@@ -7,7 +7,7 @@ $(function() {
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 
 	var selectedPhotoElement = [];
-	var previousView;
+	//var previousView;
 
 	var viewingSelected = false;
 	var viewingAll = true;
@@ -16,7 +16,7 @@ $(function() {
 	var containerWidth = 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
-	var containerPadding = 28 // 14 pixels on the left AND right of each photo
+	var containerPadding = 28; // 14 pixels on the left AND right of each photo
 
 	var categoryData = {};
 	var categories = [];
@@ -99,36 +99,69 @@ $(function() {
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
 
-		if (viewingAll && !viewingSelected) {
-			storeCategories(categoryName);
-
-			selectedCategory = categoryName;
-			viewingAll = false;
-		} else {
-			categoryData[selectedCategory].markup = $(`.item[data-category="${selectedCategory}"]`).detach();
+		if (viewingAll) {
+			for (var category of categories) {
+				storeCategory(category);
+			}
 
 			if (categoryName === 'All') {
-				for (var category in categoryData) {
-					$('#photo-grid').append(categoryData[category].markup);
+				for (var categoryName in categoryData) {
+					viewCategory(categoryName);
 				}
 		
 				viewingAll = true;
 			} else {
-				$('#photo-grid').append(categoryData[categoryName].markup);
+				viewCategory(categoryName);
+				viewingAll = false;
+			}
+
+			selectedCategory = categoryName;
+			
+		} else if (viewingSelected) {
+			$('.item').detach();
+			// var newPhotosArray = [];
+			// $.map(photos, function(val, i) {
+			// 	newPhotosArray.push(photos.eq(i));
+			// });
+			// console.log(newPhotosArray);
+			// console.log(selectedPhotoElement);
+			// console.log(selectedPhotoElement == newPhotosArray);
+			
+			if (categoryName === 'All') {
+				for (var categoryName in categoryData) {
+					viewCategory(categoryName);
+				}
+		
+				viewingAll = true;
+			} else {
+				viewCategory(categoryName);
+				selectedCategory = categoryName;
+			}
+
+			viewingSelected = false;
+		} else {
+			storeCategory(selectedCategory);
+
+			if (categoryName === 'All') {
+				for (var categoryName in categoryData) {
+					viewCategory(categoryName);
+				}
+		
+				viewingAll = true;
+			} else {
+				viewCategory(categoryName);
 			}
 			
 			selectedCategory = categoryName;
 		}
 	}
 
-	function storeCategories(categoryName) {
-		var categoriesToStore = categories.filter(function(category) {
-			return category !== categoryName;
-		});
+	function storeCategory(category) {
+		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+	}
 
-		for (var category of categoriesToStore) {
-			categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
-		}
+	function viewCategory(categoryName) {
+		$('#photo-grid').append(categoryData[categoryName].markup);
 	}
 
 	// Creates two dimensional array
@@ -315,7 +348,7 @@ $(function() {
 		selectedPhotoElement.splice(photoElementIndex, 1);
 
 		if (viewingSelected) {
-			updatePreviousView(photoElement);
+			//updatePreviousView(photoElement);
 			photoElement.fadeOut(function() {
 				recalculatePhotoDimensions();
 			});
@@ -323,17 +356,17 @@ $(function() {
 	}
 
 	// classList isn't IE9 compatible, change later...
-	function updatePreviousView(photoElement) {
-		console.log(previousView);
-		for (var element in previousView) {
-			if (previousView[element].id === photoElement[0].id) {
-				var previousViewItem = previousView[element].lastElementChild.lastElementChild.firstElementChild;
-				previousViewItem.classList.remove('btn-success');
-				previousViewItem.classList.add('btn-default');
-				previousViewItem.innerHTML = unselectedButtonText;
-			}
-		}
-	}
+	// function updatePreviousView(photoElement) {
+	// 	console.log(previousView);
+	// 	for (var element in previousView) {
+	// 		if (previousView[element].id === photoElement[0].id) {
+	// 			var previousViewItem = previousView[element].lastElementChild.lastElementChild.firstElementChild;
+	// 			previousViewItem.classList.remove('btn-success');
+	// 			previousViewItem.classList.add('btn-default');
+	// 			previousViewItem.innerHTML = unselectedButtonText;
+	// 		}
+	// 	}
+	// }
 
 	function recalculatePhotoDimensions() {
 		var photoGrid = groupPhotos(selectedPhotoElement);
@@ -356,19 +389,39 @@ $(function() {
 	}
 
 	function handleViewSelectedClick() {
-		viewingSelected = !viewingSelected;
-		this.innerText == "View Selected" ? this.innerText = "Previous View" : this.innerText = "View Selected";
+		if (viewingSelected) return;
+		
+		// this.innerText == "View Selected" ? this.innerText = "Previous View" : this.innerText = "View Selected";
 
-		if (viewingSelected) {
-			previousView = $('.item').detach();
-			recalculatePhotoDimensions();
-			selectedPhotoElement.forEach(function(element) {
-				element.appendTo('#photo-grid');
-			});
+		// if (viewingSelected) {
+		// 	previousView = $('.item').detach();
+		// 	recalculatePhotoDimensions();
+		// 	selectedPhotoElement.forEach(function(element) {
+		// 		element.appendTo('#photo-grid');
+		// 	});
+		// } else {
+		// 	$('.item').detach();
+		// 	previousView.appendTo('#photo-grid');
+		// }
+		if (viewingAll) {
+			for (var category of categories) {
+				storeCategory(category);
+			}
+			viewingAll = false;
 		} else {
-			$('.item').detach();
-			previousView.appendTo('#photo-grid');
+			storeCategory(selectedCategory);
 		}
+
+		viewSelected();
+		viewingSelected = true;
+	}
+
+	function viewSelected() {
+		console.log(selectedPhotoElement);
+		recalculatePhotoDimensions();
+		selectedPhotoElement.forEach(function(element) {
+			element.appendTo('#photo-grid');
+		});
 	}
 
 	function handleSingleDownloadClick() {
