@@ -405,6 +405,10 @@ $(function() {
 		}
 
 		viewSelected();
+
+		$('.selected-category-item').detach();
+		$('#selected-categories').append(`<li class="selected-category-item">Selected</li>`);
+
 		viewingSelected = true;
 	}
 
