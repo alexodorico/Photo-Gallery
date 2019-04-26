@@ -280,24 +280,31 @@ $(function() {
 		}
 	}
 
-	// TODO: Get index of clicked photo and pass to options object
-	// 		 Lazy-Loading
+	// TODO: 
 	//		 Remove photo when unselected in view selected
-	//		 Add thumbnails
-	//		 Get h/w for full-size image		
-	function lightboxInit() {
+	//		 Add thumbnails	
+	function lightboxInit(e) {
 		var pswpElement = document.querySelectorAll('.pswp')[0];
 		var lightboxPhotos = [];
 		var $items = $('.item');
+		var element = e.target.parentElement;
+		var i = 0;
 		var options = {
 			index: 0
 		};
 
+		while (element.previousElementSibling != null) {
+			element = element.previousElementSibling;
+			i++;
+		}
+
+		options.index = i;
+
 		for (var i = 0; i < $items.length; i++) {
 			var item = {};
-			item.src = $items[i].children[1].attributes.src.value;
-			item.w = $items[i].clientWidth;
-			item.h = $items[i].clientHeight;
+			item.src = $items[i].children[1].dataset['originalSrc'];
+			item.w = $items[i].children[1].dataset['originalWidth'];
+			item.h = $items[i].children[1].dataset['originalHeight'];
 			lightboxPhotos.push(item);
 		}
 	
