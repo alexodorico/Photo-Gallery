@@ -7,7 +7,6 @@ $(function() {
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
 
 	var selectedPhotoElement = [];
-	//var previousView;
 
 	var viewingSelected = false;
 	var viewingAll = true;
@@ -105,39 +104,33 @@ $(function() {
 			}
 
 			if (categoryName === 'All') {
-				for (var categoryName in categoryData) {
-					viewCategory(categoryName);
-				}
-				viewingAll = true;
+				viewAll();
 			} else {
 				viewCategory(categoryName);
 				viewingAll = false;
 			}
+			
 			selectedCategory = categoryName;
 		} else if (viewingSelected) {
 			$('.item').detach();
 			
 			if (categoryName === 'All') {
-				for (var categoryName in categoryData) {
-					viewCategory(categoryName);
-				}
-				viewingAll = true;
+				viewAll();
 			} else {
 				viewCategory(categoryName);
 				selectedCategory = categoryName;
 			}
+
 			viewingSelected = false;
 		} else {
 			storeCategory(selectedCategory);
 
 			if (categoryName === 'All') {
-				for (var categoryName in categoryData) {
-					viewCategory(categoryName);
-				}
-				viewingAll = true;
+				viewAll();
 			} else {
 				viewCategory(categoryName);
 			}
+
 			selectedCategory = categoryName;
 		}
 	}
@@ -148,6 +141,14 @@ $(function() {
 
 	function viewCategory(categoryName) {
 		$('#photo-grid').append(categoryData[categoryName].markup);
+	}
+
+	function viewAll() {
+		for (var categoryName in categoryData) {
+			viewCategory(categoryName);
+		}
+
+		viewingAll = true;
 	}
 
 	// Creates two dimensional array
@@ -319,6 +320,7 @@ $(function() {
 	function selectPhoto($this) {
 		var photoMarkup = $this.parents('.item').clone(true);
 		selectedPhotoElement.push(photoMarkup);
+		updateCount();
 	}
 
 	function deselectPhoto($this) {
@@ -339,6 +341,13 @@ $(function() {
 				recalculatePhotoDimensions();
 			});
 		}
+
+		updateCount();
+	}
+
+	function updateCount() {
+		var count = selectedPhotoElement.length;
+		$('.badge').text(count);
 	}
 
 	// classList isn't IE9 compatible, change later...
@@ -378,19 +387,7 @@ $(function() {
 
 	function handleViewSelectedClick() {
 		if (viewingSelected) return;
-		
-		// this.innerText == "View Selected" ? this.innerText = "Previous View" : this.innerText = "View Selected";
 
-		// if (viewingSelected) {
-		// 	previousView = $('.item').detach();
-		// 	recalculatePhotoDimensions();
-		// 	selectedPhotoElement.forEach(function(element) {
-		// 		element.appendTo('#photo-grid');
-		// 	});
-		// } else {
-		// 	$('.item').detach();
-		// 	previousView.appendTo('#photo-grid');
-		// }
 		if (viewingAll) {
 			for (var category of categories) {
 				storeCategory(category);
@@ -405,8 +402,6 @@ $(function() {
 	}
 
 	function viewSelected() {
-		console.log(selectedPhotoElement);
-		console.log(categoryData["Fireworks"].markup);
 		recalculatePhotoDimensions();
 		selectedPhotoElement.forEach(function(element) {
 			element.appendTo('#photo-grid');

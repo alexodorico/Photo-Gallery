@@ -57,6 +57,12 @@
 	bottom: 1em;
 	right: 1em;
 	z-index: 999;
+
+	.badge {
+		margin-left: 5px;
+		position: relative;
+		top: -2px;
+	}
 }
 
 /////////////////////
