@@ -108,36 +108,24 @@ $(function() {
 				for (var categoryName in categoryData) {
 					viewCategory(categoryName);
 				}
-		
 				viewingAll = true;
 			} else {
 				viewCategory(categoryName);
 				viewingAll = false;
 			}
-
 			selectedCategory = categoryName;
-			
 		} else if (viewingSelected) {
 			$('.item').detach();
-			// var newPhotosArray = [];
-			// $.map(photos, function(val, i) {
-			// 	newPhotosArray.push(photos.eq(i));
-			// });
-			// console.log(newPhotosArray);
-			// console.log(selectedPhotoElement);
-			// console.log(selectedPhotoElement == newPhotosArray);
 			
 			if (categoryName === 'All') {
 				for (var categoryName in categoryData) {
 					viewCategory(categoryName);
 				}
-		
 				viewingAll = true;
 			} else {
 				viewCategory(categoryName);
 				selectedCategory = categoryName;
 			}
-
 			viewingSelected = false;
 		} else {
 			storeCategory(selectedCategory);
@@ -146,12 +134,10 @@ $(function() {
 				for (var categoryName in categoryData) {
 					viewCategory(categoryName);
 				}
-		
 				viewingAll = true;
 			} else {
 				viewCategory(categoryName);
 			}
-			
 			selectedCategory = categoryName;
 		}
 	}
@@ -360,8 +346,6 @@ $(function() {
 		var id = photoElement[0].id;
 		var category = photoElement[0].dataset.category;
 
-		console.log(categoryData[category].markup);
-
 		for (var element of categoryData[category].markup) {
 			if (element.id === id) {
 				var button = element.lastElementChild.lastElementChild.firstElementChild;
@@ -370,14 +354,6 @@ $(function() {
 				button.innerHTML = unselectedButtonText;
 			}
 		}
-		// for (var element in previousView) {
-		// 	if (previousView[element].id === photoElement[0].id) {
-		// 		var previousViewItem = previousView[element].lastElementChild.lastElementChild.firstElementChild;
-		// 		previousViewItem.classList.remove('btn-success');
-		// 		previousViewItem.classList.add('btn-default');
-		// 		previousViewItem.innerHTML = unselectedButtonText;
-		// 	}
-		// }
 	}
 
 	function recalculatePhotoDimensions() {
