@@ -11,6 +11,13 @@
 	padding: 0 1em;
 }
 
+.controls {
+	background-color: #fff;
+	position: sticky;
+	top: 0;
+	z-index: 4;
+}
+
 .right-buttons {
 	float: right;
 
@@ -21,7 +28,7 @@
 
 .top-buttons {
 	width: 100%;
-	padding: 15px 5px;
+	padding: 0 5px 15px;
 }
 
 .categories-section {
@@ -68,11 +75,14 @@
 /////////////////////
 //////  GRID  ///////
 /////////////////////
-$fallback-overlay-bg-color: #ddd;
-$overlay-bg-color: rgba(200,200,200,0.75);
+$overlay-bg-color: rgba(255,255,255,0.33);
 $overlay-text-color: #000;
 $overlay-height: 50px;
 $grid-spacing: 10px;
+
+.gallery-container {
+	padding: 0 !important;
+}
 
 #photo-grid {
 	.item {
@@ -82,7 +92,7 @@ $grid-spacing: 10px;
 		z-index: 1;
 	
 		img {
-			@media (max-width: 600px) {
+			@media (max-width: 767px) {
 				width: 100%;
 				min-height: 200px;
 				height: 100%;
@@ -91,7 +101,6 @@ $grid-spacing: 10px;
 		}
 
 		.overlay {
-			background-color: $fallback-overlay-bg-color;
 			background-color: $overlay-bg-color;
 			color: $overlay-text-color;
 
@@ -141,92 +150,67 @@ $grid-spacing: 10px;
 
 .touch {
 	.item {
-		box-shadow: 0 0 2px #555;
+		position: relative;
 	}
 
 	.overlay {
 		height: $overlay-height;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
 
 		h1 {
 			height: $overlay-height;
 			float: left;
 		}
 	}
+}
 
-	@media (max-width: 600px) {
-		.right-buttons {
-			width: 100%;
+@media (max-width: 767px) {
+	.right-buttons {
+		width: 100%;
+		float: left;
+
+		.btn-group {
+			float: initial;
+		}
+	}
+
+	.top-button {
+		padding-left: 0;
+	}
+
+	.categories-section {
+		float: left;
+		display: inline-block;
+	}
+
+	.download-button {
+		display: none;
+	}
+
+	.select-button {
+		font-size: 14px;
+	}
+}
+
+@media (min-width: 767px) and (max-width: 1169px) {
+	#photo-grid {
+		.item {
+			width: 49%;
+			margin: 0 .5% $grid-spacing;
 			float: left;
-	
-			.btn-group {
-				float: initial;
+
+			img {
+				object-fit: cover;
+				height: 250px;
+				width: 100%;
 			}
-		}
-	
-		.top-button {
-			padding-left: 0;
-		}
-	
-		.categories-section {
-			float: left;
-			display: inline-block;
-		}
-
-		.download-button {
-			display: none;
-		}
-
-		.select-button {
-			font-size: 14px;
 		}
 	}
 }
 
-@media (min-width: 600px) {
-	/////////////////////
-	//// FLOAT + OF /////
-	/////////////////////
-	// #photo-grid {
-	// 	.item {
-	// 		width: 49%;
-	// 		margin: 0 .5% $grid-spacing;
-	// 		float: left;
-
-	// 		img {
-	// 			object-fit: cover;
-	// 			height: 200px;
-	// 		}
-	// 	}
-	// }
-
-	///////////////
-	// COLUMNS ////
-	///////////////
-	// .csscolumns #photo-grid {
-	// 	column-count: 2;
-	// 	column-gap: $grid-spacing;
-
-	// 	.item {
-	// 		width: initial;
-	// 	}
-	// }
-
-	// .no-csscolumns #photo-grid {
-	// 	.item {
-	// 		width: 49%;
-	// 		margin: 0 .5% $grid-spacing;
-	// 		float: left;
-
-	// 		img {
-	// 			object-fit: cover;
-	// 			height: 200px;
-	// 		}
-	// 	}
-	// }
-
-	////////////////
-	//// FLEXBOX ///
-	////////////////
+@media (min-width: 1170px) {
 	.flexbox #photo-grid {
 		display: flex;
 		flex-wrap: wrap;
@@ -245,31 +229,6 @@ $grid-spacing: 10px;
 			}
 		}
 	}
-}
-
-@media (min-width: 1170px) { 
-	//////////////////
-	// FLOAT + OF ////
-	//////////////////
-	// #photo-grid {
-	// 	.item {
-	// 		width: 32%;
-	// 		margin: 0 .66% $grid-spacing;
-	// 	}
-	// }
-
-	/////////////
-	// COLUMNS //
-	/////////////
-	// .csscolumns #photo-grid {
-	// 	column-count: 3;
-	// }
-	// .no-csscolumns #photo-grid {
-	// 	.item {
-	// 		width: 32%;
-	// 		margin: 0 .66% $grid-spacing;
-	// 	}
-	// }
 }
 
 .cssanimations {
