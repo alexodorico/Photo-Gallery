@@ -69,7 +69,7 @@
 //////  GRID  ///////
 /////////////////////
 $fallback-overlay-bg-color: #ddd;
-$overlay-bg-color: rgba(125,125,125,0.75);
+$overlay-bg-color: rgba(200,200,200,0.75);
 $overlay-text-color: #000;
 $overlay-height: 50px;
 $grid-spacing: 10px;
@@ -84,6 +84,7 @@ $grid-spacing: 10px;
 		img {
 			@media (max-width: 600px) {
 				width: 100%;
+				min-height: 200px;
 				height: 100%;
 			}
 			z-index: 3;
@@ -102,7 +103,7 @@ $grid-spacing: 10px;
 
 			.photo-controls {
 				padding: 8px;
-				float: right;
+				float: left;
 			}
 		}
 	}
@@ -142,12 +143,41 @@ $grid-spacing: 10px;
 	.item {
 		box-shadow: 0 0 2px #555;
 	}
+
 	.overlay {
 		height: $overlay-height;
 
 		h1 {
 			height: $overlay-height;
 			float: left;
+		}
+	}
+
+	@media (max-width: 600px) {
+		.right-buttons {
+			width: 100%;
+			float: left;
+	
+			.btn-group {
+				float: initial;
+			}
+		}
+	
+		.top-button {
+			padding-left: 0;
+		}
+	
+		.categories-section {
+			float: left;
+			display: inline-block;
+		}
+
+		.download-button {
+			display: none;
+		}
+
+		.select-button {
+			font-size: 14px;
 		}
 	}
 }
