@@ -27,7 +27,6 @@ $(function() {
 			console.log(data);
 			var initialContent = '';
 
-			//categories = getCategories(data.items);
 			buildPhotoCategoryObject(categories);
 			addDataToCategory(data.items);
 			populateCategoriesDropDown(categories);
@@ -53,18 +52,6 @@ $(function() {
 			$('.select-button').on('click', handleSelectButtonClick);
 			$('.download-button').on('click', handleSingleDownloadClick);
 		});
-	}
-
-	function getCategories(photos) {
-		var categories = [];
-
-		photos.forEach(function(photo) {
-			if (categories.indexOf(photo.metadata.fields.gallery[0]) === -1) {
-				categories.push(photo.metadata.fields.gallery[0]);
-			}
-		});
-
-		return categories;
 	}
 
 	function buildPhotoCategoryObject(categories) {
