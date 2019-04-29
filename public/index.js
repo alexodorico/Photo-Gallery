@@ -1,6 +1,6 @@
 $(function() {
 	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	var API_QUERY = 'assets/search?query=jn%3AGT0000&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=50';
+	var API_QUERY = 'assets/search?query=jn%3A' + jobNumber + '&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=100';
 	var ApiCall = API_BASE + API_QUERY;
 
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
@@ -18,15 +18,16 @@ $(function() {
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
 
 	var categoryData = {};
-	var categories = [];
+	var categories = window.categories;
 
 	init(ApiCall);
 
 	function init(ApiCall) {
 		$.get(ApiCall, function(data) {
+			console.log(data);
 			var initialContent = '';
 
-			categories = getCategories(data.items);
+			//categories = getCategories(data.items);
 			buildPhotoCategoryObject(categories);
 			addDataToCategory(data.items);
 			populateCategoriesDropDown(categories);
@@ -78,8 +79,10 @@ $(function() {
 	}
 
 	function addDataToCategory(photos) {
+		console.log(categoryData);
+		console.log(categories);
 		for (var i = 0; i < photos.length; i++) {
-			var category = photos[i].metadata.fields.gallery[0];
+			var category = photos[i].metadata.fields.gallery[0].toLowerCase();
 			categoryData[category].data.push(photos[i]);
 		}
 	}
@@ -362,9 +365,9 @@ $(function() {
 		var id = photoElement[0].id;
 		var category = photoElement[0].dataset.category;
 
-		for (var element of categoryData[category].markup) {
-			if (element.id === id) {
-				var button = element.lastElementChild.lastElementChild.firstElementChild;
+		for (var element of Object.entries(categoryData[category].markup)) {
+			if (element[1].id === id) {
+				var button = element[1].lastElementChild.lastElementChild.firstElementChild;
 				button.classList.remove('btn-success');
 				button.classList.add('btn-default');
 				button.innerHTML = unselectedButtonText;
