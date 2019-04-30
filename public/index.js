@@ -37,8 +37,6 @@ $(function() {
 			categoryData[category].incrementOffset();
 			var offset = categoryData[category].offset;
 			var batch = offset / photoLimit;
-			console.log('photos = ' + offset);
-			console.log('batch = ' + batch);
 			var categoryGrid = groupPhotos(photos);
 
 			addDataToCategory(photos);
@@ -53,7 +51,7 @@ $(function() {
 
 			$('#photo-grid').append(content);
 			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
-			$('.download-button').on('click', handleSingleDownloadClick);
+			$(`[data=batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
 			lazyLoadSetUp();
 			$('img').on('click', lightboxInit);
 			handleScroll(category, offset);
@@ -218,7 +216,7 @@ $(function() {
 
 	function buildMarkup(photoRow, photoHeight, batch) {
 		var initialContent = '';
-		
+
 		photoRow.forEach(function(photo) {
 			initialContent += `
 			<div class="item"
