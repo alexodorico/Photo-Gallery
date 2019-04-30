@@ -1,43 +1,71 @@
 $(function() {
 	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
-
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
-
 	var selectedPhotoElement = [];
-
 	var viewingSelected = false;
 	var selectedCategory = '';
-
 	var containerWidth = 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
 	var photoLimit = 24; // How many photos get loaded per API call
-
 	var categoryData = {};
 	var categories = window.categories;
+	
+	init();
 
+	function init() {
+		buildPhotoCategoryObject(categories);
+		populateCategoriesDropDown(categories);
+		selectedCategory = categoryData[categories[0]].name;
 
-	buildPhotoCategoryObject(categories);
+		/////////// TESTING NO VIEW ALL /////////////////
+		$('.selected-category-item').text(categoryData[categories[0]].displayName());
+		$('[data-category="all"]').remove();
+	
+		$('.category-item').on('click', addCategoryToView);
+		$('#view-selected-button').on('click', handleViewSelectedClick);
+		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
+	}
 
-	/////////// TESTING NO VIEW ALL /////////////////
-	$('.selected-category-item').text(categoryData[categories[0]].displayName());
-	$('[data-category="all"]').remove();
+	function buildPhotoCategoryObject(categories) {
+		categories.forEach(function(category) {
+			categoryData[category] = new Category(category);
+		});
+	}
 
+	function Category(category) {
+		this.name = category;
+		this.displayName = function() {
+			return this.name.split(' ').map(function(word) {return word[0].toUpperCase() + word.substr(1);}).join(' ');
+		}
+		this.apiName = function() {
+			return this.name.replace(' ', '_');
+		}
+		this.data = [];
+		this.markup = '';
+		this.offset = 0;
+		this.incrementOffset = function() {
+			this.offset += photoLimit;
+		}
+	}
 
-	selectedCategory = categoryData[categories[0]].name;
+	function populateCategoriesDropDown(categories) {
+		var categoryMenu = $('.category-dd-menu');
 
-	populateCategoriesDropDown(categories);
-	$('.category-item').on('click', addCategoryToView);
-	$('#view-selected-button').on('click', handleViewSelectedClick);
-	getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
+		categories.forEach(function(category) {
+			var displayName = categoryData[category].displayName();
+			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
+		});
+	}
+
+	function buildAPICall(category, limit, offset) {
+		return `${API_BASE}job=${jobNumber}&cat=${category}&limit=${limit.toString()}&offset=${offset.toString()}`; 
+	}
 
 	function getData(endpoint) {
 		$.get(endpoint, function(data) {
-			console.log('got data');
-			console.log(data);
-
 			var content = '';
 			var photos = data.items;
 			var category = photos[0].metadata.fields.gallery[0].toLowerCase();
@@ -57,99 +85,12 @@ $(function() {
 			}			
 
 			$('#photo-grid').append(content);
+			lazyLoadSetUp();
+			handleScroll(category, offset);
 			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
 			$(`[data-batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
-			lazyLoadSetUp();
 			$('img').on('click', lightboxInit);
-			handleScroll(category, offset);
 		});
-	}
-
-	function handleScroll(category, offset) {
-		$(window).scroll(function() {
-			if($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
-				$(window).off('scroll');
-				console.log('500px from bottom');
-				getData(buildAPICall(categoryData[category].apiName(), photoLimit, offset));
-			}
-		});
-	}
-
-	function buildAPICall(category, limit, offset) {
-		return `${API_BASE}job=${jobNumber}&cat=${category}&limit=${limit.toString()}&offset=${offset.toString()}`; 
-	}
-
-	function buildPhotoCategoryObject(categories) {
-		categories.forEach(function(category) {
-			categoryData[category] = new Category(category);
-		});
-		console.log(categoryData);
-	}
-
-	function Category(category) {
-		this.name = category;
-		this.displayName = function() {
-			return this.name.split(' ').map(function(word) {return word[0].toUpperCase() + word.substr(1);}).join(' ');
-		}
-		this.apiName = function() {
-			return this.name.replace(' ', '_');
-		}
-		this.data = [];
-		this.markup = '';
-		this.offset = 0;
-		this.incrementOffset = function() {
-			this.offset += photoLimit;
-		}
-	}
-
-	function addDataToCategory(photos) {
-		console.log(categoryData);
-		console.log(categories);
-		for (var i = 0; i < photos.length; i++) {
-			var category = photos[i].metadata.fields.gallery[0].toLowerCase();
-			categoryData[category].data.push(photos[i]);
-		}
-	}
-
-	function populateCategoriesDropDown(categories) {
-		var categoryMenu = $('.category-dd-menu');
-
-		categories.forEach(function(category) {
-			var displayName = categoryData[category].displayName();
-			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
-		});
-	}
-
-	function addCategoryToView(event) {
-		var categoryName = event.target.parentElement.dataset.category;
-
-		$('.selected-category-item').detach();
-		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
-
-		if (viewingSelected) {
-			$('.item').detach();
-			viewCategory(categoryName);
-			selectedCategory = categoryName;
-			viewingSelected = false;
-		} else {
-			storeCategory(selectedCategory);
-			viewCategory(categoryName);
-			selectedCategory = categoryName;
-		}
-	}
-
-	function storeCategory(category) {
-		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
-		$(window).off('scroll');
-	}
-
-	function viewCategory(categoryName) {
-		if (categoryData[categoryName].offset === 0) {
-			getData(buildAPICall(categoryData[categoryName].apiName(), photoLimit, categoryData[categoryName].offset));
-		} else {
-			$('#photo-grid').append(categoryData[categoryName].markup);
-			handleScroll(categoryName, categoryData[categoryName].offset);
-		}
 	}
 
 	// Creates two dimensional array
@@ -162,6 +103,13 @@ $(function() {
 		}
 
 		return photoGrid;
+	}
+
+	function addDataToCategory(photos) {
+		for (var i = 0; i < photos.length; i++) {
+			var category = photos[i].metadata.fields.gallery[0].toLowerCase();
+			categoryData[category].data.push(photos[i]);
+		}
 	}
 
 	// On initial load, aspect ratio is calculated from API response
@@ -192,10 +140,10 @@ $(function() {
 	}
 
 	function buildMarkup(category, photoRow, photoHeight, batch) {
-		var initialContent = '';
+		var content = '';
 
 		photoRow.forEach(function(photo) {
-			initialContent += `
+			content += `
 			<div class="item"
 				 data-category="${category}"
 				 id="${photo.id}"
@@ -226,7 +174,7 @@ $(function() {
 			</div>`
 		});
 
-		return initialContent;
+		return content;
 	}
 
 	function lazyLoadSetUp() {
@@ -279,6 +227,48 @@ $(function() {
 			document.addEventListener('scroll', lazyLoad);
 			window.addEventListener('resize', lazyLoad);
 			window.addEventListener('orientationchange', lazyLoad);
+		}
+	}
+
+	function handleScroll(category, offset) {
+		$(window).scroll(function() {
+			if($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
+				$(window).off('scroll');
+				console.log('500px from bottom');
+				getData(buildAPICall(categoryData[category].apiName(), photoLimit, offset));
+			}
+		});
+	}
+
+	function addCategoryToView(event) {
+		var categoryName = event.target.parentElement.dataset.category;
+
+		$('.selected-category-item').detach();
+		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
+
+		if (viewingSelected) {
+			$('.item').detach();
+			viewCategory(categoryName);
+			selectedCategory = categoryName;
+			viewingSelected = false;
+		} else {
+			storeCategory(selectedCategory);
+			viewCategory(categoryName);
+			selectedCategory = categoryName;
+		}
+	}
+
+	function storeCategory(category) {
+		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+		$(window).off('scroll');
+	}
+
+	function viewCategory(categoryName) {
+		if (categoryData[categoryName].offset === 0) {
+			getData(buildAPICall(categoryData[categoryName].apiName(), photoLimit, categoryData[categoryName].offset));
+		} else {
+			$('#photo-grid').append(categoryData[categoryName].markup);
+			handleScroll(categoryName, categoryData[categoryName].offset);
 		}
 	}
 
