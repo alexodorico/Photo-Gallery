@@ -222,12 +222,16 @@ $(function() {
 
 						active = false;
 					}, 200);
+
 				}
 			};
 
 			document.addEventListener('scroll', lazyLoad);
 			window.addEventListener('resize', lazyLoad);
 			window.addEventListener('orientationchange', lazyLoad);
+			// Triggers above fold initial load
+			window.scroll(0,window.scrollY + 1);
+			window.scroll(0,window.scrollY - 1);
 		}
 	}
 
