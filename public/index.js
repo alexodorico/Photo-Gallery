@@ -11,7 +11,8 @@ $(function() {
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
 	var photoLimit = 24; // How many photos get loaded per API call
 	var categoryData = {};
-	var categories = window.categories;
+	var categories = window.categories || [ "gala", "fireworks", "team-building event", "gm topiary", "soy awards" ];
+	var jobNumber = window.jobNumber || "GT0000";
 	
 	init();
 
@@ -244,7 +245,7 @@ $(function() {
 		var categoryName = event.target.parentElement.dataset.category;
 
 		$('.selected-category-item').detach();
-		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
+		$('#selected-categories').append(`<li class="selected-category-item">${categoryData[categoryName].displayName()}</li>`);
 
 		if (viewingSelected) {
 			$('.item').detach();
