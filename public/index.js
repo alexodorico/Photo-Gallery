@@ -7,20 +7,27 @@ $(function() {
 	var selectedPhotoElement = [];
 
 	var viewingSelected = false;
-	var viewingAll = true;
 	var selectedCategory = '';
 
 	var containerWidth = 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
-	var photoLimit = 24;
+	var photoLimit = 24; // How many photos get loaded per API call
 
 	var categoryData = {};
 	var categories = window.categories;
 
+
 	buildPhotoCategoryObject(categories);
+
+	/////////// TESTING NO VIEW ALL /////////////////
+	$('.selected-category-item').text(categoryData[categories[0]].displayName());
+	$('[data-category="all"]').remove();
+
+
 	selectedCategory = categoryData[categories[0]].name;
+
 	populateCategoriesDropDown(categories);
 	$('.category-item').on('click', addCategoryToView);
 	$('#view-selected-button').on('click', handleViewSelectedClick);
@@ -45,13 +52,13 @@ $(function() {
 				var ar = addAspectRatios(row);
 				var availableSpace = computeSpaceInRow(row);
 				var photoHeight = computeRowHeight(ar, availableSpace);
-				content += buildMarkup(row, photoHeight, batch);
-				categoryData[category].markup += buildMarkup(row, photoHeight, batch);
+				content += buildMarkup(category, row, photoHeight, batch);
+				categoryData[category].markup += buildMarkup(category, row, photoHeight, batch);
 			}			
 
 			$('#photo-grid').append(content);
 			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
-			$(`[data=batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
+			$(`[data-batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
 			lazyLoadSetUp();
 			$('img').on('click', lightboxInit);
 			handleScroll(category, offset);
@@ -93,7 +100,6 @@ $(function() {
 		this.incrementOffset = function() {
 			this.offset += photoLimit;
 		}
-		this.fullyLoaded = false;
 	}
 
 	function addDataToCategory(photos) {
@@ -105,8 +111,6 @@ $(function() {
 		}
 	}
 
-
-	// ALTER THIS AS NESCESSARY
 	function populateCategoriesDropDown(categories) {
 		var categoryMenu = $('.category-dd-menu');
 
@@ -117,62 +121,35 @@ $(function() {
 	}
 
 	function addCategoryToView(event) {
-		var categoryName = event.target.innerText;
+		var categoryName = event.target.parentElement.dataset.category;
 
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
 
-		if (viewingAll) {
-			for (var category of categories) {
-				storeCategory(category);
-			}
-
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-				viewingAll = false;
-			}
-			
-			selectedCategory = categoryName;
-		} else if (viewingSelected) {
+		if (viewingSelected) {
 			$('.item').detach();
-			
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-				selectedCategory = categoryName;
-			}
-
+			viewCategory(categoryName);
+			selectedCategory = categoryName;
 			viewingSelected = false;
 		} else {
 			storeCategory(selectedCategory);
-
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-			}
-
+			viewCategory(categoryName);
 			selectedCategory = categoryName;
 		}
 	}
 
 	function storeCategory(category) {
 		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+		$(window).off('scroll');
 	}
 
 	function viewCategory(categoryName) {
-		$('#photo-grid').append(categoryData[categoryName].markup);
-	}
-
-	function viewAll() {
-		for (var categoryName in categoryData) {
-			viewCategory(categoryName);
+		if (categoryData[categoryName].offset === 0) {
+			getData(buildAPICall(categoryData[categoryName].apiName(), photoLimit, categoryData[categoryName].offset));
+		} else {
+			$('#photo-grid').append(categoryData[categoryName].markup);
+			handleScroll(categoryName, categoryData[categoryName].offset);
 		}
-
-		viewingAll = true;
 	}
 
 	// Creates two dimensional array
@@ -214,13 +191,13 @@ $(function() {
 		return availableSpace / ar;
 	}
 
-	function buildMarkup(photoRow, photoHeight, batch) {
+	function buildMarkup(category, photoRow, photoHeight, batch) {
 		var initialContent = '';
 
 		photoRow.forEach(function(photo) {
 			initialContent += `
 			<div class="item"
-				 data-category="${photo.metadata.fields.gallery[0]}"
+				 data-category="${category}"
 				 id="${photo.id}"
 				 downloadLink="${photo._links.download}"
 				 data-batch="${batch}">
@@ -305,8 +282,7 @@ $(function() {
 		}
 	}
 
-	// TODO: 
-	//		 Remove photo when unselected in view selected
+	// TODO: Remove photo when unselected in view selected
 	//		 Add thumbnails	
 	function lightboxInit(e) {
 		var pswpElement = document.querySelectorAll('.pswp')[0];
@@ -419,21 +395,10 @@ $(function() {
 
 	function handleViewSelectedClick() {
 		if (viewingSelected) return;
-
-		if (viewingAll) {
-			for (var category of categories) {
-				storeCategory(category);
-			}
-			viewingAll = false;
-		} else {
-			storeCategory(selectedCategory);
-		}
-
+		storeCategory(selectedCategory);
 		viewSelected();
-
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">Selected</li>`);
-
 		viewingSelected = true;
 	}
 
