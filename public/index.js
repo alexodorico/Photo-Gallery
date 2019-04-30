@@ -94,15 +94,12 @@ $(function() {
 		});
 	}
 
-	// Creates two dimensional array
 	function groupPhotos(images) {
 		var photoGrid = [];
-
 		for (var i = 0; i < images.length / photosInRow; i++) {
 			var photoRow = images.slice(photosInRow * i, photosInRow * i + photosInRow);
 			photoGrid.push(photoRow);
 		}
-
 		return photoGrid;
 	}
 
@@ -113,26 +110,19 @@ $(function() {
 		}
 	}
 
-	// On initial load, aspect ratio is calculated from API response
-	// When this gets called after initial load (uwitching views/removing photos) 
-	// aspect ratio must be calculated by accessing element object
 	function addAspectRatios(photoRow, update) {
 		var ar = 0;
-
 		for (var i = 0; i < photoRow.length; i++) {
 			ar += update ? parseFloat(photoRow[i][0].children[1].dataset.ar) : photoRow[i].file_properties.image_properties.aspect_ratio;
 		}
-
 		return ar;
 	}
 
 	function computeSpaceInRow(photoRow) {
 		var availableSpace = containerWidth - containerPadding - photoMargin * photosInRow;
-
 		if (photoRow.length !== photosInRow) {
 			availableSpace += (photosInRow - photoRow.length) * photoMargin;
 		}
-
 		return availableSpace;
 	}
 
@@ -239,7 +229,6 @@ $(function() {
 		$(window).scroll(function() {
 			if($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
 				$(window).off('scroll');
-				console.log('500px from bottom');
 				getData(buildAPICall(categoryData[category].apiName(), photoLimit, offset));
 			}
 		});
@@ -277,8 +266,6 @@ $(function() {
 		}
 	}
 
-	// TODO: Remove photo when unselected in view selected
-	//		 Add thumbnails	
 	function lightboxInit(e) {
 		var pswpElement = document.querySelectorAll('.pswp')[0];
 		var lightboxPhotos = [];
@@ -375,7 +362,6 @@ $(function() {
 			var ar = addAspectRatios(photoRow, true);
 			var availableSpace = computeSpaceInRow(photoRow);
 			var photoHeight = computeRowHeight(ar, availableSpace);
-
 			alterImageDimensions(photoRow, photoHeight);
 		});
 	}
