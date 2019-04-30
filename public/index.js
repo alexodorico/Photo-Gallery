@@ -1,7 +1,5 @@
 $(function() {
-	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	var API_QUERY = 'assets/search?query=jn%3A' + jobNumber + '&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=100';
-	var ApiCall = API_BASE + API_QUERY;
+	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
 
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
@@ -16,53 +14,88 @@ $(function() {
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
+	var photoLimit = 24;
 
 	var categoryData = {};
 	var categories = window.categories;
 
-	init(ApiCall);
+	buildPhotoCategoryObject(categories);
+	selectedCategory = categoryData[categories[0]].name;
+	populateCategoriesDropDown(categories);
+	$('.category-item').on('click', addCategoryToView);
+	$('#view-selected-button').on('click', handleViewSelectedClick);
+	getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
 
-	function init(ApiCall) {
-		$.get(ApiCall, function(data) {
+	function getData(endpoint) {
+		$.get(endpoint, function(data) {
+			console.log('got data');
 			console.log(data);
-			var initialContent = '';
 
-			buildPhotoCategoryObject(categories);
-			addDataToCategory(data.items);
-			populateCategoriesDropDown(categories);
-			$('.category-item').on('click', addCategoryToView);
-			$('#view-selected-button').on('click', handleViewSelectedClick);
+			var content = '';
+			var photos = data.items;
+			var category = photos[0].metadata.fields.gallery[0].toLowerCase();
+			categoryData[category].incrementOffset();
+			var offset = categoryData[category].offset;
+			var batch = offset / photoLimit;
+			console.log('photos = ' + offset);
+			console.log('batch = ' + batch);
+			var categoryGrid = groupPhotos(photos);
 
-			for (var category in categoryData) {
-				var categoryGrid = groupPhotos(categoryData[category].data);
+			addDataToCategory(photos);
 
-				for (var row of categoryGrid) {
-					var ar = addAspectRatios(row);
-					var availableSpace = computeSpaceInRow(row);
-					var photoHeight = computeRowHeight(ar, availableSpace);
-					categoryData[category].markup += buildMarkup(row, photoHeight);
-				}
+			for (var row of categoryGrid) {
+				var ar = addAspectRatios(row);
+				var availableSpace = computeSpaceInRow(row);
+				var photoHeight = computeRowHeight(ar, availableSpace);
+				content += buildMarkup(row, photoHeight, batch);
+				categoryData[category].markup += buildMarkup(row, photoHeight, batch);
+			}			
 
-				initialContent += categoryData[category].markup;
-			}
-
-			$('#photo-grid').append(initialContent);
+			$('#photo-grid').append(content);
+			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
+			$('.download-button').on('click', handleSingleDownloadClick);
 			lazyLoadSetUp();
 			$('img').on('click', lightboxInit);
-			$('.select-button').on('click', handleSelectButtonClick);
-			$('.download-button').on('click', handleSingleDownloadClick);
+			handleScroll(category, offset);
 		});
+	}
+
+	function handleScroll(category, offset) {
+		$(window).scroll(function() {
+			if($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
+				$(window).off('scroll');
+				console.log('500px from bottom');
+				getData(buildAPICall(categoryData[category].apiName(), photoLimit, offset));
+			}
+		});
+	}
+
+	function buildAPICall(category, limit, offset) {
+		return `${API_BASE}job=${jobNumber}&cat=${category}&limit=${limit.toString()}&offset=${offset.toString()}`; 
 	}
 
 	function buildPhotoCategoryObject(categories) {
 		categories.forEach(function(category) {
-			categoryData[category] = new Category();
+			categoryData[category] = new Category(category);
 		});
+		console.log(categoryData);
 	}
 
-	function Category() {
+	function Category(category) {
+		this.name = category;
+		this.displayName = function() {
+			return this.name.split(' ').map(function(word) {return word[0].toUpperCase() + word.substr(1);}).join(' ');
+		}
+		this.apiName = function() {
+			return this.name.replace(' ', '_');
+		}
 		this.data = [];
 		this.markup = '';
+		this.offset = 0;
+		this.incrementOffset = function() {
+			this.offset += photoLimit;
+		}
+		this.fullyLoaded = false;
 	}
 
 	function addDataToCategory(photos) {
@@ -74,11 +107,14 @@ $(function() {
 		}
 	}
 
+
+	// ALTER THIS AS NESCESSARY
 	function populateCategoriesDropDown(categories) {
 		var categoryMenu = $('.category-dd-menu');
 
 		categories.forEach(function(category) {
-			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${category}</a></li>`)
+			var displayName = categoryData[category].displayName();
+			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
 		});
 	}
 
@@ -180,15 +216,16 @@ $(function() {
 		return availableSpace / ar;
 	}
 
-	function buildMarkup(photoRow, photoHeight) {
+	function buildMarkup(photoRow, photoHeight, batch) {
 		var initialContent = '';
-
+		
 		photoRow.forEach(function(photo) {
 			initialContent += `
 			<div class="item"
 				 data-category="${photo.metadata.fields.gallery[0]}"
 				 id="${photo.id}"
-				 downloadLink="${photo._links.download}">
+				 downloadLink="${photo._links.download}"
+				 data-batch="${batch}">
 				<div class="loader"></div>
 				<img
 					class="lazy"
