@@ -1,4 +1,7 @@
+$('head').append('<script src="https://cdn.jsdelivr.net/npm/symbol-es6/dist/symbol-es6.min.js"></script>');
+
 $(function() {
+	var test = [];
 	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
@@ -29,6 +32,7 @@ $(function() {
 		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
 		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--close').on('click', function(e){e.preventDefault();});
 	}
 
 	function buildPhotoCategoryObject(categories) {
@@ -114,7 +118,7 @@ $(function() {
 	function addAspectRatios(photoRow, update) {
 		var ar = 0;
 		for (var i = 0; i < photoRow.length; i++) {
-			ar += update ? parseFloat(photoRow[i][0].children[1].dataset.ar) : photoRow[i].file_properties.image_properties.aspect_ratio;
+			ar += update ? parseFloat(photoRow[i][0].children[1].getAttribute('data-ar')) : photoRow[i].file_properties.image_properties.aspect_ratio;
 		}
 		return ar;
 	}
@@ -140,7 +144,7 @@ $(function() {
 				 data-category="${category}"
 				 id="${photo.id}"
 				 downloadLink="${photo.embeds['AssetOriginalWidth/Height'].url}"
-				 style="width: ${!Modernizr.flexbox ? photo.file_properties.image_properties.aspect_ratio * photoHeight : null}px"
+				 ${!Modernizr.flexbox ? 'style="width:' + photo.file_properties.image_properties.aspect_ratio * photoHeight + 'px;"': ''}
 				 data-batch="${batch}">
 				<div class="loader"></div>
 				<img
@@ -197,9 +201,13 @@ $(function() {
 					setTimeout(function() {
 						lazyImages.forEach(function(lazyImage) {
 							if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
-								lazyImage.src = lazyImage.dataset.src;
-								lazyImage.classList.remove('lazy');
-
+								lazyImage.src = lazyImage.getAttribute('data-src');
+								if (lazyImage.classList) {
+									lazyImage.classList.remove('lazy');
+								} else {
+									lazyImage.className.replace(/\bblazy\b/g, "");
+								}
+								
 								lazyImages = lazyImages.filter(function(image) {
 									return image !== lazyImage;
 								});
@@ -236,7 +244,7 @@ $(function() {
 	}
 
 	function addCategoryToView(event) {
-		var categoryName = event.target.parentElement.dataset.category;
+		var categoryName = event.target.parentElement.getAttribute('data-category');
 
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">${categoryData[categoryName].displayName()}</li>`);
@@ -286,9 +294,9 @@ $(function() {
 
 		for (var i = 0; i < $items.length; i++) {
 			var item = {};
-			item.src = $items[i].children[1].dataset['originalSrc'];
-			item.w = $items[i].children[1].dataset['originalWidth'];
-			item.h = $items[i].children[1].dataset['originalHeight'];
+			item.src = $items[i].children[1].getAttribute('data-original-src');
+			item.w = $items[i].children[1].getAttribute('data-original-width');
+			item.h = $items[i].children[1].getAttribute('data-original-height');
 			lightboxPhotos.push(item);
 		}
 	
@@ -348,7 +356,19 @@ $(function() {
 
 	function updateState(photoElement) {
 		var id = photoElement[0].id;
-		var category = photoElement[0].dataset.category;
+		var category = photoElement[0].getAttribute('data-category');
+
+		if (!Object.entries) {
+			Object.entries = function( obj ){
+				var ownProps = Object.keys( obj ),
+					i = ownProps.length,
+					resArray = new Array(i);
+				while (i--)
+					resArray[i] = [ownProps[i], obj[ownProps[i]]];
+	
+				return resArray;
+			};
+		}
 
 		for (var element of Object.entries(categoryData[category].markup)) {
 			if (element[1].id === id) {
