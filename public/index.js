@@ -79,8 +79,6 @@ $(function() {
 			var batch = offset / photoLimit;
 			var categoryGrid = groupPhotos(photos);
 
-			addDataToCategory(photos);
-
 			for (var row of categoryGrid) {
 				var ar = addAspectRatios(row);
 				var availableSpace = computeSpaceInRow(row);
