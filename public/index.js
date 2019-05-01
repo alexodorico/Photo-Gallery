@@ -17,7 +17,7 @@ $(function() {
 	init();
 
 	function init() {
-		//objectFitImages();
+		objectFitImages();
 		$('#view-selected-button').css('opacity', '0')
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
@@ -30,6 +30,7 @@ $(function() {
 		$('.category-item').on('click', addCategoryToView);
 		$('#view-selected-button').on('click', handleViewSelectedClick);
 		$('#download-zip').on('click', handleBatchDownload);
+		$('.dropdown-menu li').on('click', handleBatchDownload);
 		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
 		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
