@@ -346,7 +346,6 @@ $(function() {
 		}
 	}
 
-	// classList isn't IE9 compatible, change later...
 	function updateState(photoElement) {
 		var id = photoElement[0].id;
 		var category = photoElement[0].dataset.category;
