@@ -17,6 +17,8 @@ $(function() {
 	init();
 
 	function init() {
+		//objectFitImages();
+		$('#view-selected-button').css('opacity', '0')
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
@@ -27,7 +29,18 @@ $(function() {
 	
 		$('.category-item').on('click', addCategoryToView);
 		$('#view-selected-button').on('click', handleViewSelectedClick);
+		$('#download-zip').on('click', handleBatchDownload);
 		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
+		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
+	}
+
+	function handleBatchDownload() {
+		var downloadLinks = [];
+		for (var element of selectedPhotoElement) {
+			downloadLinks.push(element[0].attributes['downloadlink'].value)
+		}
+		createZip(downloadLinks, 'test');
 	}
 
 	function buildPhotoCategoryObject(categories) {
@@ -138,7 +151,8 @@ $(function() {
 			<div class="item"
 				 data-category="${category}"
 				 id="${photo.id}"
-				 downloadLink="${photo._links.download}"
+				 downloadLink="${photo.embeds['AssetOriginalWidth/Height'].url}"
+				 style="width: ${!Modernizr.flexbox ? photo.file_properties.image_properties.aspect_ratio * photoHeight : null}px"
 				 data-batch="${batch}">
 				<div class="loader"></div>
 				<img
@@ -338,6 +352,11 @@ $(function() {
 	function updateCount() {
 		var count = selectedPhotoElement.length;
 		$('.badge').text(count);
+		if (count > 0) {
+			$('#view-selected-button').animate({opacity: 1});
+		} else {
+			$('#view-selected-button').animate({opacity: 0});
+		}
 	}
 
 	// classList isn't IE9 compatible, change later...
@@ -390,7 +409,8 @@ $(function() {
 		});
 	}
 
-	function handleSingleDownloadClick() {
+	function handleSingleDownloadClick(e) {
+		e.preventDefault();
 		var downloadLink = $(this).parents('.item').attr('downloadLink');
 		$('iframe').attr("src", downloadLink);
 	}

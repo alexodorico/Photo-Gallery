@@ -127,12 +127,10 @@ $grid-spacing: 10px;
 			bottom: 0;
 			height: 0;
 			position: absolute;
-			transition: height 0.25s;
 			width: 100%;
 	
 			h1 {
 				height: 0;
-				transition: height 0.25s;
 			}
 		}
 	
@@ -143,6 +141,18 @@ $grid-spacing: 10px;
 				h1 {
 					height: $overlay-height;
 				}
+			}
+		}
+	}
+}
+
+.no-touch.csstransitions {
+	.item {
+		.overlay {
+			transition: height 0.25s;
+	
+			h1 {
+				transition: height 0.25s;
 			}
 		}
 	}
@@ -203,6 +213,7 @@ $grid-spacing: 10px;
 
 			img {
 				object-fit: cover;
+				font-family: 'object-fit: cover;';
 				height: 250px;
 				width: 100%;
 			}
@@ -222,12 +233,19 @@ $grid-spacing: 10px;
 
 			img {
 				object-fit: cover;
+				font-family: 'object-fit: cover;';
 			}
 
 			.btn {
 				font-size: 12px;
 			}
 		}
+	}
+
+	.noflexbox .item,
+	.no-flexbox .item {
+		float: left;
+		margin: 0 5px $grid-spacing;
 	}
 }
 
