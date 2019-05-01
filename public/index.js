@@ -1,76 +1,58 @@
-$(function() {
-	var API_BASE = 'https://morleynet.morleycms.com/components/handlers/DamApiHandler.ashx?request=';
-	var API_QUERY = 'assets/search?query=jn%3A' + jobNumber + '&expand=asset_properties%2Cfile_properties%2Cembeds%2Cthumbnails%2Cmetadata%2Cmetadata_info&limit=100';
-	var ApiCall = API_BASE + API_QUERY;
+$('head').append('<script src="https://cdn.jsdelivr.net/npm/symbol-es6/dist/symbol-es6.min.js"></script>');
 
+$(function() {
+	var test = [];
+	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
-
 	var selectedPhotoElement = [];
-
 	var viewingSelected = false;
-	var viewingAll = true;
 	var selectedCategory = '';
-
 	var containerWidth = 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
-
+	var photoLimit = 24; // How many photos get loaded per API call
 	var categoryData = {};
-	var categories = window.categories;
+	var categories = window.categories || [ "gala", "fireworks", "team-building event", "gm topiary", "soy awards" ];
+	var jobNumber = window.jobNumber || "GT0000";
+	
+	init();
 
-	init(ApiCall);
-
-	function init(ApiCall) {
-		$.get(ApiCall, function(data) {
-			console.log(data);
-			var initialContent = '';
-
-			buildPhotoCategoryObject(categories);
-			addDataToCategory(data.items);
-			populateCategoriesDropDown(categories);
-			$('.category-item').on('click', addCategoryToView);
-			$('#view-selected-button').on('click', handleViewSelectedClick);
-
-			for (var category in categoryData) {
-				var categoryGrid = groupPhotos(categoryData[category].data);
-
-				for (var row of categoryGrid) {
-					var ar = addAspectRatios(row);
-					var availableSpace = computeSpaceInRow(row);
-					var photoHeight = computeRowHeight(ar, availableSpace);
-					categoryData[category].markup += buildMarkup(row, photoHeight);
-				}
-
-				initialContent += categoryData[category].markup;
-			}
-
-			$('#photo-grid').append(initialContent);
-			lazyLoadSetUp();
-			$('img').on('click', lightboxInit);
-			$('.select-button').on('click', handleSelectButtonClick);
-			$('.download-button').on('click', handleSingleDownloadClick);
-		});
+	function init() {
+		objectFitImages();
+		$('#view-selected-button').css('opacity', '0');
+		buildPhotoCategoryObject(categories);
+		populateCategoriesDropDown(categories);
+		selectedCategory = categoryData[categories[0]].name;
+		$('.selected-category-item').text(categoryData[categories[0]].displayName());
+		$('.category-item').on('click', addCategoryToView);
+		$('#view-selected-button').on('click', handleViewSelectedClick);
+		$('#download-zip').on('click', handleBatchDownload);
+		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
+		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--close').on('click', function(e){e.preventDefault();});
 	}
 
 	function buildPhotoCategoryObject(categories) {
 		categories.forEach(function(category) {
-			categoryData[category] = new Category();
+			categoryData[category] = new Category(category);
 		});
 	}
 
-	function Category() {
-		this.data = [];
+	function Category(category) {
+		this.name = category;
+		this.displayName = function() {
+			return this.name.split(' ').map(function(word) {return word[0].toUpperCase() + word.substr(1);}).join(' ');
+		}
+		this.apiName = function() {
+			return this.name.replace(' ', '_');
+		}
 		this.markup = '';
-	}
-
-	function addDataToCategory(photos) {
-		console.log(categoryData);
-		console.log(categories);
-		for (var i = 0; i < photos.length; i++) {
-			var category = photos[i].metadata.fields.gallery[0].toLowerCase();
-			categoryData[category].data.push(photos[i]);
+		this.offset = 0;
+		this.incrementOffset = function() {
+			this.offset += photoLimit;
 		}
 	}
 
@@ -78,101 +60,66 @@ $(function() {
 		var categoryMenu = $('.category-dd-menu');
 
 		categories.forEach(function(category) {
-			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${category}</a></li>`)
+			var displayName = categoryData[category].displayName();
+			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
 		});
 	}
 
-	function addCategoryToView(event) {
-		var categoryName = event.target.innerText;
-
-		$('.selected-category-item').detach();
-		$('#selected-categories').append(`<li class="selected-category-item">${categoryName}</li>`);
-
-		if (viewingAll) {
-			for (var category of categories) {
-				storeCategory(category);
-			}
-
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-				viewingAll = false;
-			}
-			
-			selectedCategory = categoryName;
-		} else if (viewingSelected) {
-			$('.item').detach();
-			
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-				selectedCategory = categoryName;
-			}
-
-			viewingSelected = false;
-		} else {
-			storeCategory(selectedCategory);
-
-			if (categoryName === 'All') {
-				viewAll();
-			} else {
-				viewCategory(categoryName);
-			}
-
-			selectedCategory = categoryName;
-		}
+	function buildAPICall(category, limit, offset) {
+		return `${API_BASE}job=${jobNumber}&cat=${category}&limit=${limit.toString()}&offset=${offset.toString()}`; 
 	}
 
-	function storeCategory(category) {
-		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+	function getData(endpoint) {
+		$.get(endpoint, function(data) {
+			var content = '';
+			var photos = data.items;
+			var category = photos[0].metadata.fields.gallery[0].toLowerCase();
+			categoryData[category].incrementOffset();
+			var offset = categoryData[category].offset;
+			var batch = offset / photoLimit;
+			var categoryGrid = groupPhotos(photos);
+
+			addDataToCategory(photos);
+
+			for (var row of categoryGrid) {
+				var ar = addAspectRatios(row);
+				var availableSpace = computeSpaceInRow(row);
+				var photoHeight = computeRowHeight(ar, availableSpace);
+				content += buildMarkup(category, row, photoHeight, batch);
+				categoryData[category].markup += buildMarkup(category, row, photoHeight, batch);
+			}			
+
+			$('#photo-grid').append(content);
+			lazyLoadSetUp();
+			handleScroll(category, offset);
+			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
+			$(`[data-batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
+			$('img').on('click', lightboxInit);
+		});
 	}
 
-	function viewCategory(categoryName) {
-		$('#photo-grid').append(categoryData[categoryName].markup);
-	}
-
-	function viewAll() {
-		for (var categoryName in categoryData) {
-			viewCategory(categoryName);
-		}
-
-		viewingAll = true;
-	}
-
-	// Creates two dimensional array
 	function groupPhotos(images) {
 		var photoGrid = [];
-
 		for (var i = 0; i < images.length / photosInRow; i++) {
 			var photoRow = images.slice(photosInRow * i, photosInRow * i + photosInRow);
 			photoGrid.push(photoRow);
 		}
-
 		return photoGrid;
 	}
 
-	// On initial load, aspect ratio is calculated from API response
-	// When this gets called after initial load (uwitching views/removing photos) 
-	// aspect ratio must be calculated by accessing element object
 	function addAspectRatios(photoRow, update) {
 		var ar = 0;
-
 		for (var i = 0; i < photoRow.length; i++) {
-			ar += update ? parseFloat(photoRow[i][0].children[1].dataset.ar) : photoRow[i].file_properties.image_properties.aspect_ratio;
+			ar += update ? parseFloat(photoRow[i][0].children[1].getAttribute('data-ar')) : photoRow[i].file_properties.image_properties.aspect_ratio;
 		}
-
 		return ar;
 	}
 
 	function computeSpaceInRow(photoRow) {
 		var availableSpace = containerWidth - containerPadding - photoMargin * photosInRow;
-
 		if (photoRow.length !== photosInRow) {
 			availableSpace += (photosInRow - photoRow.length) * photoMargin;
 		}
-
 		return availableSpace;
 	}
 
@@ -180,15 +127,17 @@ $(function() {
 		return availableSpace / ar;
 	}
 
-	function buildMarkup(photoRow, photoHeight) {
-		var initialContent = '';
+	function buildMarkup(category, photoRow, photoHeight, batch) {
+		var content = '';
 
 		photoRow.forEach(function(photo) {
-			initialContent += `
+			content += `
 			<div class="item"
-				 data-category="${photo.metadata.fields.gallery[0]}"
+				 data-category="${category}"
 				 id="${photo.id}"
-				 downloadLink="${photo._links.download}">
+				 downloadLink="${photo.embeds['AssetOriginalWidth/Height'].url}"
+				 ${!Modernizr.flexbox ? 'style="width:' + photo.file_properties.image_properties.aspect_ratio * photoHeight + 'px;"': ''}
+				 data-batch="${batch}">
 				<div class="loader"></div>
 				<img
 					class="lazy"
@@ -214,7 +163,7 @@ $(function() {
 			</div>`
 		});
 
-		return initialContent;
+		return content;
 	}
 
 	function lazyLoadSetUp() {
@@ -244,9 +193,13 @@ $(function() {
 					setTimeout(function() {
 						lazyImages.forEach(function(lazyImage) {
 							if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
-								lazyImage.src = lazyImage.dataset.src;
-								lazyImage.classList.remove('lazy');
-
+								lazyImage.src = lazyImage.getAttribute('data-src');
+								if (lazyImage.classList) {
+									lazyImage.classList.remove('lazy');
+								} else {
+									lazyImage.className.replace(/\bblazy\b/g, "");
+								}
+								
 								lazyImages = lazyImages.filter(function(image) {
 									return image !== lazyImage;
 								});
@@ -261,18 +214,59 @@ $(function() {
 
 						active = false;
 					}, 200);
+
 				}
 			};
 
 			document.addEventListener('scroll', lazyLoad);
 			window.addEventListener('resize', lazyLoad);
 			window.addEventListener('orientationchange', lazyLoad);
+			window.scroll(0,window.scrollY + 1);
+			window.scroll(0,window.scrollY - 1);
 		}
 	}
 
-	// TODO: 
-	//		 Remove photo when unselected in view selected
-	//		 Add thumbnails	
+	function handleScroll(category, offset) {
+		$(window).scroll(function() {
+			if($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
+				$(window).off('scroll');
+				getData(buildAPICall(categoryData[category].apiName(), photoLimit, offset));
+			}
+		});
+	}
+
+	function addCategoryToView(event) {
+		var categoryName = event.target.parentElement.getAttribute('data-category');
+
+		$('.selected-category-item').detach();
+		$('#selected-categories').append(`<li class="selected-category-item">${categoryData[categoryName].displayName()}</li>`);
+
+		if (viewingSelected) {
+			$('.item').detach();
+			viewCategory(categoryName);
+			selectedCategory = categoryName;
+			viewingSelected = false;
+		} else {
+			storeCategory(selectedCategory);
+			viewCategory(categoryName);
+			selectedCategory = categoryName;
+		}
+	}
+
+	function storeCategory(category) {
+		categoryData[category].markup = $(`.item[data-category="${category}"]`).detach();
+		$(window).off('scroll');
+	}
+
+	function viewCategory(categoryName) {
+		if (categoryData[categoryName].offset === 0) {
+			getData(buildAPICall(categoryData[categoryName].apiName(), photoLimit, categoryData[categoryName].offset));
+		} else {
+			$('#photo-grid').append(categoryData[categoryName].markup);
+			handleScroll(categoryName, categoryData[categoryName].offset);
+		}
+	}
+
 	function lightboxInit(e) {
 		var pswpElement = document.querySelectorAll('.pswp')[0];
 		var lightboxPhotos = [];
@@ -292,13 +286,13 @@ $(function() {
 
 		for (var i = 0; i < $items.length; i++) {
 			var item = {};
-			item.src = $items[i].children[1].dataset['originalSrc'];
-			item.w = $items[i].children[1].dataset['originalWidth'];
-			item.h = $items[i].children[1].dataset['originalHeight'];
+			item.src = $items[i].children[1].getAttribute('data-original-src');
+			item.w = $items[i].children[1].getAttribute('data-original-width');
+			item.h = $items[i].children[1].getAttribute('data-original-height');
 			lightboxPhotos.push(item);
 		}
 	
-		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
 		gallery.init();
 	}
 
@@ -345,18 +339,40 @@ $(function() {
 	function updateCount() {
 		var count = selectedPhotoElement.length;
 		$('.badge').text(count);
+		if (count > 0) {
+			$('#view-selected-button').animate({opacity: 1});
+		} else {
+			$('#view-selected-button').animate({opacity: 0});
+		}
 	}
 
-	// classList isn't IE9 compatible, change later...
 	function updateState(photoElement) {
 		var id = photoElement[0].id;
-		var category = photoElement[0].dataset.category;
+		var category = photoElement[0].getAttribute('data-category');
+
+		if (!Object.entries) {
+			Object.entries = function( obj ){
+				var ownProps = Object.keys( obj ),
+					i = ownProps.length,
+					resArray = new Array(i);
+				while (i--)
+					resArray[i] = [ownProps[i], obj[ownProps[i]]];
+	
+				return resArray;
+			};
+		}
 
 		for (var element of Object.entries(categoryData[category].markup)) {
 			if (element[1].id === id) {
 				var button = element[1].lastElementChild.lastElementChild.firstElementChild;
-				button.classList.remove('btn-success');
-				button.classList.add('btn-default');
+				if (button.classList) {
+					button.classList.remove('btn-success');
+					button.classList.add('btn-default');
+				} else {
+					button.className = button.className.replace(/\bbtn-success\b/g, "")
+					button.className += " btn-default";
+				}
+
 				button.innerHTML = unselectedButtonText;
 			}
 		}
@@ -369,7 +385,6 @@ $(function() {
 			var ar = addAspectRatios(photoRow, true);
 			var availableSpace = computeSpaceInRow(photoRow);
 			var photoHeight = computeRowHeight(ar, availableSpace);
-
 			alterImageDimensions(photoRow, photoHeight);
 		});
 	}
@@ -384,21 +399,10 @@ $(function() {
 
 	function handleViewSelectedClick() {
 		if (viewingSelected) return;
-
-		if (viewingAll) {
-			for (var category of categories) {
-				storeCategory(category);
-			}
-			viewingAll = false;
-		} else {
-			storeCategory(selectedCategory);
-		}
-
+		storeCategory(selectedCategory);
 		viewSelected();
-
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">Selected</li>`);
-
 		viewingSelected = true;
 	}
 
@@ -409,8 +413,17 @@ $(function() {
 		});
 	}
 
-	function handleSingleDownloadClick() {
+	function handleSingleDownloadClick(e) {
+		e.preventDefault();
 		var downloadLink = $(this).parents('.item').attr('downloadLink');
 		$('iframe').attr("src", downloadLink);
+	}
+
+	function handleBatchDownload() {
+		var downloadLinks = [];
+		for (var element of selectedPhotoElement) {
+			downloadLinks.push(element[0].attributes['downloadlink'].value)
+		}
+		createZip(downloadLinks, 'test');
 	}
 });

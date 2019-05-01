@@ -23,23 +23,16 @@
 				<div class="top-buttons clearfix">
 					<ul id="selected-categories">
 						<li id="viewing">Viewing: </li>
-						<li class="selected-category-item">All</li>
+						<li class="selected-category-item"></li>
 					</ul>
 					<div class="right-buttons">
 						<div class="btn-group">
-							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download <span class="caret"></span></button>
-							<ul class="dropdown-menu">
-								<li><a href="#">Selected as ZIP</a></li>
-								<li><a href="#">Selected</a></li>
-								<li role="seperator" class="divider"></li>
-								<li><a href="#">All Photos</a></li>
-							</ul>
+							<button id="download-zip" type="button" class="btn btn-primary">Download Selected</button>
 						</div>
 						<div class="categories-section">
 							<div class="categories dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Select Category <span class="caret"></span></button>
 								<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
-									<li class="category-item" data-selected="false" data-category="all"><a href="#">All</a></li>
 								</ul>
 							</div>
 						</div>
@@ -88,8 +81,13 @@
 	
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+		<script src="./dist/ofi.js"></script>
+		<script src="./dist/jszip.min.js"></script>
+		<script src="./dist/JSZipUtils.js"></script>
+		<script src="./dist/FileSaver.js"></script>
 		<script src="./dist/photoswipe.min.js"></script>
 		<script src="./dist/photoswipe-ui-default.min.js"></script>
+		<script src="./zip.js"></script>
 		<script type="text/javascript" src="./index.js"></script>
 	</body>
 </html>
