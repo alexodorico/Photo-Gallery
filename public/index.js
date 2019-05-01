@@ -21,7 +21,7 @@ $(function() {
 
 	function init() {
 		objectFitImages();
-		$('#view-selected-button').css('opacity', '0')
+		$('#view-selected-button').css('opacity', '0');
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
@@ -49,7 +49,6 @@ $(function() {
 		this.apiName = function() {
 			return this.name.replace(' ', '_');
 		}
-		this.data = [];
 		this.markup = '';
 		this.offset = 0;
 		this.incrementOffset = function() {
@@ -106,13 +105,6 @@ $(function() {
 			photoGrid.push(photoRow);
 		}
 		return photoGrid;
-	}
-
-	function addDataToCategory(photos) {
-		for (var i = 0; i < photos.length; i++) {
-			var category = photos[i].metadata.fields.gallery[0].toLowerCase();
-			categoryData[category].data.push(photos[i]);
-		}
 	}
 
 	function addAspectRatios(photoRow, update) {
