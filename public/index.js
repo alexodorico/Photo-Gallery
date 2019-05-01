@@ -1,7 +1,6 @@
 $('head').append('<script src="https://cdn.jsdelivr.net/npm/symbol-es6/dist/symbol-es6.min.js"></script>');
 
 $(function() {
-	var test = [];
 	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
 	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
@@ -92,7 +91,7 @@ $(function() {
 			handleScroll(category, offset);
 			$(`[data-batch="${batch}"] .select-button`).on('click', handleSelectButtonClick);
 			$(`[data-batch="${batch}"] .download-button`).on('click', handleSingleDownloadClick);
-			$('img').on('click', lightboxInit);
+			$(`[data-batch="${batch}"] img`).on('click', lightboxInit);
 		});
 	}
 
