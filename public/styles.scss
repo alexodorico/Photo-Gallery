@@ -13,7 +13,6 @@
 
 .controls {
 	background-color: #fff;
-	position: sticky;
 	top: 0;
 	z-index: 4;
 }
@@ -228,8 +227,9 @@ $grid-spacing: 10px;
 		justify-content: center;
 
 		.item {
+			width: auto;
 			width: initial;
-			margin: 0 5px $grid-spacing;
+			margin: 0 4px $grid-spacing;
 
 			img {
 				object-fit: cover;
