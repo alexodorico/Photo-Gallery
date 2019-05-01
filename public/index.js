@@ -22,26 +22,13 @@ $(function() {
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
-
-		/////////// TESTING NO VIEW ALL /////////////////
 		$('.selected-category-item').text(categoryData[categories[0]].displayName());
-		$('[data-category="all"]').remove();
-	
 		$('.category-item').on('click', addCategoryToView);
 		$('#view-selected-button').on('click', handleViewSelectedClick);
 		$('#download-zip').on('click', handleBatchDownload);
-		$('.dropdown-menu li').on('click', handleBatchDownload);
 		getData(buildAPICall(categoryData[categories[0]].apiName(), photoLimit, 0));
 		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
-	}
-
-	function handleBatchDownload() {
-		var downloadLinks = [];
-		for (var element of selectedPhotoElement) {
-			downloadLinks.push(element[0].attributes['downloadlink'].value)
-		}
-		createZip(downloadLinks, 'test');
 	}
 
 	function buildPhotoCategoryObject(categories) {
@@ -234,7 +221,6 @@ $(function() {
 			document.addEventListener('scroll', lazyLoad);
 			window.addEventListener('resize', lazyLoad);
 			window.addEventListener('orientationchange', lazyLoad);
-			// Triggers above fold initial load
 			window.scroll(0,window.scrollY + 1);
 			window.scroll(0,window.scrollY - 1);
 		}
@@ -306,7 +292,7 @@ $(function() {
 			lightboxPhotos.push(item);
 		}
 	
-		var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
+		var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, lightboxPhotos, options);
 		gallery.init();
 	}
 
@@ -368,8 +354,14 @@ $(function() {
 		for (var element of Object.entries(categoryData[category].markup)) {
 			if (element[1].id === id) {
 				var button = element[1].lastElementChild.lastElementChild.firstElementChild;
-				button.classList.remove('btn-success');
-				button.classList.add('btn-default');
+				if (button.classList) {
+					button.classList.remove('btn-success');
+					button.classList.add('btn-default');
+				} else {
+					button.className = button.className.replace(/\bbtn-success\b/g, "")
+					button.className += " btn-default";
+				}
+
 				button.innerHTML = unselectedButtonText;
 			}
 		}
@@ -414,5 +406,13 @@ $(function() {
 		e.preventDefault();
 		var downloadLink = $(this).parents('.item').attr('downloadLink');
 		$('iframe').attr("src", downloadLink);
+	}
+
+	function handleBatchDownload() {
+		var downloadLinks = [];
+		for (var element of selectedPhotoElement) {
+			downloadLinks.push(element[0].attributes['downloadlink'].value)
+		}
+		createZip(downloadLinks, 'test');
 	}
 });
