@@ -7,7 +7,7 @@ $(function() {
 	var selectedPhotoElement = [];
 	var viewingSelected = false;
 	var selectedCategory = '';
-	var containerWidth = 900;
+	var containerWidth = $('.gallery-container').width();
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
@@ -133,6 +133,7 @@ $(function() {
 				 data-category="${category}"
 				 id="${photo.id}"
 				 downloadLink="${photo.embeds['AssetOriginalWidth/Height'].url}"
+				 singleDownloadLink="${photo._links.download}"
 				 ${!Modernizr.flexbox ? 'style="width:' + photo.file_properties.image_properties.aspect_ratio * photoHeight + 'px;"': ''}
 				 data-batch="${batch}">
 				<div class="loader"></div>
@@ -412,7 +413,7 @@ $(function() {
 
 	function handleSingleDownloadClick(e) {
 		e.preventDefault();
-		var downloadLink = $(this).parents('.item').attr('downloadLink');
+		var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
 		$('iframe').attr("src", downloadLink);
 	}
 
