@@ -7,7 +7,7 @@ $(function() {
 	var selectedPhotoElement = [];
 	var viewingSelected = false;
 	var selectedCategory = '';
-	var containerWidth = $('.gallery-container').width();
+	var containerWidth = $('.gallery-container').width() || 900;
 	var photosInRow = 3;
 	var photoMargin = 10; // 5 pixels on the left AND right of each photo
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
