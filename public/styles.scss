@@ -137,24 +137,6 @@ $grid-spacing: 10px;
 	}
 }
 
-// .no-touch {
-// 	.item {
-// 		overflow: hidden;
-// 		position: relative;
-
-// 		.overlay {
-// 			bottom: 0;
-// 			height: $overlay-height;
-// 			position: absolute;
-// 			width: 100%;
-	
-// 			h1 {
-// 				height: $overlay-height;
-// 			}
-// 		}
-// 	}
-// }
-
 .no-touch.csstransitions {
 	.item {
 		.overlay {
@@ -211,6 +193,10 @@ $grid-spacing: 10px;
 
 	.top-button {
 		padding-left: 0;
+	}
+
+	.categories.dropdown {
+		display: inline-block;
 	}
 
 	.categories-section {
