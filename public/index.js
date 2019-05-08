@@ -20,6 +20,7 @@ $(function() {
 
 	function init() {
 		objectFitImages();
+		$('#view-selected-button').attr('disabled', true);
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
@@ -345,6 +346,12 @@ $(function() {
 	function updateCount() {
 		var count = selectedPhotoElement.length;
 		$('.badge').text(count);
+
+		if (count == 0) {
+			$('#view-selected-button').attr('disabled', true);
+		} else {
+			$('#view-selected-button').attr('disabled', false);
+		}
 	}
 
 	function updateState(photoElement) {
