@@ -3,6 +3,14 @@
 /////////////////////
 .gallery-info {
 	padding: 0 5px;
+
+	h1 {
+		margin-bottom: 0.2em;
+	}
+
+	h4 {
+		margin-top: 3px;
+	}
 }
 
 .photo-gallery {
@@ -27,11 +35,12 @@
 
 .top-buttons {
 	width: 100%;
-	padding: 0 5px 15px;
+	padding: 15px 5px;
 }
 
 .categories-section {
-	float: right;
+	float: left;
+	margin-right: 5px;
 
 	.categories.dropdown {
 		margin-right: 5px;
@@ -59,16 +68,18 @@
 }
 
 #view-selected-button {
-	position: fixed;
-	bottom: 1em;
-	right: 1em;
-	z-index: 999;
+	margin-right: 7px;
+	opacity: 1;
 
 	.badge {
 		margin-left: 5px;
 		position: relative;
 		top: -2px;
 	}
+}
+
+.pswp__container {
+	transition: transform 0.35s ease-in-out;
 }
 
 /////////////////////
@@ -85,8 +96,9 @@ $grid-spacing: 10px;
 
 #photo-grid {
 	.item {
-		margin-bottom: $grid-spacing;
-		width: 100%;
+		width: 48%;
+		float: left;
+		margin: 0 1% $grid-spacing;
 		background-color: grey;
 		z-index: 1;
 		overflow: hidden;
@@ -94,9 +106,10 @@ $grid-spacing: 10px;
 	
 		img {
 			@media (max-width: 767px) {
+				object-fit: cover;
+				font-family: 'object-fit: cover;';
+				height: 40vw;
 				width: 100%;
-				min-height: 200px;
-				height: 100%;
 			}
 			z-index: 3;
 		}
@@ -176,10 +189,24 @@ $grid-spacing: 10px;
 	.right-buttons {
 		width: 100%;
 		float: left;
+		margin-top: 10px; 
 
-		.btn-group {
-			float: initial;
+		.btn {
+			width: 48%;
 		}
+	}
+
+	.categories-section .categories.dropdown {
+		margin-right: 0;
+	}
+
+	#selected-categories {
+		width: 100%;
+		text-align: center;
+	}
+
+	#view-selected-button {
+		opacity: 1;
 	}
 
 	.top-button {
@@ -187,8 +214,9 @@ $grid-spacing: 10px;
 	}
 
 	.categories-section {
-		float: left;
-		display: inline-block;
+		width: 100%;
+		text-align: center;
+		margin: 0 auto;
 	}
 
 	.download-button {
