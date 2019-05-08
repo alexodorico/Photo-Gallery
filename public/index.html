@@ -21,26 +21,25 @@
 				</div>
 		
 				<div class="top-buttons clearfix">
+					<div class="categories-section">
+						<div class="categories dropdown">
+							<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Select Category <span class="caret"></span></button>
+							<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
+							</ul>
+						</div>
+					</div>
 					<ul id="selected-categories">
 						<li id="viewing">Viewing: </li>
 						<li class="selected-category-item"></li>
 					</ul>
 					<div class="right-buttons">
-						<div class="btn-group">
-							<button id="download-zip" type="button" class="btn btn-primary">Download Selected</button>
-						</div>
-						<div class="categories-section">
-							<div class="categories dropdown">
-								<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Select Category <span class="caret"></span></button>
-								<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
-								</ul>
-							</div>
-						</div>
+						<button type="button" id="view-selected-button" class="btn btn-primary">View Selected<span class=badge></span></button>
+						<button id="download-zip" type="button" class="btn btn-primary">Download Selected</button>
 					</div>
 				</div>
 			</div>
 
-			<button type="button" id="view-selected-button" class="btn btn-primary">View Selected<span class=badge></span></button>
+			
 
 			<div id="photo-grid" class="clearfix">
 			</div>
