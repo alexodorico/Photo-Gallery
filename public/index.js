@@ -3,7 +3,7 @@ $('head').append('<script src="https://cdn.jsdelivr.net/npm/symbol-es6/dist/symb
 $(function() {
 	var API_BASE = 'https://morleygrouptravel-stg.morleycms.com/widgets/photoGalleryv3/getCategory.ashx?';
 	var selectedButtonText = 'Selected <span class="glyphicon glyphicon-ok-circle"></span>';
-	var unselectedButtonText = 'Select <span class="glyphicon glyphicon-plus-sign"></span>';
+	var unselectedButtonText = 'Select ';
 	var selectedPhotoElement = [];
 	var viewingSelected = false;
 	var selectedCategory = '';
@@ -20,7 +20,6 @@ $(function() {
 
 	function init() {
 		objectFitImages();
-		$('#view-selected-button').css('opacity', '0');
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
@@ -32,6 +31,9 @@ $(function() {
 		$('.pswp__button--arrow--right').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--arrow--left').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--close').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--close').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--zoom').on('click', function(e){e.preventDefault();});
+		$('.pswp__button--fs').on('click', function(e){e.preventDefault();});
 	}
 
 	function buildPhotoCategoryObject(categories) {
@@ -272,7 +274,13 @@ $(function() {
 		var element = e.target.parentElement;
 		var i = 0;
 		var options = {
-			index: 0
+			index: 0,
+			getThumbBoundsFn: function(index) {
+				var thumbnail = document.querySelectorAll('.item')[index];
+				var pageYScroll = window.pageYOffset || document.documentElement.scrollTop;
+				var rect = thumbnail.getBoundingClientRect();
+				return {x: rect.left, y: rect.top + pageYScroll, w: rect.width};
+			} 
 		};
 
 		while (element.previousElementSibling != null) {
@@ -337,11 +345,6 @@ $(function() {
 	function updateCount() {
 		var count = selectedPhotoElement.length;
 		$('.badge').text(count);
-		if (count > 0) {
-			$('#view-selected-button').animate({opacity: 1});
-		} else {
-			$('#view-selected-button').animate({opacity: 0});
-		}
 	}
 
 	function updateState(photoElement) {
