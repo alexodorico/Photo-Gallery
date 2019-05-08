@@ -89,6 +89,8 @@ $grid-spacing: 10px;
 		width: 100%;
 		background-color: grey;
 		z-index: 1;
+		overflow: hidden;
+		position: relative;
 	
 		img {
 			@media (max-width: 767px) {
@@ -102,9 +104,14 @@ $grid-spacing: 10px;
 		.overlay {
 			background-color: $overlay-bg-color;
 			color: $overlay-text-color;
+			bottom: 0;
+			height: $overlay-height;
+			position: absolute;
+			width: 100%;
 
 			h1 {
 				margin: 0;
+				height: $overlay-height;
 				float: left;
 				padding: 10px;
 			}
@@ -117,33 +124,23 @@ $grid-spacing: 10px;
 	}
 }
 
-.no-touch {
-	.item {
-		overflow: hidden;
-		position: relative;
+// .no-touch {
+// 	.item {
+// 		overflow: hidden;
+// 		position: relative;
 
-		.overlay {
-			bottom: 0;
-			height: 0;
-			position: absolute;
-			width: 100%;
+// 		.overlay {
+// 			bottom: 0;
+// 			height: $overlay-height;
+// 			position: absolute;
+// 			width: 100%;
 	
-			h1 {
-				height: 0;
-			}
-		}
-	
-		&:hover {
-			.overlay {
-				height: $overlay-height;
-	
-				h1 {
-					height: $overlay-height;
-				}
-			}
-		}
-	}
-}
+// 			h1 {
+// 				height: $overlay-height;
+// 			}
+// 		}
+// 	}
+// }
 
 .no-touch.csstransitions {
 	.item {
