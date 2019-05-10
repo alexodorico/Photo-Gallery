@@ -13,6 +13,18 @@
 	}
 }
 
+.photo-controls .btn-default {
+	background-color: #2b2b2b;
+	color: #f0f0f0;
+
+	&:hover,
+	&:active,
+	&:focus {
+		background-color: lighten($color: #2b2b2b, $amount: 15%);
+		color: #f0f0f0;
+	}
+}
+
 .photo-gallery {
 	max-width: 900px;
 	margin: 0 auto;
@@ -20,6 +32,7 @@
 }
 
 .controls {
+	position: sticky;
 	background-color: #fff;
 	top: 0;
 	z-index: 4;
@@ -35,7 +48,7 @@
 
 .top-buttons {
 	width: 100%;
-	padding: 15px 5px;
+	padding: 15px 3px;
 }
 
 .categories-section {
@@ -69,7 +82,10 @@
 
 #view-selected-button {
 	margin-right: 7px;
-	opacity: 1;
+
+	&[disabled="disabled"] {
+		background-color: #666;
+	}
 
 	.badge {
 		margin-left: 5px;
@@ -85,7 +101,7 @@
 /////////////////////
 //////  GRID  ///////
 /////////////////////
-$overlay-bg-color: rgba(255,255,255,0.33);
+$overlay-bg-color: rgba(255,255,255,0);
 $overlay-text-color: #000;
 $overlay-height: 50px;
 $grid-spacing: 10px;
@@ -112,6 +128,7 @@ $grid-spacing: 10px;
 				width: 100%;
 			}
 			z-index: 3;
+			cursor: zoom-in;
 		}
 
 		.overlay {
@@ -168,49 +185,13 @@ $grid-spacing: 10px;
 }
 
 @media (max-width: 767px) {
-	.right-buttons {
-		width: 100%;
-		float: left;
-		margin-top: 10px; 
-
-		.btn {
-			width: 48%;
-		}
-	}
-
-	.categories-section .categories.dropdown {
-		margin-right: 0;
-	}
-
-	#selected-categories {
-		width: 100%;
-		text-align: center;
-	}
-
+	#download-zip,
 	#view-selected-button {
-		opacity: 1;
-	}
-
-	.top-button {
-		padding-left: 0;
-	}
-
-	.categories.dropdown {
-		display: inline-block;
-	}
-
-	.categories-section {
-		width: 100%;
-		text-align: center;
-		margin: 0 auto;
+		font-size: 12px;
 	}
 
 	.download-button {
 		display: none;
-	}
-
-	.select-button {
-		font-size: 14px;
 	}
 }
 
@@ -231,6 +212,68 @@ $grid-spacing: 10px;
 	}
 }
 
+@media (max-width: 975px) {
+	.right-buttons {
+		width: 100%;
+		float: left;
+		margin-top: 10px; 
+
+		.btn {
+			width: 48.5%;
+		}
+	}
+
+	.categories-section {
+		width: 100%;
+		text-align: center;
+		margin: 0 auto;
+	}
+
+	.categories-section .categories.dropdown {
+		margin-right: 0;
+	}
+
+	#selected-categories {
+		width: 100%;
+		text-align: center;
+	}
+
+	#view-selected-button {
+		margin-right: 2%;
+	}
+}
+
+@media (min-width: 975px) {
+	#view-selected-button {
+		opacity: 1;
+		margin-right: 7px;
+		transition: opacity .33s;
+
+		&[disabled="disabled"] {
+			opacity: 0;
+		}
+	}
+
+	.top-button {
+		padding-left: 0;
+	}
+
+	.categories.dropdown {
+		display: inline-block;
+	}
+
+	.select-button {
+		font-size: 12px;
+	}
+}
+
+
+@media (max-width: 360px) {
+	#view-selected-button {
+		margin-right: 1.4%;
+	}
+}
+
 @media (min-width: 1170px) {
 	.flexbox #photo-grid {
 		display: flex;
@@ -248,7 +291,7 @@ $grid-spacing: 10px;
 			}
 
 			.btn {
-				font-size: 11.5px;
+				font-size: 11px;
 			}
 		}
 	}
@@ -257,6 +300,10 @@ $grid-spacing: 10px;
 	.no-flexbox .item {
 		float: left;
 		margin: 0 5px $grid-spacing;
+	}
+
+	.top-buttons {
+		padding: 15px 7px;
 	}
 }
 
