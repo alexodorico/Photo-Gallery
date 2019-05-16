@@ -98,6 +98,28 @@
 	transition: transform 0.35s ease-in-out;
 }
 
+#alert-zip {
+	position: fixed;
+	bottom: 0;
+	right: 20px;
+	z-index: 400;
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.pswp__button--arrow--left::before,
+	.pswp__button--arrow--right::before {
+		height: 70px;
+		width: 70px;
+		background: url("./default-skin/arrow.png");
+		background-position: -120px 0px;
+	}
+	
+	.pswp__button--arrow--left::before {
+		transform: rotate(180deg);
+	}
+}
+
 /////////////////////
 //////  GRID  ///////
 /////////////////////
@@ -105,6 +127,19 @@ $overlay-bg-color: rgba(255,255,255,0);
 $overlay-text-color: #000;
 $overlay-height: 50px;
 $grid-spacing: 10px;
+
+@font-face {
+	font-family: 'Glyphicons Halflings';
+	src: url('./glyphicons-halflings-regular.svg');
+	src: url('./glyphicons-halflings-regular.eot');
+	src: url('./glyphicons-halflings-regular.ttf');
+	src: url('./glyphicons-halflings-regular.woff2');
+	src: url('./glyphicons-halflings-regular.woff');
+}
+
+.glyphicons {
+	font-family: 'Glyphicons Halflings';
+}
 
 .gallery-container {
 	padding: 0 !important;

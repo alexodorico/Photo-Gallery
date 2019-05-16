@@ -19,6 +19,7 @@ $(function() {
 	init();
 
 	function init() {
+		$('#wrap').addClass('clearfix');
 		objectFitImages();
 		$('#view-selected-button').attr('disabled', true);
 		buildPhotoCategoryObject(categories);
@@ -75,7 +76,7 @@ $(function() {
 		$.get(endpoint, function(data) {
 			var content = '';
 			var photos = data.items;
-			var category = photos[0].metadata.fields.gallery[0].toLowerCase();
+			var category = photos[0].metadata.fields.gallery[0];
 			categoryData[category].incrementOffset();
 			var offset = categoryData[category].offset;
 			var batch = offset / photoLimit;
@@ -241,6 +242,7 @@ $(function() {
 
 		$('.selected-category-item').detach();
 		$('#selected-categories').append(`<li class="selected-category-item">${categoryData[categoryName].displayName()}</li>`);
+		document.getElementById('dropdownMenu1').innerHTML = categoryData[categoryName].displayName() + ' <span class="caret"></span>';
 
 		if (viewingSelected) {
 			$('.item').detach();
