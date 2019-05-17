@@ -25,7 +25,7 @@ $(function() {
 		buildPhotoCategoryObject(categories);
 		populateCategoriesDropDown(categories);
 		selectedCategory = categoryData[categories[0]].name;
-		$('.selected-category-item').text(categoryData[categories[0]].displayName());
+		$('.selected-category-item').text(categoryData[categories[0]].name);
 		$('.category-item').on('click', addCategoryToView);
 		$('#view-selected-button').on('click', handleViewSelectedClick);
 		$('#download-zip').on('click', handleBatchDownload);
@@ -46,9 +46,6 @@ $(function() {
 
 	function Category(category) {
 		this.name = category;
-		this.displayName = function() {
-			return this.name.split(' ').map(function(word) {return word[0].toUpperCase() + word.substr(1);}).join(' ');
-		}
 		this.apiName = function() {
 			return this.name.replace(' ', '_');
 		}
@@ -63,7 +60,7 @@ $(function() {
 		var categoryMenu = $('.category-dd-menu');
 
 		categories.forEach(function(category) {
-			var displayName = categoryData[category].displayName();
+			var displayName = categoryData[category].name;
 			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
 		});
 	}
@@ -240,9 +237,7 @@ $(function() {
 	function addCategoryToView(event) {
 		var categoryName = event.target.parentElement.getAttribute('data-category');
 
-		$('.selected-category-item').detach();
-		$('#selected-categories').append(`<li class="selected-category-item">${categoryData[categoryName].displayName()}</li>`);
-		document.getElementById('dropdownMenu1').innerHTML = categoryData[categoryName].displayName() + ' <span class="caret"></span>';
+		document.getElementById('dropdownMenu1').innerHTML = categoryData[categoryName].name + ' <span class="caret"></span>';
 
 		if (viewingSelected) {
 			$('.item').detach();
@@ -426,7 +421,7 @@ $(function() {
 	function handleSingleDownloadClick(e) {
 		e.preventDefault();
 		var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
-		$('iframe').attr("src", downloadLink);
+		$('#dl-frame').attr("src", downloadLink);
 	}
 
 	function handleBatchDownload() {
