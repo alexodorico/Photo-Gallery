@@ -434,7 +434,6 @@ $(function() {
 		for (var element of selectedPhotoElement) {
 			downloadLinks.push(element[0].attributes['downloadlink'].value)
 		}
-		console.log(downloadLinks);
 		createZip(downloadLinks, 'My Event Photos');
 	}
 
@@ -445,13 +444,12 @@ $(function() {
 		
 		for (var i = 0; i < photoCount / 100; i++) {
 			$.get(buildAPICall(selectedCategory, 100, categoryOffset), function(data) {
-				console.log(data);
 				for (var photo of data.items) {
 					downloadLinks.push(photo.embeds["AssetOriginalWidth/Height"].url);
-					if (downloadLinks.length == photoCount) callback(downloadLinks, 'test');
+					if (downloadLinks.length == photoCount) callback(downloadLinks, selectedCategory);
 				}
 			});
-			
+
 			categoryOffset += 100;
 		}
 	}
