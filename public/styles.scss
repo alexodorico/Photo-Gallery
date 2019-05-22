@@ -98,6 +98,14 @@
 	transition: transform 0.35s ease-in-out;
 }
 
+.copy-share-link {
+	cursor: pointer;
+
+	&:hover {
+		background-color: #ddd;
+	}
+}
+
 #alert-zip {
 	position: fixed;
 	bottom: 0;
