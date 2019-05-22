@@ -450,8 +450,9 @@ $(function() {
 					downloadLinks.push(photo.embeds["AssetOriginalWidth/Height"].url);
 					if (downloadLinks.length == photoCount) callback(downloadLinks, 'test');
 				}
-				categoryOffset += 100;
 			});
+			
+			categoryOffset += 100;
 		}
 	}
 
