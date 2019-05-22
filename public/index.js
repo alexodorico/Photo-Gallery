@@ -13,13 +13,14 @@ $(function() {
 	var containerPadding = 28; // 14 pixels on the left AND right of each photo
 	var photoLimit = 24; // How many photos get loaded per API call
 	var categoryData = {};
-	var categories = window.categories || [ "gala", "fireworks", "team-building event", "gm topiary", "soy awards" ];
+	var categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
 	var jobNumber = window.jobNumber || "GT0000";
 	
 	init();
 
 	function init() {
 		$('#wrap').addClass('clearfix');
+		document.getElementById("dropdownMenu1").innerHTML = categories[0] + ' <span class="caret"></span>';
 		objectFitImages();
 		$('#view-selected-button').attr('disabled', true);
 		buildPhotoCategoryObject(categories);
