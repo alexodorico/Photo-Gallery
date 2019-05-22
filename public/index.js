@@ -37,6 +37,9 @@ $(function() {
 		$('.pswp__button--close').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--zoom').on('click', function(e){e.preventDefault();});
 		$('.pswp__button--fs').on('click', function(e){e.preventDefault();});
+		$('#download-category').on('click', function(){
+			downloadCategory(createZip);
+		});
 	}
 
 	function buildPhotoCategoryObject(categories) {
@@ -75,6 +78,7 @@ $(function() {
 			var content = '';
 			var photos = data.items;
 			var category = photos[0].metadata.fields.gallery[0];
+			categoryData[category].totalPhotos = data.total_count;
 			categoryData[category].incrementOffset();
 			var offset = categoryData[category].offset;
 			var batch = offset / photoLimit;
@@ -430,6 +434,32 @@ $(function() {
 		for (var element of selectedPhotoElement) {
 			downloadLinks.push(element[0].attributes['downloadlink'].value)
 		}
-		createZip(downloadLinks, 'test');
+		console.log(downloadLinks);
+		createZip(downloadLinks, 'My Event Photos');
+	}
+
+	function downloadCategory(callback) {
+		var downloadLinks = [];
+		var categoryOffset = 0;
+		var photoCount = categoryData[selectedCategory].totalPhotos;
+		
+		for (var i = 0; i < photoCount / 100; i++) {
+			$.get(buildAPICall(selectedCategory, 100, categoryOffset), function(data) {
+				console.log(data);
+				for (var photo of data.items) {
+					downloadLinks.push(photo.embeds["AssetOriginalWidth/Height"].url);
+					if (downloadLinks.length == photoCount) callback(downloadLinks, 'test');
+				}
+				categoryOffset += 100;
+			});
+		}
+	}
+
+	function downloadAll() {
+		var downloadLinks = [];
+
+
+
+		createZip(downloadLinks, 'All Event Photos')
 	}
 });
