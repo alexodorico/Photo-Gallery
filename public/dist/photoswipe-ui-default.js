@@ -78,16 +78,14 @@ var PhotoSwipeUI_Default =
 
 			shareButtons: [
 				{id:'facebook', label:'Share on Facebook', url:'https://www.facebook.com/sharer/sharer.php?u={{url}}'},
-				{id:'twitter', label:'Tweet', url:'https://twitter.com/intent/tweet?text={{text}}&url={{url}}'},
-				{id:'pinterest', label:'Pin it', url:'http://www.pinterest.com/pin/create/button/'+
-													'?url={{url}}&media={{image_url}}&description={{text}}'},
-				{id:'download', label:'Download image', url:'{{raw_image_url}}', download:true}
+				{id:'twitter', label:'Share on Twitter', url:'https://twitter.com/intent/tweet?text={{text}}&url={{url}}'},
+				{id:'copylink', label:'Copy Share Link'}
 			],
 			getImageURLForShare: function( /* shareButtonData */ ) {
 				return pswp.currItem.src || '';
 			},
 			getPageURLForShare: function( /* shareButtonData */ ) {
-				return window.location.href;
+				return $('.pswp__img').attr('src');
 			},
 			getTextForShare: function( /* shareButtonData */ ) {
 				return pswp.currItem.title || '';
@@ -235,15 +233,23 @@ var PhotoSwipeUI_Default =
 				page_url = _options.getPageURLForShare(shareButtonData);
 				share_text = _options.getTextForShare(shareButtonData);
 
-				shareURL = shareButtonData.url.replace('{{url}}', encodeURIComponent(page_url) )
-									.replace('{{image_url}}', encodeURIComponent(image_url) )
-									.replace('{{raw_image_url}}', image_url )
-									.replace('{{text}}', encodeURIComponent(share_text) );
+				if (shareButtonData.url) {
+					shareURL = shareButtonData.url.replace('{{url}}', encodeURIComponent(page_url) )
+					.replace('{{image_url}}', encodeURIComponent(image_url) )
+					.replace('{{raw_image_url}}', image_url )
+					.replace('{{text}}', encodeURIComponent(share_text) );
 
-				shareButtonOut += '<a href="' + shareURL + '" target="_blank" '+
+					shareButtonOut += '<a href="' + shareURL + '" target="_blank" '+
 									'class="pswp__share--' + shareButtonData.id + '"' +
 									(shareButtonData.download ? 'download' : '') + '>' + 
 									shareButtonData.label + '</a>';
+				} else {
+					shareURL = "";
+					shareButtonOut += '<a onclick="copyShareLink()" ' + 'target="_blank" '+
+					'class="copy-share-link pswp__share--' + shareButtonData.id + '"' +
+					(shareButtonData.download ? 'download' : '') + '>' + 
+					shareButtonData.label + '</a>';
+				}
 
 				if(_options.parseShareButtonOut) {
 					shareButtonOut = _options.parseShareButtonOut(shareButtonData, shareButtonOut);
