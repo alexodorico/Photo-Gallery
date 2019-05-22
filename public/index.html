@@ -55,6 +55,7 @@
 						<div class="pswp__top-bar">
 							<div class="pswp__counter"></div>
 							<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+							<button class="pswp__button pswp__button--share" title="Share"></button>
 							<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 							<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
 							<div class="pswp__preloader">
@@ -64,6 +65,9 @@
 									</div>
 								</div>
 							</div>
+						</div>
+						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+							<div class="pswp__share-tooltip"></div> 
 						</div>						
 						<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
 						</button>
@@ -76,6 +80,20 @@
 				</div>
 			</div>
 		</div>
+		<script>
+			function copyShareLink() {
+				var x = $('.pswp__img').attr('src');
+				var el = document.createElement('input');
+				el.setAttribute('readonly', '');
+				el.value = x;
+				el.style.opacity = "none";
+				document.body.appendChild(el);
+				el.select();
+				document.execCommand('copy');
+				document.body.removeChild(el);
+				$('.copy-share-link').text('Link Copied!');
+			}
+		</script>
 		<!-- End Put in Ektron -->
 	
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -85,7 +103,7 @@
 		<script src="./dist/JSZipUtils.js"></script>
 		<script src="./dist/FileSaver.js"></script>
 		<script src="./dist/photoswipe.min.js"></script>
-		<script src="./dist/photoswipe-ui-default.min.js"></script>
+		<script src="./dist/photoswipe-ui-default.js"></script>
 		<script src="./zip.js"></script>
 		<script type="text/javascript" src="./index.js"></script>
 	</body>
