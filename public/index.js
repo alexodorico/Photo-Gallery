@@ -62,7 +62,7 @@ $(function() {
 
 		categories.forEach(function(category) {
 			var displayName = categoryData[category].name;
-			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a href="#">${displayName}</a></li>`)
+			categoryMenu.append(`<li class="category-item" data-selected="false" data-category="${category}"><a>${displayName}</a></li>`)
 		});
 	}
 
