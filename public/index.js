@@ -9,8 +9,8 @@ $(function() {
 	var selectedCategory = '';
 	var containerWidth = $('.gallery-container').width() || 900;
 	var photosInRow = 3;
-	var photoMargin = 10; // 5 pixels on the left AND right of each photo
-	var containerPadding = 28; // 14 pixels on the left AND right of each photo
+	var photoMargin = 10; // 5 pixels on the left and right of each photo
+	var containerPadding = 28; // 14 pixels on the left and right of each photo
 	var photoLimit = 24; // How many photos get loaded per API call
 	var categoryData = {};
 	var categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
