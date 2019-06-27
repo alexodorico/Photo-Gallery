@@ -35,7 +35,7 @@ function fetchData(category = window.categories[0], offset = 0) {
   try {
     return fetch(endpoint)
       .then(response => response.json())
-      .then(data => handleSuccessfulFetch(data.items))
+      .then(data => handleSuccessfulFetch(endpoint, data.items))
       .catch(err => showError(err))
   }
   catch {
@@ -47,8 +47,9 @@ function buildAPICall(category, offset) {
   return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
 }
 
-function handleSuccessfulFetch(data) {
-  simplifyData(data);
+function handleSuccessfulFetch(endpoint, data) {
+  const simplifiedData = simplifyData(data);
+  putInStorage(endpoint, simplifiedData);
 }
 
 /*
