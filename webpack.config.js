@@ -2,7 +2,7 @@ const path = require('path');
 const cssExtract = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './src/javascript/index.js',
+  entry: ['babel-polyfill', './src/javascript/index.js'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js'
