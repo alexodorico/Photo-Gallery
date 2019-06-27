@@ -2,7 +2,7 @@
   "name": "photo-gallery",
   "version": "0.1.0",
   "description": "Photo gallery for clients using DAM API",
-  "main": "public/index.html", 
+  "main": "public/index.html",
   "scripts": {
     "test": "jasmine",
     "start": "gulp"
@@ -14,5 +14,12 @@
   "bugs": {
     "url": "https://github.com/alexodorico/Photo-Gallery-Test/issues"
   },
-  "homepage": "https://github.com/alexodorico/Photo-Gallery-Test#readme"
+  "homepage": "https://github.com/alexodorico/Photo-Gallery-Test#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.5"
+  }
 }
