@@ -10,16 +10,6 @@ import options from '../../gallery.config';
   render(categories[0]);
 })();
 
-function populateCategoriesDropDown(categories) {
-  let markup = new String();
-
-  categories.forEach(category => {
-    markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
-  });
-
-  return getById("category-list").innerHTML = markup;
-}
-
 function fetchData(category = window.categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
 
@@ -32,6 +22,42 @@ function fetchData(category = window.categories[0], offset = 0) {
   catch {
     showError("Something went wrong while getting photo data");
   }
+}
+
+function render(category = categories[0], offset = 0) {
+  const markup = new String();
+  const key = buildAPICall(category, offset);
+  const data = getFromStorage(key);
+  const grid = groupPhotos(data);
+
+  grid.forEach(row => {
+    const aspectRatio = addAspectRatios(row);
+    const spaceInRow = computeSpaceInRow(row);
+    const photoHeight = spaceInRow / aspectRatio;
+    markup += buildMarkup(row, photoHeight);
+  });
+
+  destroyHTML("photo-grid");
+  getById("photogrid").innerHTML = markup;
+}
+
+function buildMarkup(row, photoHeight) {
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////  HELPER FUNCTIONS  //////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+// This doesn't really need to be a function, only used once
+function populateCategoriesDropDown(categories) {
+  let markup = new String();
+
+  categories.forEach(category => {
+    markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
+  });
+
+  return getById("category-list").innerHTML = markup;
 }
 
 /*
@@ -56,20 +82,6 @@ function simplifyData(data) {
       singleDownloadLink,
       batchDownloadLink
     }
-  });
-}
-
-function render(category = categories[0], offset = 0) {
-  const markup = new String();
-  const key = buildAPICall(category, offset);
-  const data = getFromStorage(key);
-  const grid = groupPhotos(data);
-
-  grid.forEach(row => {
-    const aspectRatio = addAspectRatios(row);
-    const spaceInRow = computeSpaceInRow(row);
-    const rowHeight = spaceInRow / aspectRatio;
-    console.log(rowHeight);
   });
 }
 
@@ -103,14 +115,6 @@ function groupPhotos(data) {
 
   return photoGrid;
 }
-
-
-
-
-
-/*
-  HELPER FUNCTIONS
-*/
 
 function getById(id) {
   return document.getElementById(id);
