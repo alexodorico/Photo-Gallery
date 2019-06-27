@@ -4,7 +4,7 @@
   "description": "Photo gallery for clients using DAM API",
   "main": "public/index.html",
   "scripts": {
-    "test": "jasmine",
+    "build": "webpack --config webpack.config.js",
     "start": "gulp"
   },
   "repository": {
