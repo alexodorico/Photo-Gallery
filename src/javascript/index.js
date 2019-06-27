@@ -25,7 +25,7 @@ function fetchData(category = window.categories[0], offset = 0) {
 }
 
 function render(category = categories[0], offset = 0) {
-  const markup = new String();
+  let markup = new String();
   const key = buildAPICall(category, offset);
   const data = getFromStorage(key);
   const grid = groupPhotos(data);
@@ -34,15 +34,48 @@ function render(category = categories[0], offset = 0) {
     const aspectRatio = addAspectRatios(row);
     const spaceInRow = computeSpaceInRow(row);
     const photoHeight = spaceInRow / aspectRatio;
-    markup += buildMarkup(row, photoHeight);
+    const photoWidth = aspectRatio * photoHeight;
+
+    markup += buildMarkup(row, photoHeight, photoWidth);
   });
 
   destroyHTML("photo-grid");
-  getById("photogrid").innerHTML = markup;
+  getById("photo-grid").insertAdjacentHTML("beforeend", markup);
 }
 
-function buildMarkup(row, photoHeight) {
+function buildMarkup(row, photoHeight, photoWidth) {
+  var markup = new String();
 
+  row.forEach(function(photo) {
+    markup += `
+    <div class="item"
+       id="${photo.id}"
+       downloadLink="${photo.batchDownloadLink}"
+       singleDownloadLink="${photo.singleDownloadLink}"
+       style="width: ${photoWidth + 'px'};"
+      <div class="loader"></div>
+      <img
+        class="lazy"
+        data-original-src="${photo.batchDownloadLink}"
+        height="${photoHeight}"
+        width="${photoWidth}"
+        src=""
+        data-src="${photo.thumbnail}">
+      </img>
+      <div class="overlay">
+        <div class="photo-controls">
+          <button type="button" class="btn btn-default select-button">
+            Select 
+          </button>
+          <button class="btn btn-default download-button">
+            <span class="glyphicon glyphicon-download-alt"></span>
+          </button>
+        </div>
+      </div>
+    </div>`
+  });
+
+  return markup;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
