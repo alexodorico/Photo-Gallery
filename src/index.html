@@ -6,71 +6,75 @@
 		<title>Image Gallery Test</title>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-		<link rel="stylesheet" href="dist/photoswipe.css">
-		<link rel="stylesheet" href="dist/default-skin/default-skin.css">
-		<link rel="stylesheet" type="text/css" href="./styles.css">
+		<!-- <link rel="stylesheet" href="dist/photoswipe.css">
+		<link rel="stylesheet" href="dist/default-skin/default-skin.css"> -->
+		<link rel="stylesheet" type="text/css" href="../dist/bundle.css">
 	</head>
 	<body>
-		<!-- Put in Ektron -->
 		<iframe id="dl-frame" style="display:none"></iframe>
-		<div class="photo-gallery">
-
-			<div class="controls clearfix">
-				<div class="gallery-info">
-					<h1>Photo Gallery</h1>
-				<!-- <h4>Placeholder for optional description of the photo gallery.</h4> -->
+		<div id="photo-gallery">
+			<header id="top-bar" class="clearfix">
+				<h1>Photo Gallery</h1>
+				<div id="categories-wrapper" class="dropdown">
+					<button
+						class="btn btn-default dropdown-toggle"
+						type="button"
+						id="category-dropdown-button"
+						data-toggle="dropdown"
+						aria-haspopup="true"
+						aria-expanded="true">
+						Select Category <span class="caret"></span>
+					</button>
+					<ul
+						id="category-list"
+						class="dropdown-menu"
+						aria-labelledby="category-dropdown-button">
+						<li><a>Example Category</a></li>
+						<li><a>Example Category Really Long Category Name Woah</a></li>
+						<li><a>Example Category</a></li>
+						<li><a>Example Category</a></li>
+						<li><a>Example Category</a></li>
+						<li><a>Example Category Really Long Category Name Woah This IS Getting Kind of Ridiculous</a></li>
+						<li><a>Example Category</a></li>
+						<li><a>Example Category</a></li>
 				</div>
-		
-				<div class="top-buttons clearfix">
-					<div class="categories-section">
-						<div class="categories dropdown">
-							<button
-								class="btn btn-default dropdown-toggle"
-								type="button"
-								id="dropdownMenu1"
-								data-toggle="dropdown"
-								aria-haspopup="true"
-								aria-expanded="true">
-								Select Category <span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu category-dd-menu" aria-labelledby="dropdownMenu1">
-							</ul>
-						</div>
-					</div>
-					<div class="right-buttons">
+				<div id="button-wrapper" class="clearfix">
+					<button
+						type="button"
+						id="view-selected-button"
+						class="btn btn-primary"
+						disabled="disabled">
+						View Selected<span class=badge></span>
+					</button>
+					<div id="download-button-wrapper" class="dropdown">
 						<button
+							class="btn btn-primary dropdown-toggle"
 							type="button"
-							id="view-selected-button"
-							class="btn btn-primary"
-							disabled="disabled">
-							View Selected<span class=badge></span>
+							id="download-dropdown-button"
+							data-toggle="dropdown"
+							aria-haspopup="true"
+							aria-expanded="true">
+							Download <span class="caret"></span>
 						</button>
-						<div class="download-dropdown dropdown">
-							<button
-								class="btn btn-primary dropdown-toggle"
-								type="button"
-								id="dropdownMenu2"
-								data-toggle="dropdown"
-								aria-haspopup="true"
-								aria-expanded="true">
-								Download <span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-								<li id="download-zip"><a>Selected</a></li>
-								<li id="download-category"><a>Current Category</a></li>
-								<li role="separator" class="divider"></li>
-								<li id="download-all"><a>All</a></li>
-							</ul>
-						</div>
-					<!--	<button  type="button" class="btn btn-primary">Download Selected</button> -->
+						<ul
+							id="download-list"
+							class="dropdown-menu"
+							aria-labelledby="download-dropdown-button"
+						>
+							<li id="download-zip"><a>Selected</a></li>
+							<li id="download-category"><a>Current Category</a></li>
+							<li role="separator" class="divider"></li>
+							<li id="download-all"><a>All</a></li>
+						</ul>
 					</div>
 				</div>
-			</div>
+			</header>
 
 			<div id="photo-grid" class="clearfix">
 			</div>
+		</div>
 
-			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+			<!-- <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="pswp__bg"></div>
 				<div class="pswp__scroll-wrap">
 					<div class="pswp__container">
@@ -106,7 +110,8 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</div> -->
+
 		<script>
 			function copyShareLink() {
 				var x = $('.pswp__img').attr('src');
@@ -121,17 +126,16 @@
 				$('.copy-share-link').text('Link Copied!');
 			}
 		</script>
-		<!-- End Put in Ektron -->
 	
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-		<script src="./dist/ofi.js"></script>
+		<!-- <script src="./dist/ofi.js"></script>
 		<script src="./dist/jszip.min.js"></script>
 		<script src="./dist/JSZipUtils.js"></script>
 		<script src="./dist/FileSaver.js"></script>
 		<script src="./dist/photoswipe.min.js"></script>
 		<script src="./dist/photoswipe-ui-default.js"></script>
-		<script src="./zip.js"></script>
-		<script type="text/javascript" src="./index.js"></script>
+		<script src="./zip.js"></script> -->
+		<script type="text/javascript" src="../dist/index.js"></script>
 	</body>
 </html>
