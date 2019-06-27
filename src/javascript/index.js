@@ -21,9 +21,7 @@ function populateCategoriesDropDown(categories) {
 
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
-
   updateCategoryDropdown(category);
-
   return true;
 }
 
@@ -37,7 +35,7 @@ function fetchData(category = window.categories[0], offset = 0) {
   try {
     return fetch(endpoint)
       .then(response => response.json())
-      .then(data => console.log(data))
+      .then(data => handleSuccessfulFetch(data.items))
       .catch(err => showError(err))
   }
   catch {
@@ -47,6 +45,35 @@ function fetchData(category = window.categories[0], offset = 0) {
 
 function buildAPICall(category, offset) {
   return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
+}
+
+function handleSuccessfulFetch(data) {
+  simplifyData(data);
+}
+
+/*
+  Only gets necessary data from API results to save
+  space in localStorage
+  ---
+  Recieves array of objects containing photo data
+  Returns array of objects containing photo data
+*/
+function simplifyData(data) {
+  return data.map(item => {
+    const { id } = item;
+    const { embeds: { "AssetOriginalWidth/Height": { url: batchDownloadLink}}} = item;
+    const { _links: { download: singleDownloadLink }} = item;
+    const { thumbnails: { "600px": { url: thumbnail }}} = item;
+    const { file_properties: { image_properties: { aspect_ratio }}} = item;
+
+    return {
+      id,
+      aspect_ratio,
+      thumbnail,
+      singleDownloadLink,
+      batchDownloadLink
+    }
+  });
 }
 
 
