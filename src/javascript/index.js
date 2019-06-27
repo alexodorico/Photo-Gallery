@@ -7,6 +7,7 @@ import options from '../../gallery.config';
   populateCategoriesDropDown(categories);
   addListenerToClass("category-name", "click", handleCategoryClick);
   await fetchData(categories[0]);
+  render(categories[0]);
 })();
 
 function populateCategoriesDropDown(categories) {
@@ -17,16 +18,6 @@ function populateCategoriesDropDown(categories) {
   });
 
   return getById("category-list").innerHTML = markup;
-}
-
-function handleCategoryClick(event) {
-  const category = event.target.innerHTML;
-  updateCategoryDropdown(category);
-  return true;
-}
-
-function updateCategoryDropdown(category) {
-  return getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
 }
 
 function fetchData(category = window.categories[0], offset = 0) {
@@ -41,15 +32,6 @@ function fetchData(category = window.categories[0], offset = 0) {
   catch {
     showError("Something went wrong while getting photo data");
   }
-}
-
-function buildAPICall(category, offset) {
-  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
-}
-
-function handleSuccessfulFetch(endpoint, data) {
-  const simplifiedData = simplifyData(data);
-  putInStorage(endpoint, simplifiedData);
 }
 
 /*
@@ -77,11 +59,50 @@ function simplifyData(data) {
   });
 }
 
+function render(category = categories[0], offset = 0) {
+  const markup = new String();
+  const key = buildAPICall(category, offset);
+  const data = getFromStorage(key);
+  const grid = groupPhotos(data);
 
+  grid.forEach(row => {
+    const aspectRatio = addAspectRatios(row);
+    const spaceInRow = computeSpaceInRow(row);
+    const rowHeight = spaceInRow / aspectRatio;
+    console.log(rowHeight);
+  });
+}
 
+function addAspectRatios(photoRow, update) {
+  let aspectRatio = 0;
 
+  photoRow.forEach(photo => {
+    aspectRatio += photo.aspect_ratio;
+  });
 
+  return aspectRatio;
+}
 
+function computeSpaceInRow(photoRow) {
+  const availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
+
+  if (photoRow.length !== options.rowLength) {
+    availableSpace += (options.rowLength - photoRow.length) * options.photoMargin;
+  }
+
+  return availableSpace;
+}
+
+function groupPhotos(data) {
+  let photoGrid = new Array();
+
+  for (let i = 0; i < data.length / options.rowLength; i++) {
+    const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
+    photoGrid.push(photoRow);
+  }
+
+  return photoGrid;
+}
 
 
 
@@ -109,6 +130,24 @@ function getFromStorage(key) {
 
 function putInStorage(key, value) {
   return localStorage.setItem(key, JSON.stringify(value));
+}
+
+function buildAPICall(category = categories[0], offset = 0) {
+  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
+}
+
+function handleSuccessfulFetch(endpoint, data) {
+  const simplifiedData = simplifyData(data);
+  putInStorage(endpoint, simplifiedData);
+}
+
+function handleCategoryClick(event) {
+  const category = event.target.innerHTML;
+  return updateCategoryDropdown(category);
+}
+
+function updateCategoryDropdown(category) {
+  return getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
 }
 
 function addListenerToClass(className, event, handler) {
