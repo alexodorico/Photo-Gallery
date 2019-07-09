@@ -20,7 +20,7 @@ function fetchData(category = window.categories[0], offset = 0) {
       .catch(err => showError(err))
   }
   catch {
-    showError("Something went wrong while getting photo data");
+    return showError("Something went wrong while getting photo data");
   }
 }
 
@@ -34,7 +34,7 @@ function render(category = categories[0], offset = 0) {
     const aspectRatio = addAspectRatios(row);
     const spaceInRow = computeSpaceInRow(row);
     const photoHeight = spaceInRow / aspectRatio;
-    const photoWidth = aspectRatio * photoHeight;
+    const photoWidth = photoHeight * aspectRatio;
 
     markup += buildMarkup(row, photoHeight, photoWidth);
   });
@@ -52,25 +52,23 @@ function buildMarkup(row, photoHeight, photoWidth) {
        id="${photo.id}"
        downloadLink="${photo.batchDownloadLink}"
        singleDownloadLink="${photo.singleDownloadLink}"
-       style="width: ${photoWidth + 'px'};"
+       style="width: ${photoHeight * photo.aspect_ratio + 'px'}">
       <div class="loader"></div>
       <img
         class="lazy"
         data-original-src="${photo.batchDownloadLink}"
         height="${photoHeight}"
-        width="${photoWidth}"
+        width="${photoHeight * photo.aspect_ratio}"
         src=""
         data-src="${photo.thumbnail}">
       </img>
       <div class="overlay">
-        <div class="photo-controls">
-          <button type="button" class="btn btn-default select-button">
-            Select 
-          </button>
-          <button class="btn btn-default download-button">
-            <span class="glyphicon glyphicon-download-alt"></span>
-          </button>
-        </div>
+        <button type="button" class="btn btn-default select-button">
+          Select 
+        </button>
+        <button class="btn btn-default download-button">
+          <span class="glyphicon glyphicon-download-alt"></span>
+        </button>
       </div>
     </div>`
   });

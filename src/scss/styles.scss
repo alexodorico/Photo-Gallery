@@ -4,6 +4,10 @@
 	padding: 0 1em;
 }
 
+#photo-grid {
+	padding-top: 1em;
+}
+
 #top-bar {
 	position: sticky;
 	background-color: #fff;
@@ -18,6 +22,12 @@
 
 #button-wrapper {
 	padding: 1em 0 0;
+}
+
+.dropdown {
+	a {
+		cursor: pointer;
+	}
 }
 
 #category-dropdown-button {
@@ -36,10 +46,6 @@
 // Prevent dropdown from going on screen
 #download-list {
 	left: -60px;
-
-	a {
-		cursor: pointer;
-	}
 }
 
 @media (min-width: 900px) {
@@ -56,6 +62,31 @@
 	#view-selected-button {
 		margin-right: 1em;
 	}
+
+	#button-wrapper {
+		padding: 0;
+	}
+}
+
+$overlay-bg-color: rgba(255,255,255,0);
+$overlay-text-color: #000;
+$overlay-height: 50px;
+$grid-spacing: 5px;
+
+.item {
+	float: left;
+	position: relative;
+	margin: 0 $grid-spacing 1%;
+}
+
+.overlay {
+	background-color: $overlay-bg-color;
+	color: $overlay-text-color;
+	bottom: 0;
+	height: $overlay-height;
+	padding: 8px;
+	position: absolute;
+	width: 100%;
 }
 
 
@@ -409,43 +440,31 @@
 // 		z-index: 2;
 // 	}
 
-// 	.loader {
-// 		font-size: 10px;
-// 		position: absolute;
-// 		left: 40%;
-// 		top: 40%;
-// 		z-index: -1;
-// 		text-indent: -9999em;
-// 		border-top: 1.1em solid rgba(255, 255, 255, 0.2);
-// 		border-right: 1.1em solid rgba(255, 255, 255, 0.2);
-// 		border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
-// 		border-left: 1.1em solid #eee;
-// 		-webkit-transform: translateZ(0);
-// 		-ms-transform: translateZ(0);
-// 		transform: translateZ(0);
-// 		-webkit-animation: load 1.1s infinite linear;
-// 		animation: load 1.1s infinite linear;
-// 	}
+	// .loader {
+	// 	font-size: 10px;
+	// 	position: absolute;
+	// 	left: 40%;
+	// 	top: 40%;
+	// 	z-index: -1;
+	// 	text-indent: -9999em;
+	// 	border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+	// 	border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+	// 	border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+	// 	border-left: 1.1em solid #eee;
+	// 	-webkit-transform: translateZ(0);
+	// 	-ms-transform: translateZ(0);
+	// 	transform: translateZ(0);
+	// 	-webkit-animation: load 1.1s infinite linear;
+	// 	animation: load 1.1s infinite linear;
+	// }
 
-// 	@-webkit-keyframes load {
-// 		0% {
-// 			-webkit-transform: rotate(0deg);
-// 			transform: rotate(0deg);
-// 		}
-// 		100% {
-// 			-webkit-transform: rotate(360deg);
-// 			transform: rotate(360deg);
-// 		}
-// 	}
-
-// 	@keyframes load {
-// 		0% {
-// 			-webkit-transform: rotate(0deg);
-// 			transform: rotate(0deg);
-// 		}
-// 		100% {
-// 			-webkit-transform: rotate(360deg);
-// 			transform: rotate(360deg);
-// 		}
-// 	}
-// }
+	// @keyframes load {
+	// 	0% {
+	// 		-webkit-transform: rotate(0deg);
+	// 		transform: rotate(0deg);
+	// 	}
+	// 	100% {
+	// 		-webkit-transform: rotate(360deg);
+	// 		transform: rotate(360deg);
+	// 	}
+	// }
