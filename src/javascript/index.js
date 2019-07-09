@@ -3,6 +3,7 @@ import options from '../../gallery.config';
 
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
+  test();
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
   addListenerToElements(".category-name", "click", handleCategoryClick);
@@ -293,6 +294,34 @@ function addListenerToElements(query, event, handler) {
   return true;
 }
 
-function showError(error) {
-  return console.log(error);
+function showError(e) {
+  return console.log(e.target.classList.add("test"));
+}
+
+/////////////////////////////////////////////////////
+
+function test() {
+  const targetNode = document.getElementById("photo-grid");
+  const config = { subtree: true, childList: true };
+  const callback = (mutationsList, observer) => {
+    const addedNodes = mutationsList[0].addedNodes;
+    recursiveSearch(addedNodes);
+
+    function recursiveSearch(nodes) {
+      nodes.forEach(node => {
+        if (node.nodeName === "IMG") {
+          console.log("IMG FOUND");
+          node.classList.add("WOOHOO");
+        }
+
+        if (node.childNodes.length) {
+          recursiveSearch(node.childNodes);
+        }
+      })
+    }
+    return;
+  }
+
+  const observer = new MutationObserver(callback);
+  observer.observe(targetNode, config)
 }
