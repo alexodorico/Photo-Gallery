@@ -5,7 +5,7 @@ import options from '../../gallery.config';
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
-  addListenerToClass("category-name", "click", handleCategoryClick);
+  addListenerToElements(".category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
   render(categories[0], photoData);
 })();
@@ -49,7 +49,20 @@ function render(category = categories[0], photoData, offset) {
 
   getById("photo-grid").insertAdjacentHTML("beforeend", markup);
   lazyLoadSetUp();
+  addListenerToElements(".select-button", "click", selectPhoto)
   handleScroll(category, offset);
+}
+
+function selectPhoto() {
+  const selectedPhoto = JSON.parse(this.dataset.photo);
+  let selectedPhotos = getFromStorage("selected");
+
+  if (selectedPhotos) {
+    selectedPhotos.push(selectedPhoto);
+    return putInStorage("selected", selectedPhotos);
+  }
+  selectedPhotos = new Array(selectedPhoto);
+  putInStorage("selected", selectedPhotos);
 }
 
 function buildMarkup(row, photoHeight) {
@@ -71,7 +84,11 @@ function buildMarkup(row, photoHeight) {
         data-src="${photo.thumbnail}">
       </img>
       <div class="overlay">
-        <button type="button" class="btn btn-default select-button">
+        <button
+          data-photo='${JSON.stringify(photo)}'
+          type="button"
+          class="btn btn-default select-button"
+        >
           Select 
         </button>
         <button class="btn btn-default download-button">
@@ -266,8 +283,8 @@ function updateCategoryDropdown(category) {
   return getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
 }
 
-function addListenerToClass(className, event, handler) {
-  const elements = document.getElementsByClassName(className);
+function addListenerToElements(query, event, handler) {
+  const elements = document.querySelectorAll(query);
 
   Array.from(elements).forEach(element => {
     element.addEventListener(event, handler);
