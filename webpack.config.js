@@ -1,5 +1,6 @@
 const path = require('path');
 const cssExtract = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: ['babel-polyfill', './src/javascript/index.js'],
@@ -38,6 +39,10 @@ module.exports = {
   plugins: [
     new cssExtract({
       filename: 'bundle.css'
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+      
     })
   ],
   devServer: {

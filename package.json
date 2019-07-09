@@ -5,7 +5,7 @@
   "main": "public/index.html",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "start": "gulp"
+    "start:dev": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^3.0.0",
+    "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.7.0",
     "postcss-loader": "^3.0.0",
     "sass": "^1.22.1",
