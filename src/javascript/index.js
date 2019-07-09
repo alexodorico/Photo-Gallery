@@ -7,7 +7,7 @@ import options from '../../gallery.config';
   populateCategoriesDropDown(categories);
   addListenerToClass("category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
-  render(photoData);
+  render(categories[0], photoData);
 })();
 
 function fetchData(endpoint) {
@@ -22,18 +22,20 @@ function fetchData(endpoint) {
   }
 }
 
-function getData(category = categories[0], offset = 0) {
+async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
   const cachedResults = getFromStorage(endpoint);
 
   if (cachedResults) {
-    return cachedResults;
+    return render(category, cachedResults, offset + 24);
   }
 
-  return fetchData(endpoint);
+  await fetchData(endpoint);
+  const newResults = getFromStorage(endpoint);
+  render(category, newResults, offset + 24);
 }
 
-function render(photoData) {
+function render(category = categories[0], photoData, offset) {
   let markup = new String();
   const grid = groupPhotos(photoData);
 
@@ -45,9 +47,9 @@ function render(photoData) {
     markup += buildMarkup(row, photoHeight);
   });
 
-  destroyHTML("photo-grid");
   getById("photo-grid").insertAdjacentHTML("beforeend", markup);
   lazyLoadSetUp();
+  handleScroll(category, offset);
 }
 
 function buildMarkup(row, photoHeight) {
@@ -133,7 +135,7 @@ function addAspectRatios(photoRow, update) {
 }
 
 function computeSpaceInRow(photoRow) {
-  const availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
+  let availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
 
   if (photoRow.length !== options.rowLength) {
     availableSpace += (options.rowLength - photoRow.length) * options.photoMargin;
@@ -213,6 +215,16 @@ function lazyLoadSetUp() {
   }
 }
 
+function handleScroll(category, offset) {
+  $(window).scroll(function() {
+    if ($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
+      console.log('triggered');
+      $(window).off('scroll');
+      getData(category, offset)
+    }
+  });
+}
+
 function getById(id) {
   return document.getElementById(id);
 }
@@ -244,6 +256,9 @@ function handleSuccessfulFetch(endpoint, data) {
 
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
+  $(window).off('scroll');
+  destroyHTML('photo-grid');
+  getData(category, 0);
   return updateCategoryDropdown(category);
 }
 
