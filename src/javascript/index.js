@@ -6,13 +6,11 @@ import options from '../../gallery.config';
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
   addListenerToClass("category-name", "click", handleCategoryClick);
-  await fetchData(categories[0]);
-  render(categories[0]);
+  const photoData = await getData(categories[0]);
+  render(photoData);
 })();
 
-function fetchData(category = window.categories[0], offset = 0) {
-  const endpoint = buildAPICall(category, offset);
-
+function fetchData(endpoint) {
   try {
     return fetch(endpoint)
       .then(response => response.json())
@@ -24,19 +22,27 @@ function fetchData(category = window.categories[0], offset = 0) {
   }
 }
 
-function render(category = categories[0], offset = 0) {
+function getData(category = categories[0], offset = 0) {
+  const endpoint = buildAPICall(category, offset);
+  const cachedResults = getFromStorage(endpoint);
+
+  if (cachedResults) {
+    return cachedResults;
+  }
+
+  return fetchData(endpoint);
+}
+
+function render(photoData) {
   let markup = new String();
-  const key = buildAPICall(category, offset);
-  const data = getFromStorage(key);
-  const grid = groupPhotos(data);
+  const grid = groupPhotos(photoData);
 
   grid.forEach(row => {
     const aspectRatio = addAspectRatios(row);
     const spaceInRow = computeSpaceInRow(row);
     const photoHeight = spaceInRow / aspectRatio;
-    const photoWidth = photoHeight * aspectRatio;
 
-    markup += buildMarkup(row, photoHeight, photoWidth);
+    markup += buildMarkup(row, photoHeight);
   });
 
   destroyHTML("photo-grid");
@@ -44,7 +50,7 @@ function render(category = categories[0], offset = 0) {
   lazyLoadSetUp();
 }
 
-function buildMarkup(row, photoHeight, photoWidth) {
+function buildMarkup(row, photoHeight) {
   let markup = new String();
 
   row.forEach(function(photo) {
@@ -60,7 +66,6 @@ function buildMarkup(row, photoHeight, photoWidth) {
         data-original-src="${photo.batchDownloadLink}"
         height="${photoHeight}"
         width="${photoHeight * photo.aspect_ratio}"
-        src=""
         data-src="${photo.thumbnail}">
       </img>
       <div class="overlay">
@@ -221,7 +226,7 @@ function destroyHTML(id) {
 }
 
 function getFromStorage(key) {
-  return JSON.parse(window.localStorage.getItem(key));
+  return JSON.parse(window.localStorage.getItem(key)) || false;
 }
 
 function putInStorage(key, value) {
