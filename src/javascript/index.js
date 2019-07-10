@@ -3,7 +3,6 @@ import options from '../../gallery.config';
 
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
-  test();
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
   addListenerToElements(".category-name", "click", handleCategoryClick);
@@ -40,30 +39,56 @@ function render(category = categories[0], photoData, offset) {
   let markup = new String();
   const grid = groupPhotos(photoData);
 
-  grid.forEach(row => {
-    const aspectRatio = addAspectRatios(row);
-    const spaceInRow = computeSpaceInRow(row);
-    const photoHeight = spaceInRow / aspectRatio;
-
-    markup += buildMarkup(row, photoHeight);
-  });
-
-  getById("photo-grid").insertAdjacentHTML("beforeend", markup);
-  lazyLoadSetUp();
-  addListenerToElements(".select-button", "click", selectPhoto)
-  handleScroll(category, offset);
+  try {
+    grid.forEach(row => {
+      const aspectRatio = addAspectRatios(row);
+      const spaceInRow = computeSpaceInRow(row);
+      const photoHeight = spaceInRow / aspectRatio;
+  
+      markup += buildMarkup(row, photoHeight);
+    });
+  
+    getById("photo-grid").insertAdjacentHTML("beforeend", markup);
+    lazyLoadSetUp();
+    addListenerToElements(".select-button", "click", handleSelectClick)
+    handleScroll(category, offset);
+  } catch {
+    return;
+  }
 }
 
-function selectPhoto() {
-  const selectedPhoto = JSON.parse(this.dataset.photo);
+function handleSelectClick(event) {
+  let selectedPhoto = JSON.parse(this.dataset.photo);
   let selectedPhotos = getFromStorage("selected");
+  let selected = this.dataset.selected;
 
-  if (selectedPhotos) {
-    selectedPhotos.push(selectedPhoto);
-    return putInStorage("selected", selectedPhotos);
+  if (!selectedPhotos) {
+    selectedPhotos = new Array();
   }
-  selectedPhotos = new Array(selectedPhoto);
-  putInStorage("selected", selectedPhotos);
+
+  if (selected === "false") {
+    selectPhoto(selectedPhoto, selectedPhotos);
+    return this.dataset.selected = "true";
+  } else {
+    deselectPhoto(selectedPhoto, selectedPhotos);
+    return this.dataset.selected = "false";
+  }
+}
+
+function selectPhoto(selectedPhoto, selectedPhotos) {
+  selectedPhotos.push(selectedPhoto);
+  return putInStorage("selected", selectedPhotos);
+}
+
+function deselectPhoto(selectedPhoto, selectedPhotos) {
+  selectedPhotos.forEach((photo, index) => {
+    if (photo.id === selectedPhoto.id) {
+      let start = index, end = index;
+      if (index === 0) end++;
+      selectedPhotos.splice(start, end)
+      return putInStorage("selected", selectedPhotos);
+    }
+  });
 }
 
 function buildMarkup(row, photoHeight) {
@@ -88,11 +113,12 @@ function buildMarkup(row, photoHeight) {
         <button
           data-photo='${JSON.stringify(photo)}'
           type="button"
+          data-selected="${photo.selected}"
           class="btn btn-default select-button"
         >
           Select 
         </button>
-        <button class="btn btn-default download-button">
+        <button class="btn btn-default download-button" >
           <span class="glyphicon glyphicon-download-alt"></span>
         </button>
       </div>
@@ -137,7 +163,8 @@ function simplifyData(data) {
       aspect_ratio,
       thumbnail,
       singleDownloadLink,
-      batchDownloadLink
+      batchDownloadLink,
+      selected: false
     }
   });
 }
@@ -164,13 +191,17 @@ function computeSpaceInRow(photoRow) {
 
 function groupPhotos(data) {
   let photoGrid = new Array();
-
-  for (let i = 0; i < data.length / options.rowLength; i++) {
-    const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
-    photoGrid.push(photoRow);
+  
+  try {
+    for (let i = 0; i < data.length / options.rowLength; i++) {
+      const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
+      photoGrid.push(photoRow);
+    }
+  
+    return photoGrid;
+  } catch {
+    return;
   }
-
-  return photoGrid;
 }
 
 function lazyLoadSetUp() {
@@ -295,33 +326,33 @@ function addListenerToElements(query, event, handler) {
 }
 
 function showError(e) {
-  return console.log(e.target.classList.add("test"));
+  return console.log(e);
 }
 
 /////////////////////////////////////////////////////
 
-function test() {
-  const targetNode = document.getElementById("photo-grid");
-  const config = { subtree: true, childList: true };
-  const callback = (mutationsList, observer) => {
-    const addedNodes = mutationsList[0].addedNodes;
-    recursiveSearch(addedNodes);
+// function test() {
+//   const targetNode = document.getElementById("photo-grid");
+//   const config = { subtree: true, childList: true };
+//   const callback = (mutationsList, observer) => {
+//     const addedNodes = mutationsList[0].addedNodes;
+//     recursiveSearch(addedNodes);
 
-    function recursiveSearch(nodes) {
-      nodes.forEach(node => {
-        if (node.nodeName === "IMG") {
-          console.log("IMG FOUND");
-          node.classList.add("WOOHOO");
-        }
+//     function recursiveSearch(nodes) {
+//       nodes.forEach(node => {
+//         if (node.nodeName === "IMG") {
+//           console.log("IMG FOUND");
+//           node.classList.add("WOOHOO");
+//         }
 
-        if (node.childNodes.length) {
-          recursiveSearch(node.childNodes);
-        }
-      })
-    }
-    return;
-  }
+//         if (node.childNodes.length) {
+//           recursiveSearch(node.childNodes);
+//         }
+//       })
+//     }
+//     return;
+//   }
 
-  const observer = new MutationObserver(callback);
-  observer.observe(targetNode, config)
-}
+//   const observer = new MutationObserver(callback);
+//   observer.observe(targetNode, config)
+// }
