@@ -1,6 +1,9 @@
 import '../scss/styles.scss';
 import options from '../../gallery.config';
 
+/*
+  IIFE to set up application
+*/
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
   updateCategoryDropdown(categories[0]);
@@ -22,6 +25,11 @@ function fetchData(endpoint) {
   }
 }
 
+/* 
+  Checks for results in localstorage
+  If there, renders
+  If not, fetches data
+*/
 async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
   const cachedResults = getFromStorage(endpoint);
@@ -35,6 +43,10 @@ async function getData(category = categories[0], offset = 0) {
   render(category, newResults, offset + 24);
 }
 
+/*
+  Creates photo grid, calulates photo dimensions for each row,
+  inserts into DOM, and finally adds listeners.
+*/
 function render(category = categories[0], photoData, offset) {
   let markup = new String();
   const grid = groupPhotos(photoData);
@@ -66,11 +78,17 @@ function handleSelectClick(event) {
     selectedPhotos = new Array();
   }
 
+
+
   if (selected === "false") {
     selectPhoto(selectedPhoto, selectedPhotos);
+    this.classList.add('btn-success');
+    this.innerHTML = "Selected";
     return this.dataset.selected = "true";
   } else {
     deselectPhoto(selectedPhoto, selectedPhotos);
+    this.classList.remove('btn-success');
+    this.innerHTML = "Select";
     return this.dataset.selected = "false";
   }
 }
