@@ -78,18 +78,22 @@ function handleSelectClick(event) {
     selectedPhotos = new Array();
   }
 
-
-
   if (selected === "false") {
     selectPhoto(selectedPhoto, selectedPhotos);
     this.classList.add('btn-success');
     this.innerHTML = "Selected";
-    return this.dataset.selected = "true";
+    this.dataset.selected = "true";
   } else {
     deselectPhoto(selectedPhoto, selectedPhotos);
     this.classList.remove('btn-success');
     this.innerHTML = "Select";
-    return this.dataset.selected = "false";
+    this.dataset.selected = "false";
+  }
+
+  if (selectedPhotos.length) {
+    getById("view-selected-button").classList.add("show");
+  } else {
+    getById("view-selected-button").classList.remove("show");
   }
 }
 
