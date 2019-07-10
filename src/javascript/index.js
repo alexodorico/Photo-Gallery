@@ -56,7 +56,7 @@ function render(endpoint, category = categories[0], photoData, offset) {
       const photoHeight = calculatePhotoHeight(row);
 
       row.forEach(photo => {
-        markup += createPhotoMarkup(endpoint, photo, photoHeight);
+        markup += createPhotoMarkup(photo, photoHeight);
       });
     });
   
@@ -71,38 +71,49 @@ function render(endpoint, category = categories[0], photoData, offset) {
 
 /*
   Handles state updates for DOM and data in localstorage
+  TODO: make better comments and variable names
 */
 function handleSelectClick(event) {
-  let selectedPhoto = JSON.parse(this.dataset.photo);
-  let selectedPhotos = getFromStorage("selected") || false;
-  let selected = this.dataset.selected;
 
-  updateState(event);
+  // data from endpoint in localstorage (24 items as array)
+  let photoArray = getFromStorage(event.target.dataset.endpoint);
 
-  if (!selectedPhotos) selectedPhotos = new Array();
+  // object that has index and data of photo being selected in endpoint data
+  // destructur this
+  let selectedPhotoDataMaster = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
 
-  if (selected === "false") {
-    selectPhoto(selectedPhoto, selectedPhotos, event);
+  // if there's selected photos get them, if not it's false
+  let selectedPhotosArray = getFromStorage("selected") || false;
+
+  // if no selected photos, create array
+  if (!selectedPhotosArray) selectedPhotosArray = new Array();
+
+
+  if (!selectedPhotoDataMaster.data.selected) {
+    selectPhoto(selectedPhotoDataMaster.data, selectedPhotosArray);
   } else {
-    deselectPhoto(selectedPhoto, selectedPhotos, event);
+    deselectPhoto(selectedPhotoDataMaster.data, selectedPhotosArray);
   }
 
-  return updateViewSelectedVisibility(selectedPhotos);
+  // toggle selected value
+  selectedPhotoDataMaster.data.selected = !(selectedPhotoDataMaster.data.selected);
+
+  // create updated button markup
+  const updatedPhotoMarkup = createButtonMarkup(selectedPhotoDataMaster.data);
+  document.querySelector(`[id='${selectedPhotoDataMaster.data.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
+  document.querySelector(`[id='${selectedPhotoDataMaster.data.id}'] .select-button`).addEventListener("click", handleSelectClick);
+
+  putInStorage(event.target.dataset.endpoint, photoArray);
+  //return updateViewSelectedVisibility(selectedPhotos);
 }
 
-function updateState(event) {
-  console.log(event.target.dataset.endpoint)
-  let photoData = getFromStorage(event.target.dataset.endpoint);
-
-  console.log(photoData);
-  
-  photoData.forEach(photo => {
-    if (photo.id === event.target.dataset.id) {
-      return photo.selected = !photo.selected;
+function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
+  for (let i = 0; i < photoArray.length; i++) {
+    if (photoArray[i].id === selectedPhotoId) {
+      return { data: photoArray[i], index: i };
     }
-  });
-
-  putInStorage(event.target.dataset.endpoint, photoData);
+  }
+  return;
 }
 
 function updateViewSelectedVisibility(selectedPhotos) {
@@ -115,28 +126,22 @@ function updateViewSelectedVisibility(selectedPhotos) {
   }
 }
 
-function selectPhoto(selectedPhoto, selectedPhotos, event) {
-  selectedPhoto.selected = true;
-  selectedPhotos.push(selectedPhoto);
-  event.target.classList.add('btn-success');
-  event.target.innerHTML = "Selected";
-  event.target.dataset.selected = "true";
+function selectPhoto(selectedPhoto, selectedPhotos) {
+  console.log('selectphoto');
+  selectedPhotos.unshift(selectedPhoto);
   return putInStorage("selected", selectedPhotos);
 }
 
-function deselectPhoto(selectedPhoto, selectedPhotos, event) {
-  selectedPhoto.selected = false;
-  event.target.classList.remove('btn-success');
-  event.target.innerHTML = "Select";
-  event.target.dataset.selected = "false";
-  selectedPhotos.forEach((photo, index) => {
-    if (photo.id === selectedPhoto.id) {
-      let start = index, end = index;
-      if (index === 0) end++;
-      selectedPhotos.splice(start, end)
-      return putInStorage("selected", selectedPhotos);
-    }
-  });
+function deselectPhoto(selectedPhotoData, selectedPhotosArray) {
+  console.log('deselect photo')
+  // for (let i = 0; i < selectedPhotosArray; i++) {
+  //   if (photo.id === selectedPhotoData.id) {
+  //     let start = index, end = index;
+  //     if (index === 0) end++;
+  //     selectedPhotosArray.splice(start, end);
+  //     return putInStorage("selected", selectedPhotosArray);
+  //   }
+  // }
 }
 
 function handleViewSelectedClick() {
@@ -146,8 +151,9 @@ function handleViewSelectedClick() {
   render(null, null, selectedPhotos, null);
 }
 
-function createPhotoMarkup(endpoint, photo, photoHeight) {
+function createPhotoMarkup(photo, photoHeight) {
   return `
+  <div>
     <div class="item"
        id="${photo.id}"
        downloadLink="${photo.batchDownloadLink}"
@@ -162,20 +168,25 @@ function createPhotoMarkup(endpoint, photo, photoHeight) {
         data-src="${photo.thumbnail}">
       </img>
       <div class="overlay">
-        <button
-          data-photo='${JSON.stringify(photo)}'
-          type="button"
-          data-id="${photo.id}"
-          data-selected="${photo.selected}"
-          class="btn btn-default select-button ${photo.selected ? 'btn-success' : ''}"
-        >
-          ${photo.selected ? 'Selected' : 'Select'}
-        </button>
-        <button class="btn btn-default download-button" >
-          <span class="glyphicon glyphicon-download-alt"></span>
-        </button>
+      ${createButtonMarkup(photo)}
       </div>
-    </div>`
+    </div>
+  </div>`
+}
+
+function createButtonMarkup(photo) {
+  return `
+    <button
+      data-endpoint="${photo.endpoint}"
+      type="button"
+      data-id="${photo.id}"
+      class="btn btn-default select-button ${photo.selected ? 'btn-success' : ''}"
+    >
+      ${photo.selected ? 'Selected' : 'Select'}
+    </button>
+    <button class="btn btn-default download-button" >
+      <span class="glyphicon glyphicon-download-alt"></span>
+    </button>`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
