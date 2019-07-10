@@ -53,11 +53,11 @@ function render(endpoint, category = categories[0], photoData, offset) {
 
   try {
     grid.forEach(row => {
-      const aspectRatio = addAspectRatios(row);
-      const spaceInRow = computeSpaceInRow(row);
-      const photoHeight = spaceInRow / aspectRatio;
-  
-      markup += buildMarkup(endpoint, row, photoHeight);
+      const photoHeight = calculatePhotoHeight(row);
+
+      row.forEach(photo => {
+        markup += createPhotoMarkup(endpoint, photo, photoHeight);
+      });
     });
   
     getById("photo-grid").insertAdjacentHTML("beforeend", markup);
@@ -93,6 +93,7 @@ function handleSelectClick(event) {
 function updateState(event) {
   console.log(event.target.dataset.endpoint)
   let photoData = getFromStorage(event.target.dataset.endpoint);
+
   console.log(photoData);
   
   photoData.forEach(photo => {
@@ -145,11 +146,8 @@ function handleViewSelectedClick() {
   render(null, null, selectedPhotos, null);
 }
 
-function buildMarkup(endpoint, row, photoHeight) {
-  let markup = new String();
-
-  row.forEach(function(photo) {
-    markup += `
+function createPhotoMarkup(endpoint, photo, photoHeight) {
+  return `
     <div class="item"
        id="${photo.id}"
        downloadLink="${photo.batchDownloadLink}"
@@ -169,7 +167,6 @@ function buildMarkup(endpoint, row, photoHeight) {
           type="button"
           data-id="${photo.id}"
           data-selected="${photo.selected}"
-          data-endpoint="${endpoint}"
           class="btn btn-default select-button ${photo.selected ? 'btn-success' : ''}"
         >
           ${photo.selected ? 'Selected' : 'Select'}
@@ -179,9 +176,6 @@ function buildMarkup(endpoint, row, photoHeight) {
         </button>
       </div>
     </div>`
-  });
-
-  return markup;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -259,6 +253,13 @@ function groupPhotos(data) {
   } catch {
     return;
   }
+}
+
+function calculatePhotoHeight(row) {
+  const aspectRatio = addAspectRatios(row);
+  const spaceInRow = computeSpaceInRow(row);
+  const photoHeight = spaceInRow / aspectRatio;
+  return photoHeight;
 }
 
 function lazyLoadSetUp() {
