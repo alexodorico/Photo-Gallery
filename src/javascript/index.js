@@ -10,7 +10,7 @@ import options from '../../gallery.config';
   populateCategoriesDropDown(categories);
   addListenerToElements(".category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
-  render(categories[0], photoData);
+  render(null, categories[0], photoData);
 })();
 
 function fetchData(endpoint) {
@@ -35,19 +35,19 @@ async function getData(category = categories[0], offset = 0) {
   const cachedResults = getFromStorage(endpoint);
 
   if (cachedResults) {
-    return render(category, cachedResults, offset + 24);
+    return render(endpoint, category, cachedResults, offset + 24);
   }
 
   await fetchData(endpoint);
   const newResults = getFromStorage(endpoint);
-  render(category, newResults, offset + 24);
+  render(endpoint, category, newResults, offset + 24);
 }
 
 /*
   Creates photo grid, calulates photo dimensions for each row,
   inserts into DOM, and finally adds listeners.
 */
-function render(category = categories[0], photoData, offset) {
+function render(endpoint, category = categories[0], photoData, offset) {
   let markup = new String();
   const grid = groupPhotos(photoData);
 
@@ -57,7 +57,7 @@ function render(category = categories[0], photoData, offset) {
       const spaceInRow = computeSpaceInRow(row);
       const photoHeight = spaceInRow / aspectRatio;
   
-      markup += buildMarkup(row, photoHeight);
+      markup += buildMarkup(endpoint, row, photoHeight);
     });
   
     getById("photo-grid").insertAdjacentHTML("beforeend", markup);
@@ -68,41 +68,59 @@ function render(category = categories[0], photoData, offset) {
     return;
   }
 }
-
+// Need to go into localstorage and edit selected for rerenders
 function handleSelectClick(event) {
   let selectedPhoto = JSON.parse(this.dataset.photo);
   let selectedPhotos = getFromStorage("selected");
   let selected = this.dataset.selected;
+
+  let photoData = getFromStorage(this.dataset.endpoint);
+  
+  photoData.forEach(photo => {
+    if (photo.id === this.dataset.id) {
+      photo.selected = !photo.selected;
+    }
+  });
+
+  putInStorage(this.dataset.endpoint, photoData);
 
   if (!selectedPhotos) {
     selectedPhotos = new Array();
   }
 
   if (selected === "false") {
-    selectPhoto(selectedPhoto, selectedPhotos);
-    this.classList.add('btn-success');
-    this.innerHTML = "Selected";
-    this.dataset.selected = "true";
+    selectPhoto(selectedPhoto, selectedPhotos, event);
+    // this.classList.add('btn-success');
+    // this.innerHTML = "Selected";
+    // this.dataset.selected = "true";
   } else {
-    deselectPhoto(selectedPhoto, selectedPhotos);
-    this.classList.remove('btn-success');
-    this.innerHTML = "Select";
-    this.dataset.selected = "false";
+    deselectPhoto(selectedPhoto, selectedPhotos, event);
+    // this.classList.remove('btn-success');
+    // this.innerHTML = "Select";
+    // this.dataset.selected = "false";
   }
 
   if (selectedPhotos.length) {
     getById("view-selected-button").classList.add("show");
+    getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
+    
   } else {
     getById("view-selected-button").classList.remove("show");
   }
 }
 
-function selectPhoto(selectedPhoto, selectedPhotos) {
+function selectPhoto(selectedPhoto, selectedPhotos, event) {
   selectedPhotos.push(selectedPhoto);
+  event.target.classList.add('btn-success');
+  event.target.innerHTML = "Selected";
+  event.target.dataset.selected = "true";
   return putInStorage("selected", selectedPhotos);
 }
 
-function deselectPhoto(selectedPhoto, selectedPhotos) {
+function deselectPhoto(selectedPhoto, selectedPhotos, event) {
+  event.target.classList.remove('btn-success');
+  event.target.innerHTML = "Select";
+  event.target.dataset.selected = "false";
   selectedPhotos.forEach((photo, index) => {
     if (photo.id === selectedPhoto.id) {
       let start = index, end = index;
@@ -113,7 +131,11 @@ function deselectPhoto(selectedPhoto, selectedPhotos) {
   });
 }
 
-function buildMarkup(row, photoHeight) {
+function handleViewSelectedClick() {
+  return;
+}
+
+function buildMarkup(endpoint, row, photoHeight) {
   let markup = new String();
 
   row.forEach(function(photo) {
@@ -135,10 +157,12 @@ function buildMarkup(row, photoHeight) {
         <button
           data-photo='${JSON.stringify(photo)}'
           type="button"
+          data-id="${photo.id}"
           data-selected="${photo.selected}"
-          class="btn btn-default select-button"
+          data-endpoint="${endpoint}"
+          class="btn btn-default select-button ${photo.selected ? 'btn-success' : ''}"
         >
-          Select 
+          ${photo.selected ? 'Selected' : 'Select'}
         </button>
         <button class="btn btn-default download-button" >
           <span class="glyphicon glyphicon-download-alt"></span>
