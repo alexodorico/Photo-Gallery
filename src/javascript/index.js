@@ -68,38 +68,43 @@ function render(endpoint, category = categories[0], photoData, offset) {
     return;
   }
 }
-// Need to go into localstorage and edit selected for rerenders
+
+/*
+  Handles state updates for DOM and data in localstorage
+*/
 function handleSelectClick(event) {
   let selectedPhoto = JSON.parse(this.dataset.photo);
-  let selectedPhotos = getFromStorage("selected");
+  let selectedPhotos = getFromStorage("selected") || false;
   let selected = this.dataset.selected;
 
-  let photoData = getFromStorage(this.dataset.endpoint);
-  
-  photoData.forEach(photo => {
-    if (photo.id === this.dataset.id) {
-      photo.selected = !photo.selected;
-    }
-  });
+  updateState(event);
 
-  putInStorage(this.dataset.endpoint, photoData);
-
-  if (!selectedPhotos) {
-    selectedPhotos = new Array();
-  }
+  if (!selectedPhotos) selectedPhotos = new Array();
 
   if (selected === "false") {
     selectPhoto(selectedPhoto, selectedPhotos, event);
-    // this.classList.add('btn-success');
-    // this.innerHTML = "Selected";
-    // this.dataset.selected = "true";
   } else {
     deselectPhoto(selectedPhoto, selectedPhotos, event);
-    // this.classList.remove('btn-success');
-    // this.innerHTML = "Select";
-    // this.dataset.selected = "false";
   }
 
+  return updateViewSelectedVisibility(selectedPhotos);
+}
+
+function updateState(event) {
+  console.log(event.target.dataset.endpoint)
+  let photoData = getFromStorage(event.target.dataset.endpoint);
+  console.log(photoData);
+  
+  photoData.forEach(photo => {
+    if (photo.id === event.target.dataset.id) {
+      return photo.selected = !photo.selected;
+    }
+  });
+
+  putInStorage(event.target.dataset.endpoint, photoData);
+}
+
+function updateViewSelectedVisibility(selectedPhotos) {
   if (selectedPhotos.length) {
     getById("view-selected-button").classList.add("show");
     getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
@@ -110,6 +115,7 @@ function handleSelectClick(event) {
 }
 
 function selectPhoto(selectedPhoto, selectedPhotos, event) {
+  selectedPhoto.selected = true;
   selectedPhotos.push(selectedPhoto);
   event.target.classList.add('btn-success');
   event.target.innerHTML = "Selected";
@@ -118,6 +124,7 @@ function selectPhoto(selectedPhoto, selectedPhotos, event) {
 }
 
 function deselectPhoto(selectedPhoto, selectedPhotos, event) {
+  selectedPhoto.selected = false;
   event.target.classList.remove('btn-success');
   event.target.innerHTML = "Select";
   event.target.dataset.selected = "false";
@@ -132,7 +139,10 @@ function deselectPhoto(selectedPhoto, selectedPhotos, event) {
 }
 
 function handleViewSelectedClick() {
-  return;
+  const selectedPhotos = getFromStorage("selected");
+  console.log(selectedPhotos);
+  destroyHTML("photo-grid");
+  render(null, null, selectedPhotos, null);
 }
 
 function buildMarkup(endpoint, row, photoHeight) {
@@ -196,7 +206,7 @@ function populateCategoriesDropDown(categories) {
   Recieves array of objects containing photo data
   Returns array of objects containing photo data
 */
-function simplifyData(data) {
+function simplifyData(data, endpoint) {
   return data.map(item => {
     const { id } = item;
     const { embeds: { "AssetOriginalWidth/Height": { url: batchDownloadLink}}} = item;
@@ -210,7 +220,8 @@ function simplifyData(data) {
       thumbnail,
       singleDownloadLink,
       batchDownloadLink,
-      selected: false
+      selected: false,
+      endpoint
     }
   });
 }
@@ -345,7 +356,7 @@ function buildAPICall(category = categories[0], offset = 0) {
 }
 
 function handleSuccessfulFetch(endpoint, data) {
-  const simplifiedData = simplifyData(data);
+  const simplifiedData = simplifyData(data, endpoint);
   putInStorage(endpoint, simplifiedData);
 }
 
@@ -374,31 +385,3 @@ function addListenerToElements(query, event, handler) {
 function showError(e) {
   return console.log(e);
 }
-
-/////////////////////////////////////////////////////
-
-// function test() {
-//   const targetNode = document.getElementById("photo-grid");
-//   const config = { subtree: true, childList: true };
-//   const callback = (mutationsList, observer) => {
-//     const addedNodes = mutationsList[0].addedNodes;
-//     recursiveSearch(addedNodes);
-
-//     function recursiveSearch(nodes) {
-//       nodes.forEach(node => {
-//         if (node.nodeName === "IMG") {
-//           console.log("IMG FOUND");
-//           node.classList.add("WOOHOO");
-//         }
-
-//         if (node.childNodes.length) {
-//           recursiveSearch(node.childNodes);
-//         }
-//       })
-//     }
-//     return;
-//   }
-
-//   const observer = new MutationObserver(callback);
-//   observer.observe(targetNode, config)
-// }
