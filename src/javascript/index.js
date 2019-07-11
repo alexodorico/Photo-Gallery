@@ -13,6 +13,8 @@ import lazy from './lazy';
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
   updateViewSelectedVisibility(utils.getFromStorage("selected"));
+  sessionStorage.setItem("viewing-selected", JSON.stringify(false));
+  sessionStorage.setItem("current-category", JSON.stringify(categories[0]));
   utils.addListenerToElements(".category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
   render(null, categories[0], photoData);
@@ -239,14 +241,34 @@ function deselectPhoto(selectedPhoto, selectedPhotosArray) {
       let start = i, end = i;
       if (i === 0) end++;
       selectedPhotosArray.splice(start, end);
-      return utils.putInStorage("selected", selectedPhotosArray);
+      utils.putInStorage("selected", selectedPhotosArray);
+      break;
     }
+  }
+
+  checkForRedirect(selectedPhotosArray);
+}
+
+function checkForRedirect(selectedPhotoArray) {
+  const viewingSelected = JSON.parse(sessionStorage.getItem("viewing-selected"));
+  
+  if (viewingSelected && !selectedPhotoArray.length) {
+    const previousCategory = JSON.parse(sessionStorage.getItem("current-category"));
+    const endpoint = buildAPICall(previousCategory, 0);
+    const itemsToRender = utils.getFromStorage(endpoint);
+    utils.destroyHTML("photo-grid");
+    utils.scrollToTop();
+    sessionStorage.setItem("viewing-selected", JSON.stringify(false));
+    render(previousCategory, itemsToRender, 0);
   }
 }
 
 function handleViewSelectedClick() {
   const selectedPhotos = utils.getFromStorage("selected");
+  $(window).off('scroll');
   utils.destroyHTML("photo-grid");
+  utils.scrollToTop();
+  sessionStorage.setItem("viewing-selected", JSON.stringify(true));
   render(null, selectedPhotos, null);
 }
 
@@ -274,5 +296,7 @@ function handleCategoryClick(event) {
       getData(category, 0);
     });
   utils.scrollToTop();
+  sessionStorage.setItem("viewing-selected", JSON.stringify(false));
+  sessionStorage.setItem("current-category", JSON.stringify(category));
   return updateCategoryDropdown(category);
 }
