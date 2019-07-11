@@ -41,8 +41,7 @@ module.exports = {
       filename: 'bundle.css'
     }),
     new HtmlWebpackPlugin({
-      template: './src/index.html',
-      
+      template: './src/index.html'
     })
   ],
   devServer: {
