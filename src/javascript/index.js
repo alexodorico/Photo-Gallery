@@ -63,11 +63,18 @@ function render(endpoint, category = categories[0], photoData, offset) {
   
     getById("photo-grid").insertAdjacentHTML("beforeend", markup);
     lazyLoadSetUp();
-    addListenerToElements(".select-button", "click", handleSelectClick)
+    addListenerToElements(".select-button", "click", handleSelectClick);
+    addListenerToElements(".download-button", "click", handleSingleDownloadClick);
     handleScroll(category, offset);
   } catch {
     return;
   }
+}
+
+function handleSingleDownloadClick(e) {
+  e.preventDefault();
+  var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
+  $('#dl-frame').attr("src", downloadLink);
 }
 
 /*
