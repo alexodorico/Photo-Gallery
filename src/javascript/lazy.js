@@ -54,8 +54,8 @@ const lazy = (_=> {
         document.addEventListener('scroll', lazyLoad);
         window.addEventListener('resize', lazyLoad);
         window.addEventListener('orientationchange', lazyLoad);
-        window.scroll(0,window.scrollY + 1);
-        window.scroll(0,window.scrollY - 1);
+        window.scroll(0, document.documentElement.scrollTop + 1);
+        window.scroll(0, document.documentElement.scrollTop - 1);
       }
     }
   }
