@@ -1,18 +1,19 @@
 import '../scss/styles.scss';
+import options from '../../gallery.config';
+import utils from './utils';
+import grid from './grid';
 import fade from './fade';
 import lazy from './lazy';
-import options from '../../gallery.config';
-
 
 /*
-  IIFE to set up application
+  IIFE to set up inital state
 */
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
-  updateViewSelectedVisibility(getFromStorage("selected"));
-  addListenerToElements(".category-name", "click", handleCategoryClick);
+  updateViewSelectedVisibility(utils.getFromStorage("selected"));
+  utils.addListenerToElements(".category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
   render(null, categories[0], photoData);
 })();
@@ -36,14 +37,14 @@ function fetchData(endpoint) {
 */
 async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
-  const cachedResults = getFromStorage(endpoint);
+  const cachedResults = utils.getFromStorage(endpoint);
 
   if (cachedResults) {
     return render(endpoint, category, cachedResults, offset + 24);
   }
 
   await fetchData(endpoint);
-  const newResults = getFromStorage(endpoint);
+  const newResults = utils.getFromStorage(endpoint);
   render(endpoint, category, newResults, offset + 24);
 }
 
@@ -53,18 +54,18 @@ async function getData(category = categories[0], offset = 0) {
 */
 function render(endpoint, category = categories[0], photoData, offset) {
   let markup = new String();
-  const grid = groupPhotos(photoData);
+  const photoGrid = grid.groupPhotos(photoData);
 
   try {
-    grid.forEach(row => {
-      const photoHeight = calculatePhotoHeight(row);
+    photoGrid.forEach(row => {
+      const photoHeight = grid.calculatePhotoHeight(row);
 
       row.forEach(photo => {
         markup += createPhotoMarkup(photo, photoHeight);
       });
     });
   
-    getById("photo-grid").insertAdjacentHTML("beforeend", markup);
+    utils.getById("photo-grid").insertAdjacentHTML("beforeend", markup);
 
     // prevents the whole grid from fading in when more photos are added to view
     offset === 24 ? fadeInInitialCategory(category, offset) : addNewPhotosToCategory(category, offset);
@@ -90,8 +91,8 @@ function addNewPhotosToCategory(category, offset) {
 
 function setUp(category, offset) {
   lazy.setup();
-  addListenerToElements(".select-button", "click", handleSelectClick);
-  addListenerToElements(".download-button", "click", handleSingleDownloadClick);
+  utils.addListenerToElements(".select-button", "click", handleSelectClick);
+  utils.addListenerToElements(".download-button", "click", handleSingleDownloadClick);
   handleScroll(category, offset);
 }
 
@@ -100,9 +101,9 @@ function setUp(category, offset) {
   TODO: make better comments and variable names
 */
 function handleSelectClick(event) {
-  let photoArray = getFromStorage(event.target.dataset.endpoint);
+  let photoArray = utils.getFromStorage(event.target.dataset.endpoint);
   let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
-  let selectedPhotosArray = getFromStorage("selected") || false;
+  let selectedPhotosArray = utils.getFromStorage("selected") || false;
   if (!selectedPhotosArray) selectedPhotosArray = new Array();
 
   selectedPhoto.selected = !selectedPhoto.selected;
@@ -117,7 +118,7 @@ function handleSelectClick(event) {
   document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
 
-  putInStorage(event.target.dataset.endpoint, photoArray);
+  utils.putInStorage(event.target.dataset.endpoint, photoArray);
   return updateViewSelectedVisibility(selectedPhotosArray);
 }
 
@@ -132,17 +133,17 @@ function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
 
 function updateViewSelectedVisibility(selectedPhotos) {
   if (selectedPhotos.length) {
-    getById("view-selected-button").classList.add("show");
-    getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
+    utils.getById("view-selected-button").classList.add("show");
+    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
     
   } else {
-    getById("view-selected-button").classList.remove("show");
+    utils.getById("view-selected-button").classList.remove("show");
   }
 }
 
 function selectPhoto(selectedPhoto, selectedPhotos) {
   selectedPhotos.unshift(selectedPhoto);
-  return putInStorage("selected", selectedPhotos);
+  return utils.putInStorage("selected", selectedPhotos);
 }
 
 function deselectPhoto(selectedPhoto, selectedPhotosArray) {
@@ -151,15 +152,14 @@ function deselectPhoto(selectedPhoto, selectedPhotosArray) {
       let start = i, end = i;
       if (i === 0) end++;
       selectedPhotosArray.splice(start, end);
-      return putInStorage("selected", selectedPhotosArray);
+      return utils.putInStorage("selected", selectedPhotosArray);
     }
   }
 }
 
 function handleViewSelectedClick() {
-  const selectedPhotos = getFromStorage("selected");
-  console.log(selectedPhotos);
-  destroyHTML("photo-grid");
+  const selectedPhotos = utils.getFromStorage("selected");
+  utils.destroyHTML("photo-grid");
   render(null, null, selectedPhotos, null);
 }
 
@@ -213,7 +213,7 @@ function populateCategoriesDropDown(categories) {
     markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
   });
 
-  return getById("category-list").innerHTML = markup;
+  return utils.getById("category-list").innerHTML = markup;
 }
 
 /*
@@ -243,47 +243,47 @@ function simplifyData(data, endpoint) {
   });
 }
 
-function addAspectRatios(photoRow, update) {
-  let aspectRatio = 0;
+// function addAspectRatios(photoRow, update) {
+//   let aspectRatio = 0;
 
-  photoRow.forEach(photo => {
-    aspectRatio += photo.aspect_ratio;
-  });
+//   photoRow.forEach(photo => {
+//     aspectRatio += photo.aspect_ratio;
+//   });
 
-  return aspectRatio;
-}
+//   return aspectRatio;
+// }
 
-function computeSpaceInRow(photoRow) {
-  let availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
+// function computeSpaceInRow(photoRow) {
+//   let availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
 
-  if (photoRow.length !== options.rowLength) {
-    availableSpace += (options.rowLength - photoRow.length) * options.photoMargin;
-  }
+//   if (photoRow.length !== options.rowLength) {
+//     availableSpace += (options.rowLength - photoRow.length) * options.photoMargin;
+//   }
 
-  return availableSpace;
-}
+//   return availableSpace;
+// }
 
-function groupPhotos(data) {
-  let photoGrid = new Array();
+// function groupPhotos(data) {
+//   let photoGrid = new Array();
   
-  try {
-    for (let i = 0; i < data.length / options.rowLength; i++) {
-      const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
-      photoGrid.push(photoRow);
-    }
+//   try {
+//     for (let i = 0; i < data.length / options.rowLength; i++) {
+//       const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
+//       photoGrid.push(photoRow);
+//     }
   
-    return photoGrid;
-  } catch {
-    return;
-  }
-}
+//     return photoGrid;
+//   } catch {
+//     return;
+//   }
+// }
 
-function calculatePhotoHeight(row) {
-  const aspectRatio = addAspectRatios(row);
-  const spaceInRow = computeSpaceInRow(row);
-  const photoHeight = spaceInRow / aspectRatio;
-  return photoHeight;
-}
+// function calculatePhotoHeight(row) {
+//   const aspectRatio = addAspectRatios(row);
+//   const spaceInRow = computeSpaceInRow(row);
+//   const photoHeight = spaceInRow / aspectRatio;
+//   return photoHeight;
+// }
 
 function handleScroll(category, offset) {
   $(window).scroll(function() {
@@ -301,33 +301,13 @@ function handleSingleDownloadClick(e) {
   $('#dl-frame').attr("src", downloadLink);
 }
 
-function getById(id) {
-  return document.getElementById(id);
-}
-
-function scrollToTop() {
-  return document.body.scrollTop = document.documentElement.scrollTop = 0;
-}
-
-function destroyHTML(id) {
-  return getById(id).innerHTML = new String();
-}
-
-function getFromStorage(key) {
-  return JSON.parse(window.localStorage.getItem(key)) || false;
-}
-
-function putInStorage(key, value) {
-  return localStorage.setItem(key, JSON.stringify(value));
-}
-
 function buildAPICall(category = categories[0], offset = 0) {
   return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
 }
 
 function handleSuccessfulFetch(endpoint, data) {
   const simplifiedData = simplifyData(data, endpoint);
-  putInStorage(endpoint, simplifiedData);
+  utils.putInStorage(endpoint, simplifiedData);
 }
 
 function handleCategoryClick(event) {
@@ -335,27 +315,13 @@ function handleCategoryClick(event) {
   $(window).off('scroll');
   fade.outMany(".item")
     .then(_ => {
-      destroyHTML('photo-grid');
+      utils.destroyHTML('photo-grid');
       getData(category, 0);
     });
-  scrollToTop();
+  utils.scrollToTop();
   return updateCategoryDropdown(category);
 }
 
 function updateCategoryDropdown(category) {
-  return getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
-}
-
-function addListenerToElements(query, event, handler) {
-  const elements = document.querySelectorAll(query);
-
-  Array.from(elements).forEach(element => {
-    element.addEventListener(event, handler);
-  });
-
-  return true;
-}
-
-function showError(e) {
-  return console.log(e);
+  return utils.getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
 }
