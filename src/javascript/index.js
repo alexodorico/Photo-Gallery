@@ -18,6 +18,51 @@ import lazy from './lazy';
   render(null, categories[0], photoData);
 })();
 
+function updateCategoryDropdown(category) {
+  return utils.getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
+}
+
+function populateCategoriesDropDown(categories) {
+  let markup = new String();
+  categories.forEach(category => {
+    markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
+  });
+  return utils.getById("category-list").innerHTML = markup;
+}
+
+
+function updateViewSelectedVisibility(selectedPhotos) {
+  if (selectedPhotos.length) {
+    utils.getById("view-selected-button").classList.add("show");
+    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
+    
+  } else {
+    utils.getById("view-selected-button").classList.remove("show");
+  }
+}
+
+/* 
+  Checks for results in localstorage
+  If there, renders
+  If not, fetches data then renders
+*/
+async function getData(category = categories[0], offset = 0) {
+  const endpoint = buildAPICall(category, offset);
+  const cachedResults = utils.getFromStorage(endpoint);
+
+  if (cachedResults) {
+    return render(category, cachedResults, offset + 24);
+  }
+
+  await fetchData(endpoint);
+  const newResults = utils.getFromStorage(endpoint);
+  render(category, newResults, offset + 24);
+}
+
+function buildAPICall(category = categories[0], offset = 0) {
+  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
+}
+
 function fetchData(endpoint) {
   try {
     return fetch(endpoint)
@@ -30,29 +75,44 @@ function fetchData(endpoint) {
   }
 }
 
-/* 
-  Checks for results in localstorage
-  If there, renders
-  If not, fetches data
+/*
+  Stores simplified data is local storage
 */
-async function getData(category = categories[0], offset = 0) {
-  const endpoint = buildAPICall(category, offset);
-  const cachedResults = utils.getFromStorage(endpoint);
+function handleSuccessfulFetch(endpoint, data) {
+  const simplifiedData = simplifyData(data, endpoint);
+  utils.putInStorage(endpoint, simplifiedData);
+}
 
-  if (cachedResults) {
-    return render(endpoint, category, cachedResults, offset + 24);
-  }
+/*
+  Only gets necessary data from API results to save space in localStorage
+  Recieves array of objects containing photo data
+  Returns array of objects containing photo data
+*/
+function simplifyData(data, endpoint) {
+  return data.map(item => {
+    const { id } = item;
+    const { embeds: { "AssetOriginalWidth/Height": { url: batchDownloadLink}}} = item;
+    const { _links: { download: singleDownloadLink }} = item;
+    const { thumbnails: { "600px": { url: thumbnail }}} = item;
+    const { file_properties: { image_properties: { aspect_ratio }}} = item;
 
-  await fetchData(endpoint);
-  const newResults = utils.getFromStorage(endpoint);
-  render(endpoint, category, newResults, offset + 24);
+    return {
+      id,
+      aspect_ratio,
+      thumbnail,
+      singleDownloadLink,
+      batchDownloadLink,
+      selected: false,
+      endpoint
+    }
+  });
 }
 
 /*
   Creates photo grid, calulates photo dimensions for each row,
   inserts into DOM, and finally adds listeners.
 */
-function render(endpoint, category = categories[0], photoData, offset) {
+function render(category = categories[0], photoData, offset) {
   let markup = new String();
   const photoGrid = grid.groupPhotos(photoData);
 
@@ -72,95 +132,6 @@ function render(endpoint, category = categories[0], photoData, offset) {
   } catch {
     return;
   }
-}
-
-function fadeInInitialCategory(category, offset) {
-  fade.enterMany(".item")
-    .then(_ => {
-      setUp(category, offset);
-    });
-}
-
-function addNewPhotosToCategory(category, offset) {
-  document.querySelectorAll(".item").forEach(element => {
-    element.style.opacity = 1;
-  });
-
-  setUp(category, offset);
-}
-
-function setUp(category, offset) {
-  lazy.setup();
-  utils.addListenerToElements(".select-button", "click", handleSelectClick);
-  utils.addListenerToElements(".download-button", "click", handleSingleDownloadClick);
-  handleScroll(category, offset);
-}
-
-/*
-  Handles state updates for DOM and data in localstorage
-  TODO: make better comments and variable names
-*/
-function handleSelectClick(event) {
-  let photoArray = utils.getFromStorage(event.target.dataset.endpoint);
-  let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
-  let selectedPhotosArray = utils.getFromStorage("selected") || false;
-  if (!selectedPhotosArray) selectedPhotosArray = new Array();
-
-  selectedPhoto.selected = !selectedPhoto.selected;
-
-  if (selectedPhoto.selected) {
-    selectPhoto(selectedPhoto, selectedPhotosArray);
-  } else {
-    deselectPhoto(selectedPhoto, selectedPhotosArray);
-  }
-
-  const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
-  document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
-  document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
-
-  utils.putInStorage(event.target.dataset.endpoint, photoArray);
-  return updateViewSelectedVisibility(selectedPhotosArray);
-}
-
-function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
-  for (let i = 0; i < photoArray.length; i++) {
-    if (photoArray[i].id === selectedPhotoId) {
-      return photoArray[i];
-    }
-  }
-  return;
-}
-
-function updateViewSelectedVisibility(selectedPhotos) {
-  if (selectedPhotos.length) {
-    utils.getById("view-selected-button").classList.add("show");
-    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
-    
-  } else {
-    utils.getById("view-selected-button").classList.remove("show");
-  }
-}
-
-function selectPhoto(selectedPhoto, selectedPhotos) {
-  selectedPhotos.unshift(selectedPhoto);
-  return utils.putInStorage("selected", selectedPhotos);
-}
-
-function deselectPhoto(selectedPhoto, selectedPhotosArray) {
-  for (let i = 0; i < selectedPhotosArray.length; i++) {
-    if (selectedPhotosArray[i].id === selectedPhoto.id) {
-      let start = i, end = i;
-      if (i === 0) end++;
-      selectedPhotosArray.splice(start, end);
-      return utils.putInStorage("selected", selectedPhotosArray);
-    }
-  }
-}
-
-function handleViewSelectedClick() {
-  const selectedPhotos = utils.getFromStorage("selected");
-  utils.destroyHTML("photo-grid");
-  render(null, null, selectedPhotos, null);
 }
 
 function createPhotoMarkup(photo, photoHeight) {
@@ -201,94 +172,87 @@ function createButtonMarkup(photo) {
     </button>`
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////  HELPER FUNCTIONS  //////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
+function fadeInInitialCategory(category, offset) {
+  fade.enterMany(".item")
+    .then(_ => {
+      setUp(category, offset);
+    });
+}
 
-// This doesn't really need to be a function, only used once
-function populateCategoriesDropDown(categories) {
-  let markup = new String();
-
-  categories.forEach(category => {
-    markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
+function addNewPhotosToCategory(category, offset) {
+  document.querySelectorAll(".item").forEach(element => {
+    element.style.opacity = 1;
   });
 
-  return utils.getById("category-list").innerHTML = markup;
+  setUp(category, offset);
+}
+
+function setUp(category, offset) {
+  lazy.setup();
+  utils.addListenerToElements(".select-button", "click", handleSelectClick);
+  utils.addListenerToElements(".download-button", "click", handleSingleDownloadClick);
+  handleScroll(category, offset);
 }
 
 /*
-  Only gets necessary data from API results to save
-  space in localStorage
-  ---
-  Recieves array of objects containing photo data
-  Returns array of objects containing photo data
+  Handles state updates for DOM and data in localstorage
 */
-function simplifyData(data, endpoint) {
-  return data.map(item => {
-    const { id } = item;
-    const { embeds: { "AssetOriginalWidth/Height": { url: batchDownloadLink}}} = item;
-    const { _links: { download: singleDownloadLink }} = item;
-    const { thumbnails: { "600px": { url: thumbnail }}} = item;
-    const { file_properties: { image_properties: { aspect_ratio }}} = item;
+function handleSelectClick(event) {
+  let photoArray = utils.getFromStorage(event.target.dataset.endpoint);
+  let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
+  let selectedPhotosArray = utils.getFromStorage("selected") || false;
+  if (!selectedPhotosArray) selectedPhotosArray = new Array();
 
-    return {
-      id,
-      aspect_ratio,
-      thumbnail,
-      singleDownloadLink,
-      batchDownloadLink,
-      selected: false,
-      endpoint
-    }
-  });
+  selectedPhoto.selected = !selectedPhoto.selected;
+
+  if (selectedPhoto.selected) {
+    selectPhoto(selectedPhoto, selectedPhotosArray);
+  } else {
+    deselectPhoto(selectedPhoto, selectedPhotosArray);
+  }
+
+  const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
+  document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
+  document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
+
+  utils.putInStorage(event.target.dataset.endpoint, photoArray);
+  return updateViewSelectedVisibility(selectedPhotosArray);
 }
 
-// function addAspectRatios(photoRow, update) {
-//   let aspectRatio = 0;
+function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
+  for (let i = 0; i < photoArray.length; i++) {
+    if (photoArray[i].id === selectedPhotoId) {
+      return photoArray[i];
+    }
+  }
+  return;
+}
 
-//   photoRow.forEach(photo => {
-//     aspectRatio += photo.aspect_ratio;
-//   });
+function selectPhoto(selectedPhoto, selectedPhotos) {
+  selectedPhotos.unshift(selectedPhoto);
+  return utils.putInStorage("selected", selectedPhotos);
+}
 
-//   return aspectRatio;
-// }
+function deselectPhoto(selectedPhoto, selectedPhotosArray) {
+  for (let i = 0; i < selectedPhotosArray.length; i++) {
+    if (selectedPhotosArray[i].id === selectedPhoto.id) {
+      let start = i, end = i;
+      if (i === 0) end++;
+      selectedPhotosArray.splice(start, end);
+      return utils.putInStorage("selected", selectedPhotosArray);
+    }
+  }
+}
 
-// function computeSpaceInRow(photoRow) {
-//   let availableSpace = options.containerWidth - options.containerPadding - options.photoMargin * options.rowLength;
-
-//   if (photoRow.length !== options.rowLength) {
-//     availableSpace += (options.rowLength - photoRow.length) * options.photoMargin;
-//   }
-
-//   return availableSpace;
-// }
-
-// function groupPhotos(data) {
-//   let photoGrid = new Array();
-  
-//   try {
-//     for (let i = 0; i < data.length / options.rowLength; i++) {
-//       const photoRow = data.slice(options.rowLength * i, options.rowLength * i + options.rowLength);
-//       photoGrid.push(photoRow);
-//     }
-  
-//     return photoGrid;
-//   } catch {
-//     return;
-//   }
-// }
-
-// function calculatePhotoHeight(row) {
-//   const aspectRatio = addAspectRatios(row);
-//   const spaceInRow = computeSpaceInRow(row);
-//   const photoHeight = spaceInRow / aspectRatio;
-//   return photoHeight;
-// }
+function handleViewSelectedClick() {
+  const selectedPhotos = utils.getFromStorage("selected");
+  utils.destroyHTML("photo-grid");
+  render(null, selectedPhotos, null);
+}
 
 function handleScroll(category, offset) {
   $(window).scroll(function() {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
-      console.log('triggered');
       $(window).off('scroll');
       getData(category, offset)
     }
@@ -301,15 +265,6 @@ function handleSingleDownloadClick(e) {
   $('#dl-frame').attr("src", downloadLink);
 }
 
-function buildAPICall(category = categories[0], offset = 0) {
-  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
-}
-
-function handleSuccessfulFetch(endpoint, data) {
-  const simplifiedData = simplifyData(data, endpoint);
-  utils.putInStorage(endpoint, simplifiedData);
-}
-
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
   $(window).off('scroll');
@@ -320,8 +275,4 @@ function handleCategoryClick(event) {
     });
   utils.scrollToTop();
   return updateCategoryDropdown(category);
-}
-
-function updateCategoryDropdown(category) {
-  return utils.getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
 }
