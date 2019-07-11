@@ -8,6 +8,7 @@ import options from '../../gallery.config';
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
+  updateViewSelectedVisibility(getFromStorage("selected"));
   addListenerToElements(".category-name", "click", handleCategoryClick);
   const photoData = await getData(categories[0]);
   render(null, categories[0], photoData);
@@ -74,32 +75,25 @@ function render(endpoint, category = categories[0], photoData, offset) {
   TODO: make better comments and variable names
 */
 function handleSelectClick(event) {
-
-  // Data from endpoint in localstorage
   let photoArray = getFromStorage(event.target.dataset.endpoint);
-
-  // Data of the photo being selected
   let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
-
   let selectedPhotosArray = getFromStorage("selected") || false;
-
   if (!selectedPhotosArray) selectedPhotosArray = new Array();
 
+  selectedPhoto.selected = !selectedPhoto.selected;
 
-  if (!selectedPhoto.selected) {
+  if (selectedPhoto.selected) {
     selectPhoto(selectedPhoto, selectedPhotosArray);
   } else {
     deselectPhoto(selectedPhoto, selectedPhotosArray);
   }
-
-  selectedPhoto.selected = !selectedPhoto.selected;
 
   const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
   document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
 
   putInStorage(event.target.dataset.endpoint, photoArray);
-  //return updateViewSelectedVisibility(selectedPhotos);
+  return updateViewSelectedVisibility(selectedPhotosArray);
 }
 
 function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
@@ -122,13 +116,11 @@ function updateViewSelectedVisibility(selectedPhotos) {
 }
 
 function selectPhoto(selectedPhoto, selectedPhotos) {
-  console.log('selectphoto');
   selectedPhotos.unshift(selectedPhoto);
   return putInStorage("selected", selectedPhotos);
 }
 
 function deselectPhoto(selectedPhoto, selectedPhotosArray) {
-  console.log('deselect photo')
   for (let i = 0; i < selectedPhotosArray.length; i++) {
     if (selectedPhotosArray[i].id === selectedPhoto.id) {
       let start = i, end = i;
