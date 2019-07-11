@@ -1,70 +1,8 @@
 import '../scss/styles.scss';
+import fade from './fade';
+import lazy from './lazy';
 import options from '../../gallery.config';
 
-const fadeOutMultiple = function(selector) {
-  return new Promise((resolve, reject) => {
-    document.querySelectorAll(selector).forEach(element => {
-      fadeOut(element)
-        .then(_=> {
-          setTimeout(_=> {
-            resolve(true);
-          }, 150);
-        });  
-    });
-  });
-}
-
-const fadeInMultiple = function(selector) {
-  return new Promise((resolve, reject) => {
-    document.querySelectorAll(selector).forEach(element => {
-      fadeIn(element);
-    });
-    resolve(true);
-  });
-}
-
-const fadeOut = function(element) {
-  return new Promise((resolve, reject) => {
-    let opacity = 1;
-    const timer = setInterval(_ => {
-        if (opacity <= 0.1){
-            clearInterval(timer);
-            element.style.display = 'none';
-            resolve(true);
-        }
-        element.style.opacity = opacity;
-        element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
-        opacity -= opacity * 0.1;
-    }, 25);
-  });
-}
-
-// function fadeOut(element) {
-//   let opacity = 1;
-//   const timer = setInterval(_ => {
-//       if (opacity <= 0.1){
-//           clearInterval(timer);
-//           element.style.display = 'none';
-//           resolve(true);
-//       }
-//       element.style.opacity = opacity;
-//       element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
-//       opacity -= opacity * 0.1;
-//   }, 30);
-// }
-
-function fadeIn(element) {
-  let op = 0.1;
-  element.style.display = 'block';
-  const timer = setInterval(function () {
-      if (op >= 1){
-          clearInterval(timer);
-      }
-      element.style.opacity = op;
-      element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-      op += op * 0.1;
-  }, 25);
-}
 
 /*
   IIFE to set up application
@@ -136,7 +74,7 @@ function render(endpoint, category = categories[0], photoData, offset) {
 }
 
 function fadeInInitialCategory(category, offset) {
-  fadeInMultiple(".item")
+  fade.enterMany(".item")
     .then(_ => {
       setUp(category, offset);
     });
@@ -151,7 +89,7 @@ function addNewPhotosToCategory(category, offset) {
 }
 
 function setUp(category, offset) {
-  lazyLoadSetUp();
+  lazy.setup();
   addListenerToElements(".select-button", "click", handleSelectClick);
   addListenerToElements(".download-button", "click", handleSingleDownloadClick);
   handleScroll(category, offset);
@@ -347,66 +285,6 @@ function calculatePhotoHeight(row) {
   return photoHeight;
 }
 
-function lazyLoadSetUp() {
-  var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
-  var active = false;
-
-  if ('IntersectionObserver' in window) {
-    var lazyImageObserver = new IntersectionObserver(function(entries, observer) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var lazyImage = entry.target;
-          lazyImage.src = lazyImage.dataset.src;
-          lazyImage.classList.remove('lazy');
-          lazyImageObserver.unobserve(lazyImage);
-        }
-      });
-    });
-
-    lazyImages.forEach(function(lazyImage) {
-      lazyImageObserver.observe(lazyImage);
-    });
-  } else {
-    var lazyLoad = function() {
-      if (active === false) {
-        active = true;
-
-        setTimeout(function() {
-          lazyImages.forEach(function(lazyImage) {
-            if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
-              lazyImage.src = lazyImage.getAttribute('data-src');
-              if (lazyImage.classList) {
-                lazyImage.classList.remove('lazy');
-              } else {
-                lazyImage.className.replace(/\bblazy\b/g, "");
-              }
-              
-              lazyImages = lazyImages.filter(function(image) {
-                return image !== lazyImage;
-              });
-
-              if (lazyImage.length === 0) {
-                document.removeEventListener('scroll', lazyLoad);
-                window.removeEventListener('resize', lazyLoad);
-                window.removeEventListener('orientationchange', lazyLoad);
-              }
-            }
-          });
-
-          active = false;
-        }, 200);
-
-      }
-    };
-
-    document.addEventListener('scroll', lazyLoad);
-    window.addEventListener('resize', lazyLoad);
-    window.addEventListener('orientationchange', lazyLoad);
-    window.scroll(0,window.scrollY + 1);
-    window.scroll(0,window.scrollY - 1);
-  }
-}
-
 function handleScroll(category, offset) {
   $(window).scroll(function() {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
@@ -455,7 +333,7 @@ function handleSuccessfulFetch(endpoint, data) {
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
   $(window).off('scroll');
-  fadeOutMultiple(".item")
+  fade.outMany(".item")
     .then(_ => {
       destroyHTML('photo-grid');
       getData(category, 0);
