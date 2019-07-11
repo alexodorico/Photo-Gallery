@@ -62,6 +62,7 @@ function render(endpoint, category = categories[0], photoData, offset) {
     });
   
     getById("photo-grid").insertAdjacentHTML("beforeend", markup);
+    fadeInMultiple(".item");
     lazyLoadSetUp();
     addListenerToElements(".select-button", "click", handleSelectClick);
     addListenerToElements(".download-button", "click", handleSingleDownloadClick);
@@ -69,12 +70,6 @@ function render(endpoint, category = categories[0], photoData, offset) {
   } catch {
     return;
   }
-}
-
-function handleSingleDownloadClick(e) {
-  e.preventDefault();
-  var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
-  $('#dl-frame').attr("src", downloadLink);
 }
 
 /*
@@ -337,6 +332,12 @@ function handleScroll(category, offset) {
   });
 }
 
+function handleSingleDownloadClick(e) {
+  e.preventDefault();
+  var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
+  $('#dl-frame').attr("src", downloadLink);
+}
+
 function getById(id) {
   return document.getElementById(id);
 }
@@ -366,11 +367,51 @@ function handleSuccessfulFetch(endpoint, data) {
   putInStorage(endpoint, simplifiedData);
 }
 
+function fadeOut(element) {
+  let opacity = 1;
+  var timer = setInterval(_ => {
+      if (opacity <= 0.1){
+          clearInterval(timer);
+          element.style.display = 'none';
+      }
+      element.style.opacity = opacity;
+      element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
+      opacity -= opacity * 0.1;
+  }, 20);
+}
+
+function fadeIn(element) {
+  var op = 0.1;  // initial opacity
+  element.style.display = 'block';
+  var timer = setInterval(function () {
+      if (op >= 1){
+          clearInterval(timer);
+      }
+      element.style.opacity = op;
+      element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+      op += op * 0.1;
+  }, 10);
+}
+
+function fadeOutMultiple(selector) {
+  document.querySelectorAll(selector).forEach(element => {
+    fadeOut(element);
+  })
+}
+
+function fadeInMultiple(selector) {
+  document.querySelectorAll(selector).forEach(element => {
+    fadeIn(element);
+  })
+}
+
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
   $(window).off('scroll');
-  destroyHTML('photo-grid');
+  fadeOutMultiple(".item");
+  // destroyHTML('photo-grid');
   getData(category, 0);
+  scrollToTop();
   return updateCategoryDropdown(category);
 }
 
