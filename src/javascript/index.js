@@ -1,3 +1,8 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import "whatwg-fetch";
+import "classlist-polyfill";
+import dataset from "dataset";
 import '../scss/styles.scss';
 import options from '../../gallery.config';
 import utils from './utils';
@@ -70,10 +75,10 @@ function fetchData(endpoint) {
     return fetch(endpoint)
       .then(response => response.json())
       .then(data => handleSuccessfulFetch(endpoint, data.items))
-      .catch(err => showError(err))
+      .catch(err => utils.showError(err))
   }
   catch {
-    return showError("Something went wrong while getting photo data");
+    return utils.showError("Something went wrong while getting photo data");
   }
 }
 
@@ -200,8 +205,11 @@ function setUp(category, offset) {
   Handles state updates for DOM and data in localstorage
 */
 function handleSelectClick(event) {
-  let photoArray = utils.getFromStorage(event.target.dataset.endpoint);
-  let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
+
+  // Using dataset polyfill
+  let photoArray = utils.getFromStorage(dataset(event.target, "endpoint"));
+  let selectedPhoto = findPhotoInLocalStorage(dataset(event.target, "id"), photoArray);
+
   let selectedPhotosArray = utils.getFromStorage("selected") || false;
   if (!selectedPhotosArray) selectedPhotosArray = new Array();
 
@@ -217,7 +225,8 @@ function handleSelectClick(event) {
   document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
 
-  utils.putInStorage(event.target.dataset.endpoint, photoArray);
+  // Using dataset polyfill
+  utils.putInStorage(dataset(event.target, "endpoint"), photoArray);
   return updateViewSelectedVisibility(selectedPhotosArray);
 }
 
