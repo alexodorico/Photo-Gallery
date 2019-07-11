@@ -75,33 +75,28 @@ function render(endpoint, category = categories[0], photoData, offset) {
 */
 function handleSelectClick(event) {
 
-  // data from endpoint in localstorage (24 items as array)
+  // Data from endpoint in localstorage
   let photoArray = getFromStorage(event.target.dataset.endpoint);
 
-  // object that has index and data of photo being selected in endpoint data
-  // destructur this
-  let selectedPhotoDataMaster = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
+  // Data of the photo being selected
+  let selectedPhoto = findPhotoInLocalStorage(event.target.dataset.id, photoArray);
 
-  // if there's selected photos get them, if not it's false
   let selectedPhotosArray = getFromStorage("selected") || false;
 
-  // if no selected photos, create array
   if (!selectedPhotosArray) selectedPhotosArray = new Array();
 
 
-  if (!selectedPhotoDataMaster.data.selected) {
-    selectPhoto(selectedPhotoDataMaster.data, selectedPhotosArray);
+  if (!selectedPhoto.selected) {
+    selectPhoto(selectedPhoto, selectedPhotosArray);
   } else {
-    deselectPhoto(selectedPhotoDataMaster.data, selectedPhotosArray);
+    deselectPhoto(selectedPhoto, selectedPhotosArray);
   }
 
-  // toggle selected value
-  selectedPhotoDataMaster.data.selected = !(selectedPhotoDataMaster.data.selected);
+  selectedPhoto.selected = !selectedPhoto.selected;
 
-  // create updated button markup
-  const updatedPhotoMarkup = createButtonMarkup(selectedPhotoDataMaster.data);
-  document.querySelector(`[id='${selectedPhotoDataMaster.data.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
-  document.querySelector(`[id='${selectedPhotoDataMaster.data.id}'] .select-button`).addEventListener("click", handleSelectClick);
+  const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
+  document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
+  document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
 
   putInStorage(event.target.dataset.endpoint, photoArray);
   //return updateViewSelectedVisibility(selectedPhotos);
@@ -110,7 +105,7 @@ function handleSelectClick(event) {
 function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
   for (let i = 0; i < photoArray.length; i++) {
     if (photoArray[i].id === selectedPhotoId) {
-      return { data: photoArray[i], index: i };
+      return photoArray[i];
     }
   }
   return;
@@ -132,16 +127,16 @@ function selectPhoto(selectedPhoto, selectedPhotos) {
   return putInStorage("selected", selectedPhotos);
 }
 
-function deselectPhoto(selectedPhotoData, selectedPhotosArray) {
+function deselectPhoto(selectedPhoto, selectedPhotosArray) {
   console.log('deselect photo')
-  // for (let i = 0; i < selectedPhotosArray; i++) {
-  //   if (photo.id === selectedPhotoData.id) {
-  //     let start = index, end = index;
-  //     if (index === 0) end++;
-  //     selectedPhotosArray.splice(start, end);
-  //     return putInStorage("selected", selectedPhotosArray);
-  //   }
-  // }
+  for (let i = 0; i < selectedPhotosArray.length; i++) {
+    if (selectedPhotosArray[i].id === selectedPhoto.id) {
+      let start = i, end = i;
+      if (i === 0) end++;
+      selectedPhotosArray.splice(start, end);
+      return putInStorage("selected", selectedPhotosArray);
+    }
+  }
 }
 
 function handleViewSelectedClick() {
