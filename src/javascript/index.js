@@ -48,7 +48,7 @@ function updateViewSelectedVisibility(selectedPhotos) {
   }
 }
 
-/* 
+/*
   Checks for results in localstorage
   If there, renders
   If not, fetches data then renders
@@ -67,7 +67,7 @@ async function getData(category = categories[0], offset = 0) {
 }
 
 function buildAPICall(category = categories[0], offset = 0) {
-  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit.toString()}&offset=${offset.toString()}`;
+  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit}&offset=${offset.toString()}`;
 }
 
 function fetchData(endpoint) {
@@ -206,9 +206,13 @@ function setUp(category, offset) {
 */
 function handleSelectClick(event) {
 
-  // Using dataset polyfill
-  let photoArray = utils.getFromStorage(dataset(event.target, "endpoint"));
-  let selectedPhoto = findPhotoInLocalStorage(dataset(event.target, "id"), photoArray);
+  const endpoint = dataset(event.target, "endpoint");
+  const photoId = dataset(event.target, "id");
+
+  let photoArray = utils.getFromStorage(endpoint);
+  let selectedPhoto = findPhotoInLocalStorage(photoId, photoArray);
+
+  console.log(selectedPhoto);
 
   let selectedPhotosArray = utils.getFromStorage("selected") || false;
   if (!selectedPhotosArray) selectedPhotosArray = new Array();
@@ -226,7 +230,7 @@ function handleSelectClick(event) {
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
 
   // Using dataset polyfill
-  utils.putInStorage(dataset(event.target, "endpoint"), photoArray);
+  utils.putInStorage(endpoint, photoArray);
   return updateViewSelectedVisibility(selectedPhotosArray);
 }
 
@@ -276,9 +280,9 @@ function handleViewSelectedClick() {
   const selectedPhotos = utils.getFromStorage("selected");
   $(window).off('scroll');
   utils.destroyHTML("photo-grid");
-  utils.scrollToTop();
   sessionStorage.setItem("viewing-selected", JSON.stringify(true));
   render(null, selectedPhotos, null);
+  utils.scrollToTop();
 }
 
 function handleScroll(category, offset) {
