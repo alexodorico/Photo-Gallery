@@ -1,6 +1,71 @@
 import '../scss/styles.scss';
 import options from '../../gallery.config';
 
+const fadeOutMultiple = function(selector) {
+  return new Promise((resolve, reject) => {
+    document.querySelectorAll(selector).forEach(element => {
+      fadeOut(element)
+        .then(_=> {
+          setTimeout(_=> {
+            resolve(true);
+          }, 150);
+        });  
+    });
+  });
+}
+
+const fadeInMultiple = function(selector) {
+  return new Promise((resolve, reject) => {
+    document.querySelectorAll(selector).forEach(element => {
+      fadeIn(element);
+    });
+    resolve(true);
+  });
+}
+
+const fadeOut = function(element) {
+  return new Promise((resolve, reject) => {
+    let opacity = 1;
+    const timer = setInterval(_ => {
+        if (opacity <= 0.1){
+            clearInterval(timer);
+            element.style.display = 'none';
+            resolve(true);
+        }
+        element.style.opacity = opacity;
+        element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
+        opacity -= opacity * 0.1;
+    }, 25);
+  });
+}
+
+// function fadeOut(element) {
+//   let opacity = 1;
+//   const timer = setInterval(_ => {
+//       if (opacity <= 0.1){
+//           clearInterval(timer);
+//           element.style.display = 'none';
+//           resolve(true);
+//       }
+//       element.style.opacity = opacity;
+//       element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
+//       opacity -= opacity * 0.1;
+//   }, 30);
+// }
+
+function fadeIn(element) {
+  let op = 0.1;
+  element.style.display = 'block';
+  const timer = setInterval(function () {
+      if (op >= 1){
+          clearInterval(timer);
+      }
+      element.style.opacity = op;
+      element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+      op += op * 0.1;
+  }, 25);
+}
+
 /*
   IIFE to set up application
 */
@@ -62,14 +127,34 @@ function render(endpoint, category = categories[0], photoData, offset) {
     });
   
     getById("photo-grid").insertAdjacentHTML("beforeend", markup);
-    fadeInMultiple(".item");
-    lazyLoadSetUp();
-    addListenerToElements(".select-button", "click", handleSelectClick);
-    addListenerToElements(".download-button", "click", handleSingleDownloadClick);
-    handleScroll(category, offset);
+
+    // prevents the whole grid from fading in when more photos are added to view
+    offset === 24 ? fadeInInitialCategory(category, offset) : addNewPhotosToCategory(category, offset);
   } catch {
     return;
   }
+}
+
+function fadeInInitialCategory(category, offset) {
+  fadeInMultiple(".item")
+    .then(_ => {
+      setUp(category, offset);
+    });
+}
+
+function addNewPhotosToCategory(category, offset) {
+  document.querySelectorAll(".item").forEach(element => {
+    element.style.opacity = 1;
+  });
+
+  setUp(category, offset);
+}
+
+function setUp(category, offset) {
+  lazyLoadSetUp();
+  addListenerToElements(".select-button", "click", handleSelectClick);
+  addListenerToElements(".download-button", "click", handleSingleDownloadClick);
+  handleScroll(category, offset);
 }
 
 /*
@@ -367,50 +452,14 @@ function handleSuccessfulFetch(endpoint, data) {
   putInStorage(endpoint, simplifiedData);
 }
 
-function fadeOut(element) {
-  let opacity = 1;
-  var timer = setInterval(_ => {
-      if (opacity <= 0.1){
-          clearInterval(timer);
-          element.style.display = 'none';
-      }
-      element.style.opacity = opacity;
-      element.style.filter = 'alpha(opacity=' + opacity * 100 + ")";
-      opacity -= opacity * 0.1;
-  }, 20);
-}
-
-function fadeIn(element) {
-  var op = 0.1;  // initial opacity
-  element.style.display = 'block';
-  var timer = setInterval(function () {
-      if (op >= 1){
-          clearInterval(timer);
-      }
-      element.style.opacity = op;
-      element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-      op += op * 0.1;
-  }, 10);
-}
-
-function fadeOutMultiple(selector) {
-  document.querySelectorAll(selector).forEach(element => {
-    fadeOut(element);
-  })
-}
-
-function fadeInMultiple(selector) {
-  document.querySelectorAll(selector).forEach(element => {
-    fadeIn(element);
-  })
-}
-
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
   $(window).off('scroll');
-  fadeOutMultiple(".item");
-  // destroyHTML('photo-grid');
-  getData(category, 0);
+  fadeOutMultiple(".item")
+    .then(_ => {
+      destroyHTML('photo-grid');
+      getData(category, 0);
+    });
   scrollToTop();
   return updateCategoryDropdown(category);
 }
