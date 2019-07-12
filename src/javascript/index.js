@@ -3,18 +3,29 @@ import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 import "classlist-polyfill";
 import dataset from "dataset";
-import '../scss/styles.scss';
-import options from '../../gallery.config';
-import utils from './utils';
-import grid from './grid';
-import fade from './fade';
-import lazy from './lazy';
+import "../scss/styles.scss";
+import options from "../../gallery.config";
+import utils from "./utils";
+import grid from "./grid";
+import fade from "./fade";
+import lazy from "./lazy";
+import {
+  toggleSelect,
+  viewCategory,
+  viewSelected,
+  addPhotos,
+  addCategories,
+  store
+} from "./store"
 
 /*
   IIFE to set up inital state
 */
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
+  const unsubscribe = store.subscribe(() => console.log(store.getState()));
+  store.dispatch(addCategories(categories));
+
   updateCategoryDropdown(categories[0]);
   populateCategoriesDropDown(categories);
   updateViewSelectedVisibility(utils.getFromStorage("selected"));
@@ -58,6 +69,7 @@ async function getData(category = categories[0], offset = 0) {
   const cachedResults = utils.getFromStorage(endpoint);
 
   if (cachedResults) {
+    store.dispatch(addPhotos(cachedResults, endpoint));
     return render(category, cachedResults, offset + 24);
   }
 
@@ -87,6 +99,7 @@ function fetchData(endpoint) {
 */
 function handleSuccessfulFetch(endpoint, data) {
   const simplifiedData = simplifyData(data, endpoint);
+  store.dispatch(addPhotos(simplifiedData, endpoint));
   utils.putInStorage(endpoint, simplifiedData);
 }
 
