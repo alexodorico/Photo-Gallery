@@ -23,23 +23,23 @@ import {
 */
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
-  store.subscribe(handleStoreChange);
+  getCachedData();
+  store.subscribe(() => console.log(store.getState()));
   store.dispatch(addCategories(categories));
-
-  updateCategoryDropdown(categories[0]);
-  populateCategoriesDropDown(categories);
-  updateViewSelectedVisibility(utils.getFromStorage("selected"));
-  sessionStorage.setItem("viewing-selected", JSON.stringify(false));
-  sessionStorage.setItem("current-category", JSON.stringify(categories[0]));
+  const initCategory = store.getState().categories[0];
+  updateCategoryDropdown(initCategory);
+  populateCategoriesDropDown(store.getState().categories);
   utils.addListenerToElements(".category-name", "click", handleCategoryClick);
-  const photoData = await getData(categories[0]);
-  render(null, categories[0], photoData);
+  const photoData = await getData(initCategory);
+  render(null, initCategory, photoData);
 })();
 
-// gets updated
-function handleStoreChange() {
-  console.log(store.getState());
-
+function getCachedData() {
+  for (const key in localStorage) {
+    if (key.includes("morley")) {
+      store.dispatch(addPhotos(JSON.parse(localStorage.getItem(key)), key))
+    }
+  }
 }
 
 function updateCategoryDropdown(category) {
@@ -54,17 +54,6 @@ function populateCategoriesDropDown(categories) {
   return utils.getById("category-list").innerHTML = markup;
 }
 
-
-function updateViewSelectedVisibility(selectedPhotos) {
-  if (selectedPhotos.length) {
-    utils.getById("view-selected-button").classList.add("show");
-    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
-    
-  } else {
-    utils.getById("view-selected-button").classList.remove("show");
-  }
-}
-
 /*
   Checks for results in localstorage
   If there, renders
@@ -72,15 +61,15 @@ function updateViewSelectedVisibility(selectedPhotos) {
 */
 async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
-  const cachedResults = utils.getFromStorage(endpoint);
+  const cachedResults = store.getState().loadedPhotos[endpoint];
 
   if (cachedResults) {
-    store.dispatch(addPhotos(cachedResults, endpoint));
+    // idk why tf offset + 24 works, but it does
     return render(category, cachedResults, offset + 24);
   }
 
   await fetchData(endpoint);
-  const newResults = utils.getFromStorage(endpoint);
+  const newResults = store.getState().loadedPhotos[endpoint];
   render(category, newResults, offset + 24);
 }
 
@@ -101,7 +90,7 @@ function fetchData(endpoint) {
 }
 
 /*
-  Stores simplified data is local storage
+  Stores simplified data in local storage
 */
 function handleSuccessfulFetch(endpoint, data) {
   const simplifiedData = simplifyData(data, endpoint);
@@ -201,7 +190,7 @@ function createButtonMarkup(photo) {
 function fadeInInitialCategory(category, offset) {
   fade.enterMany(".item")
     .then(_ => {
-      setUp(category, offset);
+      photoInsertionCleanup(category, offset);
     });
 }
 
@@ -210,99 +199,86 @@ function addNewPhotosToCategory(category, offset) {
     element.style.opacity = 1;
   });
 
-  setUp(category, offset);
+  photoInsertionCleanup(category, offset);
 }
 
-function setUp(category, offset) {
+function photoInsertionCleanup(category, offset) {
   lazy.setup();
   utils.addListenerToElements(".select-button", "click", handleSelectClick);
   utils.addListenerToElements(".download-button", "click", handleSingleDownloadClick);
   handleScroll(category, offset);
 }
 
+function findPhotoInEndpointData(id, endpoint) {
+  const endpointPhotos = store.getState().loadedPhotos[endpoint];
+
+  for (let i = 0; i < endpointPhotos.length; i++) {
+    if (endpointPhotos[i].id === id) {
+      return endpointPhotos[i];
+    }
+  }
+
+  return false;
+}
+
 /*
   Handles state updates for DOM and data in localstorage
 */
 function handleSelectClick(event) {
-
-
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
-
   store.dispatch(toggleSelect(endpoint, photoId));
 
-  let photoArray = utils.getFromStorage(endpoint);
-  let selectedPhoto = findPhotoInLocalStorage(photoId, photoArray);
-
-  console.log(selectedPhoto);
-
-  let selectedPhotosArray = utils.getFromStorage("selected") || false;
-  if (!selectedPhotosArray) selectedPhotosArray = new Array();
-
-  selectedPhoto.selected = !selectedPhoto.selected;
-
-  if (selectedPhoto.selected) {
-    selectPhoto(selectedPhoto, selectedPhotosArray);
-  } else {
-    deselectPhoto(selectedPhoto, selectedPhotosArray);
-  }
-
+  let selectedPhoto = findPhotoInEndpointData(photoId, endpoint);
   const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
   document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
+  const selectedPhotos = getSelected();
+  updateViewSelectedVisibility(selectedPhotos.length);
 
-  // Using dataset polyfill
-  utils.putInStorage(endpoint, photoArray);
-  return updateViewSelectedVisibility(selectedPhotosArray);
-}
-
-function findPhotoInLocalStorage(selectedPhotoId, photoArray) {
-  for (let i = 0; i < photoArray.length; i++) {
-    if (photoArray[i].id === selectedPhotoId) {
-      return photoArray[i];
-    }
+  if (!selectedPhotos && store.getState().viewingSelected) {
+    redirect();
   }
-  return;
 }
 
-function selectPhoto(selectedPhoto, selectedPhotos) {
-  selectedPhotos.unshift(selectedPhoto);
-  return utils.putInStorage("selected", selectedPhotos);
-}
+function getSelected() {
+  const loadedPhotos = store.getState().loadedPhotos;
+  let selectedPhotos = new Array();
 
-function deselectPhoto(selectedPhoto, selectedPhotosArray) {
-  for (let i = 0; i < selectedPhotosArray.length; i++) {
-    if (selectedPhotosArray[i].id === selectedPhoto.id) {
-      let start = i, end = i;
-      if (i === 0) end++;
-      selectedPhotosArray.splice(start, end);
-      utils.putInStorage("selected", selectedPhotosArray);
-      break;
-    }
+  for (let endpoint in loadedPhotos) {
+    loadedPhotos[endpoint].forEach(photo => {
+      if (photo.selected) selectedPhotos.push(photo);
+    });
   }
 
-  checkForRedirect(selectedPhotosArray);
+  return selectedPhotos;
 }
 
-function checkForRedirect(selectedPhotoArray) {
-  const viewingSelected = JSON.parse(sessionStorage.getItem("viewing-selected"));
-  
-  if (viewingSelected && !selectedPhotoArray.length) {
-    const previousCategory = JSON.parse(sessionStorage.getItem("current-category"));
-    const endpoint = buildAPICall(previousCategory, 0);
-    const itemsToRender = utils.getFromStorage(endpoint);
-    utils.destroyHTML("photo-grid");
-    utils.scrollToTop();
-    sessionStorage.setItem("viewing-selected", JSON.stringify(false));
-    render(previousCategory, itemsToRender, 0);
+function updateViewSelectedVisibility(selectedPhotos) {
+  if (selectedPhotos) {
+    utils.getById("view-selected-button").classList.remove("hide");
+    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
+    
+  } else {
+    utils.getById("view-selected-button").classList.add("hide");
   }
+}
+
+function redirect() {
+  const previousCategory = store.getState().selectedCategory;
+  const endpoint = buildAPICall(previousCategory, 0);
+  const itemsToRender = utils.getFromStorage(endpoint);
+  utils.destroyHTML("photo-grid");
+  utils.scrollToTop();
+  store.dispatch(viewSelected(false));
+  render(previousCategory, itemsToRender, 0);
 }
 
 function handleViewSelectedClick() {
-  const selectedPhotos = utils.getFromStorage("selected");
+  const selectedPhotos = getSelected();
   $(window).off('scroll');
   utils.destroyHTML("photo-grid");
-  sessionStorage.setItem("viewing-selected", JSON.stringify(true));
+  store.dispatch(viewSelected(true));
   render(null, selectedPhotos, null);
   utils.scrollToTop();
 }
@@ -331,7 +307,7 @@ function handleCategoryClick(event) {
       getData(category, 0);
     });
   utils.scrollToTop();
-  sessionStorage.setItem("viewing-selected", JSON.stringify(false));
-  sessionStorage.setItem("current-category", JSON.stringify(category));
+  store.dispatch(viewSelected(false));
+  store.dispatch(viewCategory(category));
   return updateCategoryDropdown(category);
 }
