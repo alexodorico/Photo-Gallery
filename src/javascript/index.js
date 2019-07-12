@@ -62,12 +62,10 @@ function populateCategoriesDropDown(categories) {
 async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
   const cachedResults = store.getState().loadedPhotos[endpoint];
-
   if (cachedResults) {
     // idk why tf offset + 24 works, but it does
     return render(category, cachedResults, offset + 24);
   }
-
   await fetchData(endpoint);
   const newResults = store.getState().loadedPhotos[endpoint];
   render(category, newResults, offset + 24);
@@ -134,12 +132,10 @@ function render(category = categories[0], photoData, offset) {
   try {
     photoGrid.forEach(row => {
       const photoHeight = grid.calculatePhotoHeight(row);
-
       row.forEach(photo => {
         markup += createPhotoMarkup(photo, photoHeight);
       });
     });
-  
     utils.getById("photo-grid").insertAdjacentHTML("beforeend", markup);
 
     // prevents the whole grid from fading in when more photos are added to view
@@ -198,7 +194,6 @@ function addNewPhotosToCategory(category, offset) {
   document.querySelectorAll(".item").forEach(element => {
     element.style.opacity = 1;
   });
-
   photoInsertionCleanup(category, offset);
 }
 
@@ -211,13 +206,11 @@ function photoInsertionCleanup(category, offset) {
 
 function findPhotoInEndpointData(id, endpoint) {
   const endpointPhotos = store.getState().loadedPhotos[endpoint];
-
   for (let i = 0; i < endpointPhotos.length; i++) {
     if (endpointPhotos[i].id === id) {
       return endpointPhotos[i];
     }
   }
-
   return false;
 }
 
@@ -228,14 +221,12 @@ function handleSelectClick(event) {
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
   store.dispatch(toggleSelect(endpoint, photoId));
-
   let selectedPhoto = findPhotoInEndpointData(photoId, endpoint);
   const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
   document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
   document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
   const selectedPhotos = getSelected();
   updateViewSelectedVisibility(selectedPhotos.length);
-
   if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
     redirect();
   }
@@ -244,13 +235,11 @@ function handleSelectClick(event) {
 function getSelected() {
   const loadedPhotos = store.getState().loadedPhotos;
   let selectedPhotos = new Array();
-
   for (let endpoint in loadedPhotos) {
     loadedPhotos[endpoint].forEach(photo => {
       if (photo.selected) selectedPhotos.push(photo);
     });
   }
-  console.log(selectedPhotos);
   return selectedPhotos;
 }
 
@@ -258,14 +247,12 @@ function updateViewSelectedVisibility(selectedPhotos) {
   if (selectedPhotos) {
     utils.getById("view-selected-button").classList.remove("hide");
     utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
-    
   } else {
     utils.getById("view-selected-button").classList.add("hide");
   }
 }
 
 function redirect() {
-  console.log('redirect');
   const previousCategory = store.getState().selectedCategory;
   const endpoint = buildAPICall(previousCategory, 0);
   const itemsToRender = utils.getFromStorage(endpoint);
