@@ -1,4 +1,4 @@
-import options from '../../gallery.config';
+import options from '../../../gallery.config';
 
 const grid = (_=> {
 

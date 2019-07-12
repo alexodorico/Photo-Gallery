@@ -5,18 +5,18 @@ import "classlist-polyfill";
 import dataset from "dataset";
 import "../scss/styles.scss";
 import options from "../../gallery.config";
-import utils from "./utils";
-import grid from "./grid";
-import fade from "./fade";
-import lazy from "./lazy";
+import utils from "./modules/utils";
+import grid from "./modules/grid";
+import fade from "./modules/fade";
+import lazy from "./modules/lazy";
+import { store } from "./store";
 import {
   toggleSelect,
   viewCategory,
   viewSelected,
   addPhotos,
-  addCategories,
-  store
-} from "./store"
+  addCategories
+} from "./actions";
 
 /*
   IIFE to set up inital state
@@ -236,7 +236,7 @@ function handleSelectClick(event) {
   const selectedPhotos = getSelected();
   updateViewSelectedVisibility(selectedPhotos.length);
 
-  if (!selectedPhotos && store.getState().viewingSelected) {
+  if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
     redirect();
   }
 }
@@ -250,7 +250,7 @@ function getSelected() {
       if (photo.selected) selectedPhotos.push(photo);
     });
   }
-
+  console.log(selectedPhotos);
   return selectedPhotos;
 }
 
@@ -265,6 +265,7 @@ function updateViewSelectedVisibility(selectedPhotos) {
 }
 
 function redirect() {
+  console.log('redirect');
   const previousCategory = store.getState().selectedCategory;
   const endpoint = buildAPICall(previousCategory, 0);
   const itemsToRender = utils.getFromStorage(endpoint);
