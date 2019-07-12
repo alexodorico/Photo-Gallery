@@ -3,25 +3,42 @@ import { createStore } from "redux";
 const TOGGLE_SELECT = "TOGGLE_SELECT";
 const VIEW_CATEGORY = "VIEW_CATEGORY";
 const VIEW_SELECTED = "VIEW_SELECTED";
+const ADD_PHOTOS = "ADD_PHOTOS";
+const ADD_CATEGORIES = "ADD_CATEGORY";
 
-function toggleSelect(data) {
+export function toggleSelect(data) {
   return {
     type: TOGGLE_SELECT,
     data
   }
 }
 
-function viewCategory(name) {
+export function viewCategory(name) {
   return {
     type: VIEW_CATEGORY,
     name
   }
 }
 
-function viewSelected(viewing) {
+export function viewSelected(viewing) {
   return {
     type: VIEW_SELECTED,
     viewing
+  }
+}
+
+export function addPhotos(data, endpoint) {
+  return {
+    type: ADD_PHOTOS,
+    data,
+    endpoint
+  }
+}
+
+export function addCategories(categories) {
+  return {
+    type: ADD_CATEGORIES,
+    categories
   }
 }
 
@@ -37,10 +54,12 @@ function photoApp(state = initialState, action) {
     case TOGGLE_SELECT:
       const photoData = action.data;
       const endpoint = photoData.endpoint;
+      const selectedPhoto = selectPhoto(state, photoData);
 
       return Object.assign({}, state, {
         loadedPhotos: { 
-          ...loadedPhotos, [endpoint]: selectPhoto(state, photoData) }
+          ...state.loadedPhotos, [endpoint]: selectedPhoto
+        }
       });
 
     case VIEW_CATEGORY:
@@ -54,6 +73,19 @@ function photoApp(state = initialState, action) {
         viewingSelected: true
       });
 
+    case ADD_PHOTOS:
+      return Object.assign({}, state, {
+        loadedPhotos: { 
+          ...state.loadedPhotos, [action.endpoint]: action.data
+        }
+      });
+
+    case ADD_CATEGORIES:
+      return Object.assign({}, state, {
+        categories: action.categories,
+        selectedCategory: action.categories[0]
+      });
+
     default:
       return state;
   }
@@ -61,6 +93,11 @@ function photoApp(state = initialState, action) {
 
 function selectPhoto(state, photoData) {
   const endpointPhotos = state.loadedPhotos[photoData.endpoint];
+
+  if (typeof endpointPhotos === "undefined") {
+    return [{ ...photoData, selected: !photoData.selected }]
+  }
+
   return endpointPhotos.map(photo => {
     if (photo.id === photoData.id) {
       return { ...photo, selected: !photo.selected };
@@ -70,4 +107,7 @@ function selectPhoto(state, photoData) {
   });
 }
 
-const store = createStore(photoApp);
+export const store = createStore(
+  photoApp,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
