@@ -6,10 +6,11 @@ const VIEW_SELECTED = "VIEW_SELECTED";
 const ADD_PHOTOS = "ADD_PHOTOS";
 const ADD_CATEGORIES = "ADD_CATEGORY";
 
-export function toggleSelect(data) {
+export function toggleSelect(endpoint, id) {
   return {
     type: TOGGLE_SELECT,
-    data
+    endpoint,
+    id
   }
 }
 
@@ -52,9 +53,9 @@ const initialState = {
 function photoApp(state = initialState, action) {
   switch (action.type) {
     case TOGGLE_SELECT:
-      const photoData = action.data;
-      const endpoint = photoData.endpoint;
-      const selectedPhoto = selectPhoto(state, photoData);
+      const photoId = action.id;
+      const endpoint = action.endpoint;
+      const selectedPhoto = selectPhoto(state, endpoint, photoId);
 
       return Object.assign({}, state, {
         loadedPhotos: { 
@@ -91,15 +92,11 @@ function photoApp(state = initialState, action) {
   }
 }
 
-function selectPhoto(state, photoData) {
-  const endpointPhotos = state.loadedPhotos[photoData.endpoint];
-
-  if (typeof endpointPhotos === "undefined") {
-    return [{ ...photoData, selected: !photoData.selected }]
-  }
+function selectPhoto(state, endpoint, photoId) {
+  const endpointPhotos = state.loadedPhotos[endpoint];
 
   return endpointPhotos.map(photo => {
-    if (photo.id === photoData.id) {
+    if (photo.id === photoId) {
       return { ...photo, selected: !photo.selected };
     } else {
       return photo;

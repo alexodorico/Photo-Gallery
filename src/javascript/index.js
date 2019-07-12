@@ -23,7 +23,7 @@ import {
 */
 (async _=> {
   const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
-  const unsubscribe = store.subscribe(() => console.log(store.getState()));
+  store.subscribe(handleStoreChange);
   store.dispatch(addCategories(categories));
 
   updateCategoryDropdown(categories[0]);
@@ -35,6 +35,12 @@ import {
   const photoData = await getData(categories[0]);
   render(null, categories[0], photoData);
 })();
+
+// gets updated
+function handleStoreChange() {
+  console.log(store.getState());
+
+}
 
 function updateCategoryDropdown(category) {
   return utils.getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
@@ -219,8 +225,11 @@ function setUp(category, offset) {
 */
 function handleSelectClick(event) {
 
+
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
+
+  store.dispatch(toggleSelect(endpoint, photoId));
 
   let photoArray = utils.getFromStorage(endpoint);
   let selectedPhoto = findPhotoInLocalStorage(photoId, photoArray);
