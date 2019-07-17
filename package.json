@@ -5,7 +5,8 @@
   "main": "public/index.html",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "start:dev": "webpack-dev-server"
+    "start:dev": "webpack-dev-server",
+    "test": "mocha './src/tests/**.js'"
   },
   "repository": {
     "type": "git",
@@ -20,9 +21,11 @@
     "@babel/preset-env": "^7.4.5",
     "autoprefixer": "^9.6.0",
     "babel-loader": "^8.0.6",
+    "chai": "^4.2.0",
     "css-loader": "^3.0.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.7.0",
+    "mocha": "^6.1.4",
     "postcss-loader": "^3.0.0",
     "regenerator-runtime": "^0.13.2",
     "sass": "^1.22.1",
