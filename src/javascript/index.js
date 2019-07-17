@@ -21,8 +21,14 @@ import {
 /*
   IIFE to set up inital state
 */
-(async _=> {
-  const categories = window.categories || [ "Gala", "Fireworks", "Team-Building Event", "GM Topiary", "SOY Awards" ];
+(async _ => {
+  const categories = window.categories || [
+    "Gala",
+    "Fireworks",
+    "Team-Building Event",
+    "GM Topiary",
+    "SOY Awards"
+  ];
   getCachedData();
   store.subscribe(() => console.log(store.getState()));
   store.dispatch(addCategories(categories));
@@ -37,13 +43,15 @@ import {
 function getCachedData() {
   for (const key in localStorage) {
     if (key.includes("morley")) {
-      store.dispatch(addPhotos(JSON.parse(localStorage.getItem(key)), key))
+      store.dispatch(addPhotos(JSON.parse(localStorage.getItem(key)), key));
     }
   }
 }
 
 function updateCategoryDropdown(category) {
-  return utils.getById("category-dropdown-button").innerHTML = `${category} <span class="caret"></span>`;
+  return (utils.getById(
+    "category-dropdown-button"
+  ).innerHTML = `${category} <span class="caret"></span>`);
 }
 
 function populateCategoriesDropDown(categories) {
@@ -51,7 +59,7 @@ function populateCategoriesDropDown(categories) {
   categories.forEach(category => {
     markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
   });
-  return utils.getById("category-list").innerHTML = markup;
+  return (utils.getById("category-list").innerHTML = markup);
 }
 
 /*
@@ -72,7 +80,10 @@ async function getData(category = categories[0], offset = 0) {
 }
 
 function buildAPICall(category = categories[0], offset = 0) {
-  return `${options.endpoint}job=${window.jobNumber || "GT0000" }&cat=${category}&limit=${options.photoLimit}&offset=${offset.toString()}`;
+  return `${options.endpoint}job=${window.jobNumber ||
+    "GT0000"}&cat=${category}&limit=${
+    options.photoLimit
+  }&offset=${offset.toString()}`;
 }
 
 function fetchData(endpoint) {
@@ -80,9 +91,8 @@ function fetchData(endpoint) {
     return fetch(endpoint)
       .then(response => response.json())
       .then(data => handleSuccessfulFetch(endpoint, data.items))
-      .catch(err => utils.showError(err))
-  }
-  catch {
+      .catch(err => utils.showError(err));
+  } catch {
     return utils.showError("Something went wrong while getting photo data");
   }
 }
@@ -104,10 +114,24 @@ function handleSuccessfulFetch(endpoint, data) {
 function simplifyData(data, endpoint) {
   return data.map(item => {
     const { id } = item;
-    const { embeds: { "AssetOriginalWidth/Height": { url: batchDownloadLink}}} = item;
-    const { _links: { download: singleDownloadLink }} = item;
-    const { thumbnails: { "600px": { url: thumbnail }}} = item;
-    const { file_properties: { image_properties: { aspect_ratio }}} = item;
+    const {
+      embeds: {
+        "AssetOriginalWidth/Height": { url: batchDownloadLink }
+      }
+    } = item;
+    const {
+      _links: { download: singleDownloadLink }
+    } = item;
+    const {
+      thumbnails: {
+        "600px": { url: thumbnail }
+      }
+    } = item;
+    const {
+      file_properties: {
+        image_properties: { aspect_ratio }
+      }
+    } = item;
 
     return {
       id,
@@ -117,7 +141,7 @@ function simplifyData(data, endpoint) {
       batchDownloadLink,
       selected: false,
       endpoint
-    }
+    };
   });
 }
 
@@ -139,7 +163,9 @@ function render(category = categories[0], photoData, offset) {
     utils.getById("photo-grid").insertAdjacentHTML("beforeend", markup);
 
     // prevents the whole grid from fading in when more photos are added to view
-    offset === 24 ? fadeInInitialCategory(category, offset) : addNewPhotosToCategory(category, offset);
+    offset === 24
+      ? fadeInInitialCategory(category, offset)
+      : addNewPhotosToCategory(category, offset);
   } catch {
     return;
   }
@@ -152,7 +178,7 @@ function createPhotoMarkup(photo, photoHeight) {
        id="${photo.id}"
        downloadLink="${photo.batchDownloadLink}"
        singleDownloadLink="${photo.singleDownloadLink}"
-       style="width: ${photoHeight * photo.aspect_ratio + 'px'}">
+       style="width: ${photoHeight * photo.aspect_ratio + "px"}">
       <div class="loader"></div>
       <img
         class="lazy"
@@ -165,7 +191,7 @@ function createPhotoMarkup(photo, photoHeight) {
       ${createButtonMarkup(photo)}
       </div>
     </div>
-  </div>`
+  </div>`;
 }
 
 function createButtonMarkup(photo) {
@@ -174,20 +200,21 @@ function createButtonMarkup(photo) {
       data-endpoint="${photo.endpoint}"
       type="button"
       data-id="${photo.id}"
-      class="btn btn-default select-button ${photo.selected ? 'btn-success' : ''}"
+      class="btn btn-default select-button ${
+        photo.selected ? "btn-success" : ""
+      }"
     >
-      ${photo.selected ? 'Selected' : 'Select'}
+      ${photo.selected ? "Selected" : "Select"}
     </button>
     <button class="btn btn-default download-button" >
       <span class="glyphicon glyphicon-download-alt"></span>
-    </button>`
+    </button>`;
 }
 
 function fadeInInitialCategory(category, offset) {
-  fade.enterMany(".item")
-    .then(_ => {
-      photoInsertionCleanup(category, offset);
-    });
+  fade.enterMany(".item").then(_ => {
+    photoInsertionCleanup(category, offset);
+  });
 }
 
 function addNewPhotosToCategory(category, offset) {
@@ -200,7 +227,11 @@ function addNewPhotosToCategory(category, offset) {
 function photoInsertionCleanup(category, offset) {
   lazy.setup();
   utils.addListenerToElements(".select-button", "click", handleSelectClick);
-  utils.addListenerToElements(".download-button", "click", handleSingleDownloadClick);
+  utils.addListenerToElements(
+    ".download-button",
+    "click",
+    handleSingleDownloadClick
+  );
   handleScroll(category, offset);
 }
 
@@ -223,8 +254,12 @@ function handleSelectClick(event) {
   store.dispatch(toggleSelect(endpoint, photoId));
   let selectedPhoto = findPhotoInEndpointData(photoId, endpoint);
   const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
-  document.querySelector(`[id='${selectedPhoto.id}'] .overlay`).innerHTML = updatedPhotoMarkup;
-  document.querySelector(`[id='${selectedPhoto.id}'] .select-button`).addEventListener("click", handleSelectClick);
+  document.querySelector(
+    `[id='${selectedPhoto.id}'] .overlay`
+  ).innerHTML = updatedPhotoMarkup;
+  document
+    .querySelector(`[id='${selectedPhoto.id}'] .select-button`)
+    .addEventListener("click", handleSelectClick);
   const selectedPhotos = getSelected();
   updateViewSelectedVisibility(selectedPhotos.length);
   if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
@@ -246,7 +281,9 @@ function getSelected() {
 function updateViewSelectedVisibility(selectedPhotos) {
   if (selectedPhotos) {
     utils.getById("view-selected-button").classList.remove("hide");
-    utils.getById("view-selected-button").addEventListener("click", handleViewSelectedClick);
+    utils
+      .getById("view-selected-button")
+      .addEventListener("click", handleViewSelectedClick);
   } else {
     utils.getById("view-selected-button").classList.add("hide");
   }
@@ -264,7 +301,7 @@ function redirect() {
 
 function handleViewSelectedClick() {
   const selectedPhotos = getSelected();
-  $(window).off('scroll');
+  $(window).off("scroll");
   utils.destroyHTML("photo-grid");
   store.dispatch(viewSelected(true));
   render(null, selectedPhotos, null);
@@ -273,27 +310,33 @@ function handleViewSelectedClick() {
 
 function handleScroll(category, offset) {
   $(window).scroll(function() {
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - 500) {
-      $(window).off('scroll');
-      getData(category, offset)
+    if (
+      $(window).scrollTop() >=
+      $(document).height() - $(window).height() - 500
+    ) {
+      $(window).off("scroll");
+      getData(category, offset);
     }
   });
 }
 
 function handleSingleDownloadClick(e) {
   e.preventDefault();
-  var downloadLink = $(this).parents('.item').attr('singleDownloadLink');
-  $('#dl-frame').attr("src", downloadLink);
+  var downloadLink = $(this)
+    .parents(".item")
+    .attr("singleDownloadLink");
+  $("#dl-frame").attr("src", downloadLink);
 }
 
 function handleCategoryClick(event) {
   const category = event.target.innerHTML;
-  $(window).off('scroll');
-  fade.outMany(".item")
-    .then(_ => {
-      utils.destroyHTML('photo-grid');
-      getData(category, 0);
-    });
+  $(window).off("scroll");
+
+  fade.outMany(".item").then(_ => {
+    utils.destroyHTML("photo-grid");
+    getData(category, 0);
+  });
+
   utils.scrollToTop();
   store.dispatch(viewSelected(false));
   store.dispatch(viewCategory(category));
