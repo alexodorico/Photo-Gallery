@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "start:dev": "webpack-dev-server",
-    "test": "mocha './src/tests/**.js'"
+    "test": "mocha './src/tests/**.js' --require @babel/register",
+    "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
+    "@babel/register": "^7.4.4",
     "classlist-polyfill": "^1.2.0",
     "core-js": "^3.1.4",
     "dataset": "^0.3.2",
