@@ -1,73 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta content="width=device-width, initial-scale=1" name="viewport">
-		<title>Image Gallery Test</title>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-		<!-- <link rel="stylesheet" href="dist/photoswipe.css">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Image Gallery Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous"
+    />
+    <!-- <link rel="stylesheet" href="dist/photoswipe.css">
 		<link rel="stylesheet" href="dist/default-skin/default-skin.css"> -->
-		<!-- <link rel="stylesheet" type="text/css" href="../dist/bundle.css"> -->
-	</head>
-	<body>
-		<iframe id="dl-frame" style="display:none"></iframe>
-		<div id="photo-gallery">
-			<header id="top-bar" class="clearfix">
-				<h1>Photo Gallery</h1>
-				<div id="categories-wrapper" class="dropdown">
-					<button
-						class="btn btn-default dropdown-toggle"
-						type="button"
-						id="category-dropdown-button"
-						data-toggle="dropdown"
-						aria-haspopup="true"
-						aria-expanded="true">
-						Select Category <span class="caret"></span>
-					</button>
-					<ul
-						id="category-list"
-						class="dropdown-menu"
-						aria-labelledby="category-dropdown-button">
-					</ul>
-				</div>
-				<div id="button-wrapper" class="clearfix">
-					<button
-						type="button"
-						id="view-selected-button"
-						class="btn btn-primary hide"
-					>
-						View Selected<span class=badge></span>
-					</button>
-					<div id="download-button-wrapper" class="dropdown">
-						<button
-							class="btn btn-primary dropdown-toggle"
-							type="button"
-							id="download-dropdown-button"
-							data-toggle="dropdown"
-							aria-haspopup="true"
-							aria-expanded="true">
-							Download <span class="caret"></span>
-						</button>
-						<ul
-							id="download-list"
-							class="dropdown-menu"
-							aria-labelledby="download-dropdown-button"
-						>
-							<li id="download-zip"><a>Selected</a></li>
-							<li id="download-category"><a>Current Category</a></li>
-							<li role="separator" class="divider"></li>
-							<li id="download-all"><a>All</a></li>
-						</ul>
-					</div>
-				</div>
-			</header>
+    <!-- <link rel="stylesheet" type="text/css" href="../dist/bundle.css"> -->
+  </head>
+  <body>
+    <iframe id="dl-frame" style="display:none"></iframe>
+    <div id="photo-gallery">
+      <header id="top-bar" class="clearfix">
+        <h1>Photo Gallery</h1>
+        <div id="categories-wrapper" class="dropdown">
+          <button
+            class="btn btn-default dropdown-toggle"
+            type="button"
+            id="category-dropdown-button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="true"
+          >
+            Select Category <span class="caret"></span>
+          </button>
+          <ul
+            id="category-list"
+            class="dropdown-menu"
+            aria-labelledby="category-dropdown-button"
+          ></ul>
+        </div>
+        <div id="button-wrapper" class="clearfix">
+          <button
+            type="button"
+            id="view-selected-button"
+            class="btn btn-primary hide"
+          >
+            View Selected<span class="badge"></span>
+          </button>
+          <div id="download-button-wrapper" class="dropdown">
+            <button
+              class="btn btn-primary dropdown-toggle"
+              type="button"
+              id="download-dropdown-button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="true"
+            >
+              Download <span class="caret"></span>
+            </button>
+            <ul
+              id="download-list"
+              class="dropdown-menu"
+              aria-labelledby="download-dropdown-button"
+            >
+              <li id="download-zip"><a>Selected</a></li>
+              <li id="download-category"><a>Current Category</a></li>
+              <li role="separator" class="divider"></li>
+              <li id="download-all"><a>All</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
 
-			<div id="photo-grid" class="clearfix">
-			</div>
-		</div>
+      <div id="photo-grid" class="clearfix"></div>
+    </div>
+    <div id="alert" class="alert" role="alert"></div>
 
-			<!-- <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="pswp__bg"></div>
 				<div class="pswp__scroll-wrap">
 					<div class="pswp__container">
@@ -105,30 +112,38 @@
 			</div>
 		</div> -->
 
-		<script>
-			function copyShareLink() {
-				var x = $('.pswp__img').attr('src');
-				var el = document.createElement('input');
-				el.setAttribute('readonly', '');
-				el.value = x;
-				el.style.opacity = "none";
-				document.body.appendChild(el);
-				el.select();
-				document.execCommand('copy');
-				document.body.removeChild(el);
-				$('.copy-share-link').text('Link Copied!');
-			}
-		</script>
-	
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-		<!-- <script src="./dist/ofi.js"></script>
+    <script>
+      function copyShareLink() {
+        var x = $(".pswp__img").attr("src");
+        var el = document.createElement("input");
+        el.setAttribute("readonly", "");
+        el.value = x;
+        el.style.opacity = "none";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        $(".copy-share-link").text("Link Copied!");
+      }
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+      integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+      crossorigin="anonymous"
+    ></script>
+    <!-- <script src="./dist/ofi.js"></script>
 		<script src="./dist/jszip.min.js"></script>
 		<script src="./dist/JSZipUtils.js"></script>
 		<script src="./dist/FileSaver.js"></script>
 		<script src="./dist/photoswipe.min.js"></script>
 		<script src="./dist/photoswipe-ui-default.js"></script>
 		<script src="./zip.js"></script> -->
-		<!-- <script type="text/javascript" src="../dist/index.js"></script> -->
-	</body>
+    <!-- <script type="text/javascript" src="../dist/index.js"></script> -->
+  </body>
 </html>

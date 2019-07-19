@@ -98,6 +98,19 @@ $grid-spacing: 5px;
   width: 100%;
 }
 
+#alert {
+  position: sticky;
+  bottom: 10px;
+  padding: 1em;
+  margin-right: 1em;
+  font-size: 1.25em;
+  display: none;
+  float: right;
+}
+
+.showAlert {
+  display: block !important;
+}
 //////////////////
 ////// OLD ///////
 //////////////////

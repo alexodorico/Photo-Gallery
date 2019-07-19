@@ -96,9 +96,12 @@ function fetchData(endpoint) {
     return fetch(endpoint)
       .then(response => response.json())
       .then(data => handleSuccessfulFetch(endpoint, data.items))
-      .catch(err => utils.showError(err));
+      .catch(err => utils.showMessage(err, "alert-danger"));
   } catch {
-    return utils.showError("Something went wrong while getting photo data");
+    return utils.showMessage(
+      "Something went wrong while getting photo data",
+      "alert-danger"
+    );
   }
 }
 
