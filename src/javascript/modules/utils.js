@@ -25,17 +25,12 @@ const utils = (_ => {
     },
 
     showMessage: function(message, className) {
-      document.getElementById("alert").innerHTML = message;
-      document.getElementById("alert").classList.add("showAlert");
-      document.getElementById("alert").classList.add(className);
-      setTimeout(
-        _ => document.getElementById("alert").classList.remove(className),
-        2000
-      );
-      setTimeout(
-        _ => document.getElementById("alert").classList.remove("showAlert"),
-        2000
-      );
+      let alert = document.getElementById("alert");
+      alert.innerHTML = message;
+      alert.classList.add("showAlert");
+      alert.classList.add(className);
+      setTimeout(_ => alert.classList.remove(className), 2000);
+      setTimeout(_ => alert.classList.remove("showAlert"), 2000);
     },
 
     addListenerToElements: function(query, event, handler) {
