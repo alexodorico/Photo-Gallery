@@ -3,6 +3,7 @@ import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 import "classlist-polyfill";
 import dataset from "dataset";
+import createZip from "./modules/zip";
 import "../scss/styles.scss";
 import options from "../../gallery.config";
 import utils from "./modules/utils";
@@ -17,6 +18,7 @@ import {
   addPhotos,
   addCategories
 } from "./actions";
+import { createGzip } from "zlib";
 
 /*
   IIFE to set up inital state
@@ -36,6 +38,9 @@ import {
   updateCategoryDropdown(initCategory);
   populateCategoriesDropDown(store.getState().categories);
   utils.addListenerToElements(".category-name", "click", handleCategoryClick);
+  utils
+    .getById("download-zip")
+    .addEventListener("click", handleSelectedDownloadClick);
   const photoData = await getData(initCategory);
   render(null, initCategory, photoData);
 })();
@@ -341,4 +346,10 @@ function handleCategoryClick(event) {
   store.dispatch(viewSelected(false));
   store.dispatch(viewCategory(category));
   return updateCategoryDropdown(category);
+}
+
+function handleSelectedDownloadClick() {
+  let selectedPhotos = getSelected();
+  selectedPhotos = selectedPhotos.map(photo => photo.batchDownloadLink);
+  createZip(selectedPhotos, "Selected Photos");
 }
