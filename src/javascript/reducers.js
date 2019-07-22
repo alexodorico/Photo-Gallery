@@ -11,9 +11,9 @@ const initialState = {
   viewingSelected: false,
   categories: new Array(),
   loadedPhotos: new Object()
-}
+};
 
-export function photoApp(state = initialState, action) {
+export default function photoApp(state = initialState, action) {
   switch (action.type) {
     case TOGGLE_SELECT:
       const photoId = action.id;
@@ -21,8 +21,9 @@ export function photoApp(state = initialState, action) {
       const selectedPhoto = selectPhoto(state, endpoint, photoId);
 
       return Object.assign({}, state, {
-        loadedPhotos: { 
-          ...state.loadedPhotos, [endpoint]: selectedPhoto
+        loadedPhotos: {
+          ...state.loadedPhotos,
+          [endpoint]: selectedPhoto
         }
       });
 
@@ -39,8 +40,9 @@ export function photoApp(state = initialState, action) {
 
     case ADD_PHOTOS:
       return Object.assign({}, state, {
-        loadedPhotos: { 
-          ...state.loadedPhotos, [action.endpoint]: action.data
+        loadedPhotos: {
+          ...state.loadedPhotos,
+          [action.endpoint]: action.data
         }
       });
 
