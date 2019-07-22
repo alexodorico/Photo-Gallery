@@ -37,6 +37,7 @@
     "classlist-polyfill": "^1.2.0",
     "core-js": "^3.1.4",
     "dataset": "^0.3.2",
+    "dragselect": "^1.12.2",
     "file-saver": "^2.0.2",
     "jszip": "^3.2.2",
     "jszip-utils": "^0.1.0",

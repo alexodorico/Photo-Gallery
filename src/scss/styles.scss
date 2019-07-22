@@ -98,6 +98,10 @@ $grid-spacing: 5px;
   width: 100%;
 }
 
+* {
+  user-select: none;
+}
+
 #alert {
   position: sticky;
   bottom: 10px;

@@ -6,6 +6,7 @@ import dataset from "dataset";
 import createZip from "./modules/zip";
 import PhotoSwipe from "photoswipe";
 import PhotoSwipeUI_Default from "../../node_modules/photoswipe/dist/photoswipe-ui-default";
+import DragSelect from "dragselect";
 import "../../node_modules/photoswipe/dist/photoswipe.css";
 import "../../node_modules/photoswipe/dist/default-skin/default-skin.css";
 import "../../node_modules/photoswipe/dist/default-skin/default-skin.png";
@@ -30,22 +31,28 @@ import {
 */
 (async _ => {
   const categories = window.categories || [
-    "Gala",
     "Fireworks",
+    "Gala",
     "Team-Building Event",
     "GM Topiary",
     "SOY Awards"
   ];
+
   getCachedData();
+
   store.subscribe(() => console.log(store.getState()));
   store.dispatch(addCategories(categories));
+
   const initCategory = store.getState().categories[0];
+
   updateCategoryDropdown(initCategory);
   populateCategoriesDropDown(store.getState().categories);
+
   utils.addListenerToElements(".category-name", "click", handleCategoryClick);
   utils
     .getById("download-zip")
     .addEventListener("click", handleSelectedDownloadClick);
+
   const photoData = await getData(initCategory);
   render(null, initCategory, photoData);
 })();
@@ -202,6 +209,7 @@ function createPhotoMarkup(photo, photoHeight) {
         data-original-src="${photo.batchDownloadLink}"
         data-original-width="${photo.width}"
         data-original-height="${photo.height}"
+        data-endpoint="${photo.endpoint}"
         height="${photoHeight}"
         width="${photoHeight * photo.aspect_ratio}"
         data-src="${photo.thumbnail}">
@@ -245,6 +253,12 @@ function addNewPhotosToCategory(category, offset) {
 
 function photoInsertionCleanup(category, offset) {
   lazy.setup();
+
+  new DragSelect({
+    selectables: document.querySelectorAll("img"),
+    callback: dragSelectCallback
+  });
+
   utils.addListenerToElements(".select-button", "click", handleSelectClick);
   utils.addListenerToElements(
     ".download-button",
@@ -269,6 +283,7 @@ function findPhotoInEndpointData(id, endpoint) {
   Handles state updates for DOM and data in localstorage
 */
 function handleSelectClick(event) {
+  console.log(event);
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
 
@@ -375,6 +390,14 @@ function handleSelectedDownloadClick() {
   let selectedPhotos = getSelected();
   selectedPhotos = selectedPhotos.map(photo => photo.batchDownloadLink);
   createZip(selectedPhotos, "Selected Photos");
+}
+
+function dragSelectCallback(e) {
+  e.forEach(image => {
+    const button = image.nextElementSibling.firstElementChild;
+    const event = { target: button };
+    handleSelectClick(event);
+  });
 }
 
 function lightboxInit(e) {
