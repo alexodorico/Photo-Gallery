@@ -96,7 +96,7 @@ async function getData(category = categories[0], offset = 0) {
   render(category, newResults, offset + 24);
 }
 
-function buildAPICall(category = categories[0], offset = 0) {
+export function buildAPICall(category = categories[0], offset = 0) {
   return `${options.endpoint}job=${window.jobNumber ||
     "GT0000"}&cat=${category}&limit=${
     options.photoLimit
@@ -284,6 +284,7 @@ function photoInsertionCleanup(category, offset) {
      take user back to the last viewed category
 */
 function handleSelectClick(event) {
+  event.stopPropagation();
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
 
