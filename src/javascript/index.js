@@ -29,7 +29,7 @@ import {
 /*
   IIFE to set up inital state
 */
-(async _ => {
+(_ => {
   const categories = window.categories || [
     "Fireworks",
     "Gala",
@@ -40,7 +40,6 @@ import {
 
   getCachedData();
 
-  store.subscribe(() => console.log(store.getState()));
   store.dispatch(addCategories(categories));
 
   const initCategory = store.getState().categories[0];
@@ -49,21 +48,10 @@ import {
   populateCategoriesDropDown(store.getState().categories);
 
   utils.addListenerToElements(".category-name", "click", handleCategoryClick);
-  utils
-    .getById("download-zip")
-    .addEventListener("click", handleSelectedDownloadClick);
+  utils.getById("download-zip").addEventListener("click", handleDownloadClick);
 
-  const photoData = await getData(initCategory);
-  render(null, initCategory, photoData);
+  getData(initCategory);
 })();
-
-function getCachedData() {
-  for (const key in localStorage) {
-    if (key.includes("morley")) {
-      store.dispatch(addPhotos(JSON.parse(localStorage.getItem(key)), key));
-    }
-  }
-}
 
 function updateCategoryDropdown(category) {
   return (utils.getById(
@@ -77,6 +65,17 @@ function populateCategoriesDropDown(categories) {
     markup += `<li class="category-item"><a class="category-name">${category}</a></li>`;
   });
   return (utils.getById("category-list").innerHTML = markup);
+}
+
+/* 
+  If there's photo data cached, put it in the store
+*/
+function getCachedData() {
+  for (const key in localStorage) {
+    if (key.includes("morley")) {
+      store.dispatch(addPhotos(JSON.parse(localStorage.getItem(key)), key));
+    }
+  }
 }
 
 /*
@@ -120,6 +119,7 @@ function fetchData(endpoint) {
 
 /*
   Stores simplified data in local storage
+  and sends to store
 */
 function handleSuccessfulFetch(endpoint, data) {
   const simplifiedData = simplifyData(data, endpoint);
@@ -180,10 +180,12 @@ function render(category = categories[0], photoData, offset) {
   try {
     photoGrid.forEach(row => {
       const photoHeight = grid.calculatePhotoHeight(row);
+
       row.forEach(photo => {
         markup += createPhotoMarkup(photo, photoHeight);
       });
     });
+
     utils.getById("photo-grid").insertAdjacentHTML("beforeend", markup);
 
     // prevents the whole grid from fading in when more photos are added to view
@@ -248,9 +250,13 @@ function addNewPhotosToCategory(category, offset) {
   document.querySelectorAll(".item").forEach(element => {
     element.style.opacity = 1;
   });
+
   photoInsertionCleanup(category, offset);
 }
 
+/* 
+  Adds event listeners to photos inserted into DOM
+*/
 function photoInsertionCleanup(category, offset) {
   lazy.setup();
 
@@ -269,21 +275,15 @@ function photoInsertionCleanup(category, offset) {
   handleScroll(category, offset);
 }
 
-function findPhotoInEndpointData(id, endpoint) {
-  const endpointPhotos = store.getState().loadedPhotos[endpoint];
-  for (let i = 0; i < endpointPhotos.length; i++) {
-    if (endpointPhotos[i].id === id) {
-      return endpointPhotos[i];
-    }
-  }
-  return false;
-}
-
 /*
-  Handles state updates for DOM and data in localstorage
+  1. Tells store that there's been an update
+  2. Creates new button markup depending on if the photo
+     has been selected or deselected
+  3. Adds event listener 
+  4. If it's the last photo deselected when viewing selected,
+     take user back to the last viewed category
 */
 function handleSelectClick(event) {
-  console.log(event);
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
 
@@ -308,6 +308,24 @@ function handleSelectClick(event) {
   }
 }
 
+/*
+  Returns photo data after searching for it in the store
+  by endpoint and id
+*/
+function findPhotoInEndpointData(id, endpoint) {
+  const endpointPhotos = store.getState().loadedPhotos[endpoint];
+  for (let i = 0; i < endpointPhotos.length; i++) {
+    if (endpointPhotos[i].id === id) {
+      return endpointPhotos[i];
+    }
+  }
+  return false;
+}
+
+/*
+  Searches photos in store for selected photos
+  Returns an array of selected photos
+*/
 function getSelected() {
   const loadedPhotos = store.getState().loadedPhotos;
   let selectedPhotos = new Array();
@@ -320,6 +338,9 @@ function getSelected() {
   return selectedPhotos;
 }
 
+/* 
+  If photos are selected, let user view them
+*/
 function updateViewSelectedVisibility(selectedPhotos) {
   if (selectedPhotos) {
     utils.getById("view-selected-button").classList.remove("hide");
@@ -351,6 +372,9 @@ function handleViewSelectedClick() {
   utils.scrollToTop();
 }
 
+/* 
+  When user is 500px from bottom, get more photo data
+*/
 function handleScroll(category, offset) {
   $(window).scroll(function() {
     if (
@@ -386,12 +410,21 @@ function handleCategoryClick(event) {
   return updateCategoryDropdown(category);
 }
 
-function handleSelectedDownloadClick() {
+/*
+  Downloads ZIP file of selected photos
+*/
+function handleDownloadClick() {
   let selectedPhotos = getSelected();
   selectedPhotos = selectedPhotos.map(photo => photo.batchDownloadLink);
   createZip(selectedPhotos, "Selected Photos");
 }
 
+/*
+  handleSelectClick takes in an event as it's first argument
+  when the select button is clicked.
+  In the forEach statement I'm mocking an event object so I don't
+  have to change that function as it's needed as is for single clicks
+*/
 function dragSelectCallback(e) {
   e.forEach(image => {
     const button = image.nextElementSibling.firstElementChild;
@@ -408,6 +441,8 @@ function lightboxInit(e) {
   let i = 0;
   let options = {
     index: 0,
+
+    // Zooms image in/out
     getThumbBoundsFn: function(index) {
       let thumbnail = document.querySelectorAll(".item")[index];
       let pageYScroll =
@@ -417,6 +452,7 @@ function lightboxInit(e) {
     }
   };
 
+  // Get's position of clicked photo
   while (element.previousElementSibling != null) {
     element = element.previousElementSibling;
     i++;
@@ -424,6 +460,7 @@ function lightboxInit(e) {
 
   options.index = i;
 
+  // Need to declare photo height and width for lightbox
   for (let i = 0; i < $items.length; i++) {
     let item = {};
     item.src = $items[i].children[1].getAttribute("data-original-src");
