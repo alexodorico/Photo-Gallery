@@ -4,8 +4,8 @@ import "whatwg-fetch";
 import "classlist-polyfill";
 import dataset from "dataset";
 import createZip from "./modules/zip";
-import photoswipe from "photoswipe";
-import photoswipeUiDefault from "../../node_modules/photoswipe/dist/photoswipe-ui-default";
+import PhotoSwipe from "photoswipe";
+import PhotoSwipeUI_Default from "../../node_modules/photoswipe/dist/photoswipe-ui-default";
 import "../../node_modules/photoswipe/dist/photoswipe.css";
 import "../../node_modules/photoswipe/dist/default-skin/default-skin.css";
 import "../../node_modules/photoswipe/dist/default-skin/default-skin.png";
@@ -24,7 +24,6 @@ import {
   addPhotos,
   addCategories
 } from "./actions";
-import { createGzip } from "zlib";
 
 /*
   IIFE to set up inital state
@@ -81,10 +80,11 @@ function populateCategoriesDropDown(categories) {
 async function getData(category = categories[0], offset = 0) {
   const endpoint = buildAPICall(category, offset);
   const cachedResults = store.getState().loadedPhotos[endpoint];
+
   if (cachedResults) {
-    // idk why tf offset + 24 works, but it does
     return render(category, cachedResults, offset + 24);
   }
+
   await fetchData(endpoint);
   const newResults = store.getState().loadedPhotos[endpoint];
   render(category, newResults, offset + 24);
@@ -116,6 +116,7 @@ function fetchData(endpoint) {
 */
 function handleSuccessfulFetch(endpoint, data) {
   const simplifiedData = simplifyData(data, endpoint);
+
   store.dispatch(addPhotos(simplifiedData, endpoint));
   utils.putInStorage(endpoint, simplifiedData);
 }
@@ -143,13 +144,15 @@ function simplifyData(data, endpoint) {
     } = item;
     const {
       file_properties: {
-        image_properties: { aspect_ratio }
+        image_properties: { aspect_ratio, width, height }
       }
     } = item;
 
     return {
       id,
       aspect_ratio,
+      width,
+      height,
       thumbnail,
       singleDownloadLink,
       batchDownloadLink,
@@ -197,6 +200,8 @@ function createPhotoMarkup(photo, photoHeight) {
       <img
         class="lazy"
         data-original-src="${photo.batchDownloadLink}"
+        data-original-width="${photo.width}"
+        data-original-height="${photo.height}"
         height="${photoHeight}"
         width="${photoHeight * photo.aspect_ratio}"
         data-src="${photo.thumbnail}">
@@ -246,6 +251,7 @@ function photoInsertionCleanup(category, offset) {
     "click",
     handleSingleDownloadClick
   );
+  utils.addListenerToElements("img", "click", lightboxInit);
   handleScroll(category, offset);
 }
 
@@ -265,17 +271,23 @@ function findPhotoInEndpointData(id, endpoint) {
 function handleSelectClick(event) {
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
+
   store.dispatch(toggleSelect(endpoint, photoId));
+
   let selectedPhoto = findPhotoInEndpointData(photoId, endpoint);
   const updatedPhotoMarkup = createButtonMarkup(selectedPhoto);
+
   document.querySelector(
     `[id='${selectedPhoto.id}'] .overlay`
   ).innerHTML = updatedPhotoMarkup;
+
   document
     .querySelector(`[id='${selectedPhoto.id}'] .select-button`)
     .addEventListener("click", handleSelectClick);
+
   const selectedPhotos = getSelected();
   updateViewSelectedVisibility(selectedPhotos.length);
+
   if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
     redirect();
   }
@@ -284,6 +296,7 @@ function handleSelectClick(event) {
 function getSelected() {
   const loadedPhotos = store.getState().loadedPhotos;
   let selectedPhotos = new Array();
+
   for (let endpoint in loadedPhotos) {
     loadedPhotos[endpoint].forEach(photo => {
       if (photo.selected) selectedPhotos.push(photo);
@@ -307,6 +320,7 @@ function redirect() {
   const previousCategory = store.getState().selectedCategory;
   const endpoint = buildAPICall(previousCategory, 0);
   const itemsToRender = utils.getFromStorage(endpoint);
+
   utils.destroyHTML("photo-grid");
   utils.scrollToTop();
   store.dispatch(viewSelected(false));
@@ -361,4 +375,45 @@ function handleSelectedDownloadClick() {
   let selectedPhotos = getSelected();
   selectedPhotos = selectedPhotos.map(photo => photo.batchDownloadLink);
   createZip(selectedPhotos, "Selected Photos");
+}
+
+function lightboxInit(e) {
+  let pswpElement = document.querySelectorAll(".pswp")[0];
+  let lightboxPhotos = [];
+  let $items = $(".item");
+  let element = e.target.parentElement.parentElement;
+  let i = 0;
+  let options = {
+    index: 0,
+    getThumbBoundsFn: function(index) {
+      let thumbnail = document.querySelectorAll(".item")[index];
+      let pageYScroll =
+        window.pageYOffset || document.documentElement.scrollTop;
+      let rect = thumbnail.getBoundingClientRect();
+      return { x: rect.left, y: rect.top + pageYScroll, w: rect.width };
+    }
+  };
+
+  while (element.previousElementSibling != null) {
+    element = element.previousElementSibling;
+    i++;
+  }
+
+  options.index = i;
+
+  for (let i = 0; i < $items.length; i++) {
+    let item = {};
+    item.src = $items[i].children[1].getAttribute("data-original-src");
+    item.w = $items[i].children[1].getAttribute("data-original-width");
+    item.h = $items[i].children[1].getAttribute("data-original-height");
+    lightboxPhotos.push(item);
+  }
+
+  let gallery = new PhotoSwipe(
+    pswpElement,
+    PhotoSwipeUI_Default,
+    lightboxPhotos,
+    options
+  );
+  gallery.init();
 }
