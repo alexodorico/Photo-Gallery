@@ -3,6 +3,7 @@ import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 import "classlist-polyfill";
 import dataset from "dataset";
+import objectFitImages from "object-fit-images";
 import createZip from "./modules/zip";
 import PhotoSwipe from "photoswipe";
 import PhotoSwipeUI_Default from "../../node_modules/photoswipe/dist/photoswipe-ui-default";
@@ -38,6 +39,7 @@ import {
     "SOY Awards"
   ];
 
+  objectFitImages();
   getCachedData();
 
   store.dispatch(addCategories(categories));
@@ -377,6 +379,9 @@ function redirect() {
 
   utils.destroyHTML("photo-grid");
   utils.scrollToTop();
+  utils.getById(
+    "category-dropdown-button"
+  ).innerHTML = `${previousCategory} <span class="caret"></span>`;
   store.dispatch(viewSelected(false));
   render(previousCategory, itemsToRender, 0);
 }
@@ -386,6 +391,8 @@ function handleViewSelectedClick() {
   $(window).off("scroll");
   utils.destroyHTML("photo-grid");
   store.dispatch(viewSelected(true));
+  utils.getById("category-dropdown-button").innerHTML =
+    "Viewing Selected <span class='caret'></span>";
   render(null, selectedPhotos, null);
   utils.scrollToTop();
 }
