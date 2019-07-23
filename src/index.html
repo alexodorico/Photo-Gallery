@@ -11,9 +11,6 @@
       integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
       crossorigin="anonymous"
     />
-    <!-- <link rel="stylesheet" href="dist/photoswipe.css">
-		<link rel="stylesheet" href="dist/default-skin/default-skin.css"> -->
-    <!-- <link rel="stylesheet" type="text/css" href="../dist/bundle.css"> -->
   </head>
   <body>
     <iframe id="dl-frame" style="display:none"></iframe>
@@ -112,21 +109,6 @@
 			</div>
 		</div>
 
-    <script>
-      function copyShareLink() {
-        var x = $(".pswp__img").attr("src");
-        var el = document.createElement("input");
-        el.setAttribute("readonly", "");
-        el.value = x;
-        el.style.opacity = "none";
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand("copy");
-        document.body.removeChild(el);
-        $(".copy-share-link").text("Link Copied!");
-      }
-    </script>
-
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -137,13 +119,5 @@
       integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
       crossorigin="anonymous"
     ></script>
-    <!-- <script src="./dist/ofi.js"></script>
-		<script src="./dist/jszip.min.js"></script>
-		<script src="./dist/JSZipUtils.js"></script>
-		<script src="./dist/FileSaver.js"></script>
-		<script src="./dist/photoswipe.min.js"></script>
-		<script src="./dist/photoswipe-ui-default.js"></script>
-		<script src="./zip.js"></script> -->
-    <!-- <script type="text/javascript" src="../dist/index.js"></script> -->
   </body>
 </html>
