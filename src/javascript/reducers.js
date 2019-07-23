@@ -13,7 +13,7 @@ const initialState = {
   loadedPhotos: new Object()
 };
 
-export default function photoApp(state = initialState, action) {
+export function photoApp(state = initialState, action) {
   switch (action.type) {
     case TOGGLE_SELECT:
       const photoId = action.id;
