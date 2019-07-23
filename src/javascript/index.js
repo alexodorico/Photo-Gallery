@@ -96,7 +96,7 @@ async function getData(category = categories[0], offset = 0) {
   render(category, newResults, offset + 24);
 }
 
-export function buildAPICall(category = categories[0], offset = 0) {
+function buildAPICall(category = categories[0], offset = 0) {
   return `${options.endpoint}job=${window.jobNumber ||
     "GT0000"}&cat=${category}&limit=${
     options.photoLimit
@@ -262,7 +262,9 @@ function photoInsertionCleanup(category, offset) {
 
   new DragSelect({
     selectables: document.querySelectorAll("img"),
-    callback: dragSelectCallback
+    callback: function(e) {
+      if (e.length > 1) dragSelectCallback(e);
+    }
   });
 
   utils.addListenerToElements(".select-button", "click", handleSelectClick);
@@ -276,6 +278,20 @@ function photoInsertionCleanup(category, offset) {
 }
 
 /*
+  handleSelectClick takes in an event as it's first argument
+  when the select button is clicked.
+  In the forEach statement I'm mocking an event object so I don't
+  have to change that function as it's needed as is for single clicks
+*/
+function dragSelectCallback(e) {
+  e.forEach(image => {
+    const button = image.nextElementSibling.firstElementChild;
+    const event = { target: button };
+    handleSelectClick(event);
+  });
+}
+
+/*
   1. Tells store that there's been an update
   2. Creates new button markup depending on if the photo
      has been selected or deselected
@@ -284,7 +300,7 @@ function photoInsertionCleanup(category, offset) {
      take user back to the last viewed category
 */
 function handleSelectClick(event) {
-  event.stopPropagation();
+  console.log(event);
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
 
@@ -307,6 +323,7 @@ function handleSelectClick(event) {
   if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
     redirect();
   }
+  // }
 }
 
 /*
@@ -418,20 +435,6 @@ function handleDownloadClick() {
   let selectedPhotos = getSelected();
   selectedPhotos = selectedPhotos.map(photo => photo.batchDownloadLink);
   createZip(selectedPhotos, "Selected Photos");
-}
-
-/*
-  handleSelectClick takes in an event as it's first argument
-  when the select button is clicked.
-  In the forEach statement I'm mocking an event object so I don't
-  have to change that function as it's needed as is for single clicks
-*/
-function dragSelectCallback(e) {
-  e.forEach(image => {
-    const button = image.nextElementSibling.firstElementChild;
-    const event = { target: button };
-    handleSelectClick(event);
-  });
 }
 
 function lightboxInit(e) {
