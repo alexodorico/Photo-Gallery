@@ -90,19 +90,17 @@ async function getData(category = categories[0], offset = 0) {
   const cachedResults = store.getState().loadedPhotos[endpoint];
 
   if (cachedResults) {
-    return render(category, cachedResults, offset + 24);
+    return render(category, cachedResults, offset + 24, endpoint);
   }
 
   await fetchData(endpoint);
   const newResults = store.getState().loadedPhotos[endpoint];
-  render(category, newResults, offset + 24);
+  render(category, newResults, offset + 24, endpoint);
 }
 
 function buildAPICall(category = categories[0], offset = 0) {
   return `${options.endpoint}job=${window.jobNumber ||
-    "GT0000"}&cat=${category}&limit=${
-    options.photoLimit
-  }&offset=${offset.toString()}`;
+    "GT0000"}&cat=${category}&limit=${options.photoLimit}&offset=${offset}`;
 }
 
 function fetchData(endpoint) {
@@ -175,7 +173,7 @@ function simplifyData(data, endpoint) {
   Creates photo grid, calulates photo dimensions for each row,
   inserts into DOM, and finally adds listeners.
 */
-function render(category = categories[0], photoData, offset) {
+function render(category = categories[0], photoData, offset, endpoint) {
   let markup = new String();
   const photoGrid = grid.groupPhotos(photoData);
 
@@ -192,8 +190,8 @@ function render(category = categories[0], photoData, offset) {
 
     // prevents the whole grid from fading in when more photos are added to view
     offset === 24
-      ? fadeInInitialCategory(category, offset)
-      : addNewPhotosToCategory(category, offset);
+      ? fadeInInitialCategory(category, offset, endpoint)
+      : addNewPhotosToCategory(category, offset, endpoint);
   } catch {
     return;
   }
@@ -206,6 +204,7 @@ function createPhotoMarkup(photo, photoHeight) {
        id="${photo.id}"
        downloadLink="${photo.batchDownloadLink}"
        singleDownloadLink="${photo.singleDownloadLink}"
+       data-endpoint="${photo.endpoint}"
        style="width: ${photoHeight * photo.aspect_ratio + "px"}">
       <div class="loader"></div>
       <img
@@ -242,24 +241,25 @@ function createButtonMarkup(photo) {
     </button>`;
 }
 
-function fadeInInitialCategory(category, offset) {
+function fadeInInitialCategory(category, offset, endpoint) {
   fade.enterMany(".item").then(_ => {
-    photoInsertionCleanup(category, offset);
+    photoInsertionCleanup(category, offset, endpoint);
   });
 }
 
-function addNewPhotosToCategory(category, offset) {
+function addNewPhotosToCategory(category, offset, endpoint) {
   document.querySelectorAll(".item").forEach(element => {
     element.style.opacity = 1;
   });
 
-  photoInsertionCleanup(category, offset);
+  photoInsertionCleanup(category, offset, endpoint);
 }
 
 /* 
   Adds event listeners to photos inserted into DOM
 */
-function photoInsertionCleanup(category, offset) {
+function photoInsertionCleanup(category, offset, endpoint) {
+  console.log(endpoint);
   lazy.setup();
 
   new DragSelect({
@@ -269,13 +269,21 @@ function photoInsertionCleanup(category, offset) {
     }
   });
 
-  utils.addListenerToElements(".select-button", "click", handleSelectClick);
   utils.addListenerToElements(
-    ".download-button",
+    `[data-endpoint*="${endpoint}"] .select-button`,
+    "click",
+    handleSelectClick
+  );
+  utils.addListenerToElements(
+    `[data-endpoint*="${endpoint}"] .download-button`,
     "click",
     handleSingleDownloadClick
   );
-  utils.addListenerToElements("img", "click", lightboxInit);
+  utils.addListenerToElements(
+    `[data-endpoint*="${endpoint}"] img`,
+    "click",
+    lightboxInit
+  );
   handleScroll(category, offset);
 }
 
@@ -302,7 +310,6 @@ function dragSelectCallback(e) {
      take user back to the last viewed category
 */
 function handleSelectClick(event) {
-  console.log(event);
   const endpoint = dataset(event.target, "endpoint");
   const photoId = dataset(event.target, "id");
 
@@ -325,7 +332,6 @@ function handleSelectClick(event) {
   if (selectedPhotos.length === 0 && store.getState().viewingSelected) {
     redirect();
   }
-  // }
 }
 
 /*
@@ -377,13 +383,14 @@ function redirect() {
   const endpoint = buildAPICall(previousCategory, 0);
   const itemsToRender = utils.getFromStorage(endpoint);
 
+  $(window).off("scroll");
   utils.destroyHTML("photo-grid");
   utils.scrollToTop();
   utils.getById(
     "category-dropdown-button"
   ).innerHTML = `${previousCategory} <span class="caret"></span>`;
   store.dispatch(viewSelected(false));
-  render(previousCategory, itemsToRender, 0);
+  render(previousCategory, itemsToRender, 24, endpoint);
 }
 
 function handleViewSelectedClick() {
@@ -393,7 +400,12 @@ function handleViewSelectedClick() {
   store.dispatch(viewSelected(true));
   utils.getById("category-dropdown-button").innerHTML =
     "Viewing Selected <span class='caret'></span>";
-  render(null, selectedPhotos, null);
+  render(
+    null,
+    selectedPhotos,
+    null,
+    "https://morleygrouptravel-stg.morleycms.com/"
+  );
   utils.scrollToTop();
 }
 
