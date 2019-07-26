@@ -108,7 +108,7 @@ function fetchData(endpoint) {
     return fetch(endpoint)
       .then(response => response.json())
       .then(data => handleSuccessfulFetch(endpoint, data.items))
-      .catch(err => utils.showMessage(err, "alert-danger"));
+      .catch(err => console.log(err));
   } catch {
     return utils.showMessage(
       "Something went wrong while getting photo data",
@@ -259,7 +259,6 @@ function addNewPhotosToCategory(category, offset, endpoint) {
   Adds event listeners to photos inserted into DOM
 */
 function photoInsertionCleanup(category, offset, endpoint) {
-  console.log(endpoint);
   lazy.setup();
 
   new DragSelect({
